@@ -2,9 +2,10 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ScheduleService} from "../services/schedule.service";
 
 @Component({
-  selector: 'app-schedule',
-  templateUrl: './schedule.component.html',
-  styleUrl: './schedule.component.scss'
+    selector: 'app-schedule',
+    templateUrl: './schedule.component.html',
+    styleUrl: './schedule.component.scss',
+    standalone: false
 })
 export class ScheduleComponent implements OnInit, OnDestroy {
 

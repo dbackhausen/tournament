@@ -5,10 +5,9 @@ import { LogoutComponent } from "src/app/components/logout/logout.component";
 import { CommonModule } from "@angular/common";
 
 @Component({
-  standalone: true,
-  selector: 'app-root',
-  imports: [RouterModule, RouterOutlet, RouterLink, CommonModule, LogoutComponent],
-  template: `
+    selector: 'app-root',
+    imports: [RouterModule, RouterOutlet, RouterLink, CommonModule, LogoutComponent],
+    template: `
     <nav>
       <a routerLink="/login">Login</a> |
       <a routerLink="/register">Registrierung</a> |

@@ -3,13 +3,12 @@ import { AuthService } from "src/app/services/auth.service";
 import {RouterLink} from "@angular/router";
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
+    selector: 'app-dashboard',
     imports: [
         RouterLink
     ],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
+    templateUrl: './dashboard.component.html',
+    styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
   username: string = '';

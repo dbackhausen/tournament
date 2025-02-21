@@ -5,10 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  standalone: true,
-  selector: 'app-login',
-  imports: [FormsModule, CommonModule],
-  templateUrl: './login.component.html'
+    selector: 'app-login',
+    imports: [FormsModule, CommonModule],
+    templateUrl: './login.component.html'
 })
 export class LoginComponent {
   credentials = { username: '', password: '' };

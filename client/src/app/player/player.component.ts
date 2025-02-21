@@ -2,9 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PlayerService } from "../services/player.service";
 
 @Component({
-  selector: 'app-players',
-  templateUrl: './player.component.html',
-  styleUrl: './player.component.scss'
+    selector: 'app-players',
+    templateUrl: './player.component.html',
+    styleUrl: './player.component.scss',
+    standalone: false
 })
 export class PlayerComponent implements OnInit, OnDestroy {
 

@@ -5,15 +5,14 @@ import { CommonModule, DatePipe} from "@angular/common";
 import { TournamentService } from "src/app/services/tournament.service";
 
 @Component({
-  selector: 'app-tournament-form',
-  standalone: true,
-  imports: [
-    DatePipe,
-    ReactiveFormsModule,
-    CommonModule
-  ],
-  templateUrl: './tournament-form.component.html',
-  styleUrl: './tournament-form.component.scss'
+    selector: 'app-tournament-form',
+    imports: [
+        DatePipe,
+        ReactiveFormsModule,
+        CommonModule
+    ],
+    templateUrl: './tournament-form.component.html',
+    styleUrl: './tournament-form.component.scss'
 })
 export class TournamentFormComponent implements OnInit {
   tournamentForm: FormGroup;

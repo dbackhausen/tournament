@@ -2,9 +2,10 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {TeamService} from "../services/team.service";
 
 @Component({
-  selector: 'app-team',
-  templateUrl: './team.component.html',
-  styleUrl: './team.component.scss'
+    selector: 'app-team',
+    templateUrl: './team.component.html',
+    styleUrl: './team.component.scss',
+    standalone: false
 })
 export class TeamComponent implements OnInit, OnDestroy {
 

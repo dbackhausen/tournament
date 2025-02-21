@@ -3,9 +3,10 @@ import {TournamentService} from "../services/tournament.service";
 import {GameService} from "../services/game.service";
 
 @Component({
-  selector: 'app-game',
-  templateUrl: './game.component.html',
-  styleUrl: './game.component.scss'
+    selector: 'app-game',
+    templateUrl: './game.component.html',
+    styleUrl: './game.component.scss',
+    standalone: false
 })
 export class GameComponent implements OnInit, OnDestroy {
 
