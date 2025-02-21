@@ -1,5 +1,5 @@
 import {CommonModule, registerLocaleData} from '@angular/common';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import localeDe from '@angular/common/locales/de';
 import { RouterModule, Routes } from '@angular/router';
 import { LOCALE_ID, NgModule } from '@angular/core';
