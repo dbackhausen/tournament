@@ -1,0 +1,25 @@
+<p>game works!</p>
+<table>
+  <thead>
+  <tr>
+    <th>Nr.</th>
+    <th>Datum</th>
+    <th>Typ</th>
+    <th>Turnier</th>
+    <th>Heim</th>
+    <th>Gast</th>
+    <th>Ergebnisse</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let game of games">
+    <td>{{ game.id }}</td>
+    <td>{{ game.date }}</td>
+    <td>{{ game.type }}</td>
+    <td>{{ game.tournament | json }}</td>
+    <td>{{ game.homeTeam | json }}</td>
+    <td>{{ game.awayTeam | json }}</td>
+    <td>{{ game.results | json }}</td>
+  </tr>
+  </tbody>
+</table>

@@ -1,0 +1,65 @@
+<form [formGroup]="tournamentForm" (ngSubmit)="onSubmit()">
+  <!-- Turniername -->
+  <div>
+    <label for="name">Name:</label>
+    <input id="name" formControlName="name" type="text" />
+    <div *ngIf="tournamentForm.get('name')?.invalid && tournamentForm.get('name')?.touched">
+      <small *ngIf="tournamentForm.get('name')?.errors?.['required']">Name ist erforderlich.</small>
+    </div>
+  </div>
+
+  <!-- Beschreibung -->
+  <div>
+    <label for="description">Beschreibung:</label>
+    <textarea id="description" formControlName="description"></textarea>
+  </div>
+
+  <!-- Weitere Anmerkungen -->
+  <div>
+    <label for="additionalNotes">Weitere Anmerkungen:</label>
+    <textarea id="additionalNotes" formControlName="additionalNotes"></textarea>
+  </div>
+
+  <!-- Startdatum -->
+  <div>
+    <label for="startDate">Startdatum:</label>
+    <input id="startDate" formControlName="startDate" type="date" />
+    <div *ngIf="tournamentForm.get('startDate')?.invalid && tournamentForm.get('startDate')?.touched">
+      <small *ngIf="tournamentForm.get('startDate')?.errors?.['required']">Startdatum ist erforderlich.</small>
+    </div>
+  </div>
+
+  <!-- Enddatum -->
+  <div>
+    <label for="endDate">Enddatum:</label>
+    <input id="endDate" formControlName="endDate" type="date" />
+    <div *ngIf="tournamentForm.get('endDate')?.invalid && tournamentForm.get('endDate')?.touched">
+      <small *ngIf="tournamentForm.get('endDate')?.errors?.['required']">Enddatum ist erforderlich.</small>
+    </div>
+  </div>
+
+  <!-- Auswahl der Tage -->
+  <div *ngIf="daysArray.length > 0">
+    <label>Wählen Sie die Tage aus:</label>
+    <div *ngFor="let day of daysArray; let i = index">
+      <input type="checkbox" [formControl]="day.control" />
+      {{ day.date | date: 'fullDate' }}
+    </div>
+  </div>
+
+  <!-- Turnierarten -->
+  <div>
+    <label>Turnierarten:</label>
+    <div *ngFor="let type of tournamentTypes">
+      <input
+        type="checkbox"
+        [value]="type.value"
+        (change)="onTournamentTypeChange($event)"
+      />
+      {{ type.label }}
+    </div>
+  </div>
+
+  <!-- Formular senden -->
+  <button type="submit" [disabled]="tournamentForm.invalid">Turnier erstellen</button>
+</form>
