@@ -14,7 +14,6 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { RatingModule } from 'primeng/rating';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { FormsModule } from '@angular/forms';
 import { authGuard } from './auth.guard'
@@ -67,7 +66,6 @@ export const routes: Routes = [
     ConfirmDialogModule,
     RatingModule,
     InputNumberModule,
-    InputTextareaModule,
     RadioButtonModule,
     DropdownModule,
     ButtonModule,

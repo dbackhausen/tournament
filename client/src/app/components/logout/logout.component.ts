@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
-  standalone: true,
   selector: 'app-logout',
+  standalone: true,
   template: `
     <button (click)="logout()">Logout</button>
   `

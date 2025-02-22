@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { PrimeNGConfig } from 'primeng/api';
 import { RouterModule, RouterOutlet, RouterLink } from '@angular/router';
 import { LogoutComponent } from "src/app/components/logout/logout.component";
 import { CommonModule } from "@angular/common";
 
 @Component({
-    selector: 'app-root',
-    imports: [RouterModule, RouterOutlet, RouterLink, CommonModule, LogoutComponent],
-    template: `
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterModule, RouterOutlet, RouterLink, CommonModule, LogoutComponent],
+  template: `
     <nav>
       <a routerLink="/login">Login</a> |
       <a routerLink="/register">Registrierung</a> |
@@ -21,10 +21,9 @@ import { CommonModule } from "@angular/common";
 export class AppComponent implements OnInit {
   title = 'tournament';
 
-  constructor(private primengConfig: PrimeNGConfig) {
+  constructor() {
   }
 
   ngOnInit() {
-    this.primengConfig.ripple = true;
   }
 }

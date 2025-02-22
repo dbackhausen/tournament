@@ -5,9 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'app-register',
-    imports: [FormsModule, CommonModule],
-    templateUrl: './register.component.html'
+  selector: 'app-register',
+  standalone: true,
+  imports: [FormsModule, CommonModule],
+  templateUrl: './register.component.html'
 })
 export class RegisterComponent {
   user = { username: '', email: '', password: '' };

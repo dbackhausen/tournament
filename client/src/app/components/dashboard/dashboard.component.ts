@@ -3,8 +3,9 @@ import { AuthService } from "src/app/services/auth.service";
 import {RouterLink} from "@angular/router";
 
 @Component({
-    selector: 'app-dashboard',
-    imports: [
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [
         RouterLink
     ],
     templateUrl: './dashboard.component.html',

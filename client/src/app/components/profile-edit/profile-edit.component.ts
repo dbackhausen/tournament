@@ -5,10 +5,11 @@ import { PlayerService } from "src/app/services/player.service";
 import {AuthService} from "src/app/services/auth.service";
 
 @Component({
-    selector: 'app-profile-edit',
-    imports: [CommonModule, ReactiveFormsModule],
-    templateUrl: './profile-edit.component.html',
-    styleUrl: './profile-edit.component.scss'
+  selector: 'app-profile-edit',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './profile-edit.component.html',
+  styleUrl: './profile-edit.component.scss'
 })
 export class ProfileEditComponent implements OnInit {
   profileForm: FormGroup;

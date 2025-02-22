@@ -5,8 +5,9 @@ import { CommonModule, DatePipe} from "@angular/common";
 import { TournamentService } from "src/app/services/tournament.service";
 
 @Component({
-    selector: 'app-tournament-form',
-    imports: [
+  selector: 'app-tournament-form',
+  standalone: true,
+  imports: [
         DatePipe,
         ReactiveFormsModule,
         CommonModule
