@@ -1,14 +1,24 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpInterceptorFn} from '@angular/common/http';
+import { catchError, throwError } from 'rxjs';
+import { AuthService } from "src/app/services/auth.service";
+import { inject } from "@angular/core";
 
-export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> => {
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
   const token = localStorage.getItem('token');
+
   if (token) {
-    const authReq = req.clone({
+    req = req.clone({
       setHeaders: { Authorization: `Bearer ${token}` }
     });
-    return next(authReq);
   }
-  return next(req);
+
+  return next(req).pipe(
+    catchError((error) => {
+      if (error.status === 401 || error.status === 403) {
+        authService.logout();
+      }
+      return throwError(() => error);
+    })
+  );
 };

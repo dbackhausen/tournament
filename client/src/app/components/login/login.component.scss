@@ -1,0 +1,42 @@
+// login.component.scss
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+
+  .card {
+    padding: 2rem;
+    width: 400px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+    background-color: #FFFFFF;
+
+    h2 {
+      margin-bottom: 1.5rem;
+    }
+
+    .p-field {
+      margin-bottom: 1.5rem;
+      text-align: left;
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      input,
+      p-password {
+        width: 100%;
+      }
+    }
+
+    .error-message {
+      color: red;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+  }
+}

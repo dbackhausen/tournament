@@ -1,0 +1,85 @@
+<p-card header="Meine Teilnahme am ...">
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <div class="grid mx-0 my-1 px-0">
+      <div class="col-12 px-0">
+        <div class="text-center md:text-left font-bold text-xl md:text-2xl">{{ tournament?.name }}</div>
+      </div>
+    </div>
+    <div class="grid mx-0 mb-2 px-0 hidden md:block">
+      <div class="col-12 px-0">
+        <div class="text-center md:text-left md:text-base">
+          <div class="text-center md:text-left font-italic text-500 md:text-base">{{ tournament?.description }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="grid mx-0 mb-2 px-0">
+      <div class="col-12 px-0">
+        <div class="text-center md:text-left text-sm  md:text-base">
+          {{ tournament?.startDate | date:'EEEE, dd.MM.yyyy' }} bis {{ tournament?.endDate | date:'EEEE, dd.MM.yyyy' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid mx-0 mt-3 md:mt-4 mb-2 px-0">
+      <span>Ich kann an folgenden Tagen teilnehmen:</span>
+    </div>
+    <div formArrayName="selectableDays" class="tournament-days">
+      <div *ngFor="let day of selectableDays.controls; let i = index" [formGroupName]="i">
+        <div class="flex align-items-center justify-content-between flex-wrap" style="min-height: 50px">
+          <div class="flex align-items-center justify-content-center">
+            <p-checkbox
+              formControlName="selected"
+              inputId="dayCheckbox{{ i }}"
+              binary="true"
+              size="large" />
+            <label for="dayCheckbox{{ i }}" class="pl-2">{{ day.get('date')?.value | date:'EE, dd.MM.yyyy' }}</label>
+          </div>
+          <div class="flex align-items-center justify-content-end">
+            <p-select
+              [options]="day.get('timeslots')?.value"
+              formControlName="selectedTime"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="ab ..."
+              size="small"
+              styleClass="time-select"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid mx-0 mt-3 md:mt-4 mb-3 px-0">
+      <span>Ich bin offen für folgende Konkurrenzen:</span>
+    </div>
+    <div formArrayName="selectableTypes" class="formgroup-inline">
+      <div *ngFor="let type of selectableTypes.controls; let i = index" [formGroupName]="i">
+        <div class="field-checkbox md:p-0 sm:p-0">
+          <p-checkbox
+            formControlName="selected"
+            inputId="typeCheckbox{{ i }}"
+            binary="true"
+            size="large"
+          />
+          <label for="typeCheckbox{{ i }}" class="pl-2">{{ type.get('label')?.value }}</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid mx-0 mt-3 px-0">
+      <div class="col px-0">
+        <p-floatlabel variant="in">
+          <textarea pTextarea id="notes" formControlName="notes" rows="4" cols="30" style="resize: none" class="w-full h-full"></textarea>
+          <label for="notes">Anmerkungen</label>
+        </p-floatlabel>
+      </div>
+    </div>
+
+    <div class="grid mx-0 px-0 button-group">
+      <div class="col px-0">
+        <p-button type="submit" label="Registrieren" [disabled]="registerForm.invalid" class="pr-2" />
+        <p-button type="button" label="Abbrechen" severity="secondary" (click)="onCancel()" />
+      </div>
+    </div>
+  </form>
+</p-card>

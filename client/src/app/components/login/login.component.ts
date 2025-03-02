@@ -1,29 +1,50 @@
 import { Component } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule],
-  templateUrl: './login.component.html'
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    CardModule,
+    InputTextModule,
+    PasswordModule,
+    ButtonModule
+  ],
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  credentials = { username: '', password: '' };
-  message = '';
+  loginForm: FormGroup;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+    this.loginForm = this.fb.group({
+      username: ['', Validators.required],
+      password: ['', Validators.required]
+    })
+  }
 
-  login() {
-    this.authService.login(this.credentials).subscribe({
-      next: (response: { token: string; }) => {
-        localStorage.setItem('token', response.token);
-        this.message = 'Login erfolgreich!';
-        this.router.navigate(['/dashboard']);
-      },
-      error: () => this.message = 'Ungültige Anmeldedaten.'
-    });
+  onSubmit(): void {
+    if (this.loginForm.valid) {
+      const { username, password } = this.loginForm.value;
+      this.authService.login({ username, password }).subscribe({
+        next: (response: { token: string; }) => {
+          console.log('Login successfull', response);
+          localStorage.setItem('token', response.token);
+          this.router.navigate(['/dashboard']);
+        },
+        error: (error) => {
+          console.error('Login failure', error);
+        }
+      });
+    }
   }
 }

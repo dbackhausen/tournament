@@ -40,6 +40,7 @@ dependencies {
 	implementation 'org.jboss.logging:jboss-logging:3.6.1.Final'
 	implementation 'org.projectlombok:lombok:1.18.36'
 	implementation 'jakarta.servlet:jakarta.servlet-api:6.1.0'
+	implementation 'org.modelmapper:modelmapper:3.2.2'
 
 	annotationProcessor 'org.projectlombok:lombok:1.18.36'
 

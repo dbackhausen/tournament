@@ -1,15 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from "src/app/services/auth.service";
-import {RouterLink} from "@angular/router";
+import { RouterLink } from "@angular/router";
+import {Card} from "primeng/card";
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-        RouterLink
-    ],
-    templateUrl: './dashboard.component.html',
-    styleUrl: './dashboard.component.scss'
+    RouterLink,
+    Card
+  ],
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
   username: string = '';

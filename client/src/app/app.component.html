@@ -1,3 +1,8 @@
-<a href="/">HOME</a> | <a href="/players">PLAYERS</a> | <a href="/tournaments">TOURNAMENTS</a> | <a href="/teams">TEAMS</a> | <a href="/games">GAMES</a> | <a href="/schedules">SCHEDULES</a>
-
-<router-outlet />
+<div class="flex flex-column align-items-center justify-content-center row-gap-2">
+  <div class="w-full md:w-6">
+    <p-menubar *ngIf="isLoggedIn" [model]="items">TURNIERPLANER TC69</p-menubar>
+  </div>
+  <div class="w-full md:w-6">
+    <router-outlet></router-outlet>
+  </div>
+</div>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 
@@ -8,7 +8,9 @@ import { tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/auth';
+  private apiUrl = 'http://localhost:8080/api/auth';
+  private isLoggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
+  isLoggedIn$ = this.isLoggedInSubject.asObservable();
   private currentRole: 'PLAYER' | 'ADMIN' | null = null;
 
   constructor(private http: HttpClient, private router: Router) {}
@@ -20,9 +22,9 @@ export class AuthService {
   login(credentials: { username: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
       tap((response: any) => {
-        console.log(JSON.stringify(response));
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
+        this.isLoggedInSubject.next(true);
       })
     )
   }
@@ -30,6 +32,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    this.isLoggedInSubject.next(false);
     this.router.navigate(['/login'])
   }
 
@@ -42,7 +45,11 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
-  isLoggedIn(): boolean {
+  isLoggedIn() {
+    return this.isLoggedIn$;
+  }
+
+  private hasToken(): boolean {
     return !!this.getToken();
   }
 }

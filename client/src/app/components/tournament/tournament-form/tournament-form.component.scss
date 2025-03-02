@@ -1,0 +1,41 @@
+input,
+textarea {
+  width: 100%;
+  max-width: 900px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+}
+
+@media screen and (max-width: 768px) {
+  .formgroup-inline {
+    margin: 0px;
+    margin-bottom: 10px;
+  }
+  .date-picker {
+    width: 100%;
+    max-width: 150px;
+  }
+  .start-time,
+  .end-time {
+    width: 100%;
+    max-width: 70px;
+  }
+  .field {
+    margin: 0;
+  }
+  .field:has(.start-time) {
+    padding-right: 5px;
+  }
+  .field:has(.date-picker) {
+    padding-right: 15px;
+  }
+  .field:has(p-button) {
+    padding-right: 15px;
+  }
+}

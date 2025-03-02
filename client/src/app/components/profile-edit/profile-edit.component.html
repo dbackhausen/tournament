@@ -1,56 +1,47 @@
-<form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-  <div>
-    <label for="firstname">Vorname:</label>
-    <input id="firstname" formControlName="firstname" type="text">
-    <div *ngIf="profileForm.get('firstname')?.invalid && profileForm.get('firstname')?.touched">
-      Vorname ist erforderlich.
+<p-card header="Mein Profil">
+  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+    <div class="formgrid grid my-3">
+      <div class="field col-12 md:col-12">
+        <p-select [options]="genders" formControlName="gender" placeholder="Geschlecht" class="w-full md:w-3" />
+      </div>
+      <div class="field col-12 md:col-6">
+        <p-floatlabel variant="in">
+          <input pInputText id="firstname" formControlName="firstname" autocomplete="off" class="w-full" />
+          <label for="firstname">Vorname</label>
+        </p-floatlabel>
+      </div>
+      <div class="field col-12 md:col-6">
+        <p-floatlabel variant="in">
+          <input pInputText id="lastname" formControlName="lastname" autocomplete="off" class="w-full" />
+          <label for="lastname">Nachname</label>
+        </p-floatlabel>
+      </div>
+      <div class="field col-12 md:col-6">
+        <p-floatlabel variant="in">
+          <input pInputText id="email" formControlName="email" autocomplete="off" class="w-full" />
+          <label for="email">E-Mail</label>
+        </p-floatlabel>
+      </div>
+      <div class="field col-12 md:col-6">
+        <p-floatlabel variant="in">
+          <input pInputText id="mobile" formControlName="mobile" autocomplete="off" class="w-full" />
+          <label for="mobile">Mobiltelefon</label>
+        </p-floatlabel>
+      </div>
+      <div class="field col-12 md:col-6">
+        <p-floatlabel variant="in">
+          <p-datepicker id="birthdate" formControlName="birthdate" dateFormat="yy-mm-dd" [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" />
+          <label for="birthdate">Geburtsdatum</label>
+        </p-floatlabel>
+      </div>
     </div>
-  </div>
 
-  <div>
-    <label for="lastname">Nachname:</label>
-    <input id="lastname" formControlName="lastname" type="text">
-    <div *ngIf="profileForm.get('lastname')?.invalid && profileForm.get('lastname')?.touched">
-      Nachname ist erforderlich.
+    <div class="button-group">
+      <p-button type="submit" label="Speichern" [disabled]="profileForm.invalid" />
+      <p-button type="button" label="Abbrechen" severity="secondary" (click)="onCancel()" />
     </div>
-  </div>
+  </form>
+</p-card>
 
-  <div>
-    <label for="gender">Geschlecht:</label>
-    <select id="gender" formControlName="gender">
-      <option value="">Bitte wählen</option>
-      <option value="MALE">Männlich</option>
-      <option value="FEMALE">Weiblich</option>
-      <!-- Weitere Optionen -->
-    </select>
-    <div *ngIf="profileForm.get('gender')?.invalid && profileForm.get('gender')?.touched">
-      Geschlecht ist erforderlich.
-    </div>
-  </div>
 
-  <div>
-    <label for="birthdate">Geburtsdatum:</label>
-    <input id="birthdate" formControlName="birthdate" type="date">
-    <div *ngIf="profileForm.get('birthdate')?.invalid && profileForm.get('birthdate')?.touched">
-      Geburtsdatum ist erforderlich.
-    </div>
-  </div>
 
-  <div>
-    <label for="mobile">Mobiltelefon:</label>
-    <input id="mobile" formControlName="mobile" type="text">
-    <div *ngIf="profileForm.get('mobile')?.invalid && profileForm.get('mobile')?.touched">
-      Gültige Mobilnummer ist erforderlich.
-    </div>
-  </div>
-
-  <div>
-    <label for="email">E-Mail-Adresse:</label>
-    <input id="email" formControlName="email" type="email">
-    <div *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched">
-      Gültige E-Mail-Adresse ist erforderlich.
-    </div>
-  </div>
-
-  <button type="submit" [disabled]="profileForm.invalid">Speichern</button>
-</form>

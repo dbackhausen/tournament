@@ -8,15 +8,15 @@ import { map } from "rxjs";
   providedIn: 'root',
 })
 export class PlayerService {
-  private apiUrl = 'http://localhost:8080/players';
+  private apiUrl = 'http://localhost:8080/api/players';
 
   constructor(private http: HttpClient) {}
 
-  getPlayer(id: string): Observable<any> {
+  getPlayer(id: string): Observable<Player> {
     return this.http.get<any>(this.apiUrl + "/" + id);
   }
 
-  updatePlayer(id: string, profileData: any): Observable<any> {
+  updatePlayer(id: string, profileData: any): Observable<Player> {
     return this.http.put<any>(this.apiUrl + "/" + id, profileData);
   }
 

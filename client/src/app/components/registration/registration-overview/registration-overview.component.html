@@ -1,0 +1,22 @@
+<p-card header="Teilnehmer">
+  <p-table [value]="registrations" class="registrations-table">
+    <ng-template #header >
+      <tr>
+        <th>Nachname</th>
+        <th>Vorname</th>
+        <th>Spielername</th>
+        <th>E-Mail</th>
+        <th>Mobilrufnummer</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-registration>
+      <tr>
+        <td>{{ registration.player.lastname }}</td>
+        <td>{{ registration.player.firstname }}</td>
+        <td>{{ registration.player.username }}</td>
+        <td>{{ registration.player.email }}</td>
+        <td>{{ registration.player.mobile }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>

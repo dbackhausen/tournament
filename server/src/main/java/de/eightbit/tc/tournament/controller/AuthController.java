@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
@@ -59,9 +59,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
 
-        // Generate token
         String token = jwtUtil.generateToken(player.getUsername());
         UserDto user = new UserDto(player);
+
         return ResponseEntity.ok(new AuthResponse(token, user));
     }
 }

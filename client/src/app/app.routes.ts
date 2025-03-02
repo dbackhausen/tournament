@@ -1,46 +1,61 @@
-import {CommonModule, registerLocaleData} from '@angular/common';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import { RouterModule, Routes } from '@angular/router';
 import { LOCALE_ID, NgModule } from '@angular/core';
-import { RequestInterceptor } from './interceptors/request-interceptor';
 import { BrowserModule } from '@angular/platform-browser'
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DropdownModule } from 'primeng/dropdown';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { RatingModule } from 'primeng/rating';
-import { ToolbarModule } from 'primeng/toolbar';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { FormsModule } from '@angular/forms';
 import { authGuard } from './auth.guard'
+import { NotFoundComponent } from "src/app/components/not-found/not-found.component";
+import { DashboardComponent } from "src/app/components/dashboard/dashboard.component";
+import { TournamentOverviewComponent } from "src/app/components/tournament/tournament-overview/tournament-overview.component";
+import { TournamentFormComponent } from "src/app/components/tournament/tournament-form/tournament-form.component";
+import { ProfileEditComponent } from "src/app/components/profile-edit/profile-edit.component";
+import { LoginComponent } from "src/app/components/login/login.component";
+import { RegisterComponent } from "src/app/components/register/register.component";
+import {
+  RegistrationFormComponent
+} from "src/app/components/registration/registration-form/registration-form.component";
+import {
+  RegistrationOverviewComponent
+} from "src/app/components/registration/registration-overview/registration-overview.component";
 
 export const routes: Routes = [
   {
-    path: 'dashboard',
-    loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    path: 'dashboard', component: DashboardComponent,
     canActivate: [authGuard]
   },
   {
-    path: 'profile-edit',
-    loadComponent: () => import('./components/profile-edit/profile-edit.component').then(m => m.ProfileEditComponent),
+    path: 'tournament', component: TournamentOverviewComponent,
     canActivate: [authGuard]
   },
   {
-    path: 'tournament-form',
-    loadComponent: () => import('./components/tournament-form/tournament-form.component').then(m => m.TournamentFormComponent),
+    path: 'tournament/new', component: TournamentFormComponent,
     canActivate: [authGuard]
   },
   {
-    path: 'login',
-    loadComponent: () => import('./components/login/login.component').then(m => m.LoginComponent),
+    path: 'tournament/edit/:id', component: TournamentFormComponent,
+    canActivate: [authGuard]
   },
   {
-    path: 'register',
-    loadComponent: () => import('./components/register/register.component').then(m => m.RegisterComponent)
+    path: 'tournament/registrations/:id', component: RegistrationOverviewComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'tournament/register/:id', component: RegistrationFormComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'tournament/register/edit/:id', component: RegistrationFormComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'profile-edit', component: ProfileEditComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'login', component: LoginComponent,
+  },
+  {
+    path: 'register', component: RegisterComponent
   },
   {
     path: '',
@@ -48,8 +63,7 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: '**',
-    redirectTo: 'login'
+    path: '**', component: NotFoundComponent
   }
 ];
 
@@ -58,22 +72,10 @@ export const routes: Routes = [
   ],
   imports: [
     RouterModule.forRoot(routes),
-    BrowserModule,
-    TableModule,
-    InputTextModule,
-    DialogModule,
-    ToolbarModule,
-    ConfirmDialogModule,
-    RatingModule,
-    InputNumberModule,
-    RadioButtonModule,
-    DropdownModule,
-    ButtonModule,
-    FormsModule
+    BrowserModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'de-DE' },
-    { provide: HTTP_INTERCEPTORS, useClass: RequestInterceptor, multi: true },
   ],
   bootstrap: [
 

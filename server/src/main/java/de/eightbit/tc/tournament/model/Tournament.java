@@ -1,10 +1,11 @@
 package de.eightbit.tc.tournament.model;
 
-
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,18 +22,35 @@ public class Tournament {
     private String description;
     @Column(length = 1000)
     private String additionalNotes;
-
     private LocalDate startDate;
     private LocalDate endDate;
 
-    @ElementCollection
-    @CollectionTable(name = "tournament_days", joinColumns = @JoinColumn(name = "tournament_id"))
-    @Column(name = "day")
-    private List<LocalDate> selectedDays;
+    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<TournamentDay> tournamentDays = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "tournament_types", joinColumns = @JoinColumn(name = "tournament_id"))
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private List<TournamentType> tournamentTypes;
+
+    public void setTournamentDays(List<TournamentDay> tournamentDays) {
+        this.tournamentDays.clear();
+        if (tournamentDays != null) {
+            for (TournamentDay day : tournamentDays) {
+                this.addTournamentDay(day);
+            }
+        }
+    }
+
+    public void addTournamentDay(TournamentDay tournamentDay) {
+        tournamentDays.add(tournamentDay);
+        tournamentDay.setTournament(this);
+    }
+
+    public void removeTournamentDay(TournamentDay tournamentDay) {
+        tournamentDays.remove(tournamentDay);
+        tournamentDay.setTournament(null);
+    }
 }

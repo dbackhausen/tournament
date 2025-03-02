@@ -1,0 +1,92 @@
+<p-card header="Neues Turnier">
+  <form [formGroup]="tournamentForm" (ngSubmit)="onSubmit()">
+    <p>
+      <p-floatlabel variant="in">
+        <input pInputText id="name" formControlName="name" autocomplete="off" />
+        <label for="name">Name</label>
+      </p-floatlabel>
+    </p>
+
+    <p>
+      <p-floatlabel variant="in">
+        <textarea pTextarea id="description" formControlName="description" rows="2" cols="30" style="resize: none" class="h-full"></textarea>
+        <label for="description">Beschreibung</label>
+      </p-floatlabel>
+    </p>
+
+    <p>
+      <p-floatlabel variant="in">
+        <textarea pTextarea id="additionalNotes" formControlName="additionalNotes" rows="2" cols="30" style="resize: none" class="h-full"></textarea>
+        <label for="additionalNotes">Weitere Anmerkungen</label>
+      </p-floatlabel>
+    </p>
+
+    <div formArrayName="tournamentTypes" class="formgroup-inline md:py-3">
+      <div *ngFor="let type of availableTournamentTypes; let i = index">
+        <div class="field-checkbox md:p-1 sm:p-0">
+          <p-checkbox [id]="type.value"
+                      size="large"
+                      binary="true"
+                      [value]="type.value"
+                      [formControlName]="i"
+                      (onChange)="toggleTournamentType(type, $event.checked)"  />
+          <label [for]="type.value" class="md:text-lg sm:text-sm"> {{ type.label }}</label>
+        </div>
+      </div>
+    </div>
+
+    <div formArrayName="tournamentDays">
+      <div *ngFor="let day of tournamentDays.controls; let i = index" [formGroupName]="i">
+        <div class="formgroup-inline">
+          <div class="field">
+            <p-floatlabel variant="in" class="date-picker">
+              <p-datepicker
+                formControlName="date"
+                [minDate]="today"
+                dateFormat="dd.mm.yy"
+                showIcon="true"
+                inputId="date{{ i }}"
+              ></p-datepicker>
+              <label for="endTime{{ i }}">Datum</label>
+            </p-floatlabel>
+          </div>
+          <div class="field">
+            <p-floatlabel variant="in" class="start-time">
+              <p-datepicker
+                formControlName="startTime"
+                [showTime]="true"
+                [timeOnly]="true"
+                hourFormat="24"
+                inputId="startTime{{ i }}"
+              ></p-datepicker>
+              <label for="endTime{{ i }}">Startzeit</label>
+            </p-floatlabel>
+          </div>
+          <div class="field">
+            <p-floatlabel variant="in" class="end-time">
+              <p-datepicker
+                formControlName="endTime"
+                [showTime]="true"
+                [timeOnly]="true"
+                hourFormat="24"
+                inputId="endTime{{ i }}"
+              ></p-datepicker>
+              <label for="endTime{{ i }}">Endzeit</label>
+            </p-floatlabel>
+          </div>
+          <div class="field pt-2">
+            <p-button icon="pi pi-times" severity="danger" (click)="removeTournamentDay(i)" *ngIf="tournamentDays.length > 1" />
+          </div>
+          <div class="field pt-2">
+            <p-button icon="pi pi-plus" label="Tag hinzufügen" severity="secondary" (click)="addTournamentDay()" *ngIf="i == tournamentDays.length - 1" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <p-button type="submit" label="Speichern" [disabled]="tournamentForm.invalid" />
+      <p-button type="button" label="Abbrechen" severity="secondary" (click)="onCancel()" />
+    </div>
+  </form>
+</p-card>
