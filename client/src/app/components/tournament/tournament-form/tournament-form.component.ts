@@ -19,6 +19,7 @@ import { DatePicker } from "primeng/datepicker";
 import { Checkbox } from "primeng/checkbox";
 import { Tournament, TournamentDay, TournamentType } from "src/app/models/tournament.model";
 import { DatePipe } from '@angular/common';
+import {Message} from "primeng/message";
 
 @Component({
   selector: 'app-tournament-form',
@@ -33,7 +34,8 @@ import { DatePipe } from '@angular/common';
     Textarea,
     DatePicker,
     Checkbox,
-    FormsModule
+    FormsModule,
+    Message
   ],
   templateUrl: './tournament-form.component.html',
   styleUrl: './tournament-form.component.scss',
@@ -44,6 +46,7 @@ export class TournamentFormComponent implements OnInit {
   today: Date = new Date();
   editMode = false;
   tournamentId: number | null = null;
+  tournament: Tournament | null = null;
 
   availableTournamentTypes = [
     {label: 'Einzel', value: 'SINGLE'},
@@ -85,7 +88,7 @@ export class TournamentFormComponent implements OnInit {
 
   loadTournament(id: number): void {
     this.tournamentService.getTournament(id).subscribe((tournament) => {
-      console.log(JSON.stringify(tournament));
+      this.tournament = tournament;
 
       this.tournamentForm.patchValue({
         name: tournament.name,
@@ -94,11 +97,25 @@ export class TournamentFormComponent implements OnInit {
         endDate: tournament.endDate
       });
 
+      // Set the tournament dates
+      const daysFormArray = this.tournamentForm.get('tournamentDays') as FormArray;
+      daysFormArray.clear();
+
+      if (tournament.tournamentDays?.length) {
+        tournament.tournamentDays.forEach(day => {
+          daysFormArray.push(this.fb.group({
+            date: [new Date(day.date)],
+            startTime: [day.startTime],
+            endTime: [day.endTime]
+          }));
+        });
+      }
+
+      // Set the tournament types
       const typesFormArray = this.tournamentForm.get('tournamentTypes') as FormArray;
       this.availableTournamentTypes.forEach((typeObj, index) => {
         const isSelected = tournament.tournamentTypes?.includes(<TournamentType>typeObj.value.toLowerCase());
         typesFormArray.at(index).setValue(isSelected);
-        console.log(index, isSelected);
       });
     });
   }

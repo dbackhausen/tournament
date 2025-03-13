@@ -6,6 +6,7 @@ import { TableModule } from 'primeng/table';
 import { DataView } from 'primeng/dataview';
 import { Router, RouterLink} from "@angular/router";
 import { Card } from "primeng/card";
+import {AuthService} from "src/app/services/auth.service";
 
 @Component({
   selector: 'app-tournament',
@@ -24,13 +25,17 @@ import { Card } from "primeng/card";
 export class TournamentOverviewComponent implements OnInit {
   tournaments: any[] = [];
   isMobile: boolean = false;
+  isAdmin: boolean = false;
 
   constructor(
     private tournamentService: TournamentService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.isAdmin = this.authService.isAdmin();
+    console.log(this.isAdmin);
     this.checkViewport();
     this.loadData();
   }
@@ -38,7 +43,12 @@ export class TournamentOverviewComponent implements OnInit {
   loadData(): void {
     this.tournamentService.getTournaments().subscribe({
       next: (data) => {
-        this.tournaments = data;
+        const today = new Date();
+        if (this.isAdmin) {
+          this.tournaments = data;
+        } else {
+          this.tournaments = data.filter(tournament => new Date(tournament.endDate) >= today);
+        }
       },
         error: (error) => {
         console.error('Error loading tournaments');

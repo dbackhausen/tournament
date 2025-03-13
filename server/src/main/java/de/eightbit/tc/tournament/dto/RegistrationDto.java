@@ -12,6 +12,7 @@ public class RegistrationDto {
     private PlayerDto player;
     private List<RegistrationDto.SelectedDay> selectedDays;
     private List<String> selectedTypes;
+    private String notes;
 
     @Data
     public static class SelectedDay {

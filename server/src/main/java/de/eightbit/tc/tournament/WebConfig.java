@@ -2,6 +2,7 @@ package de.eightbit.tc.tournament;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -23,10 +24,16 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
+    @Value("${cors.allowed-origin}")
+    private String allowedOrigin;
+
     @Override
     public void addCorsMappings(final CorsRegistry registry) {
-        registry.addMapping("/**").allowedMethods("GET", "POST", "PUT", "DELETE").allowedOrigins("*")
-                .allowedHeaders("*");
+        registry.addMapping("/**")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedOrigins(allowedOrigin)
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 
     @Bean

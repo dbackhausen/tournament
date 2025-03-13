@@ -84,6 +84,10 @@
       </div>
     </div>
 
+    <div *ngIf="tournament && tournament.registrationCount > 0" class="p-fluid">
+      <p-message severity="warn" text="Achtung: Es existieren bereits Registrierungen für dieses Turnier. Änderungen könnten sich auf diese auswirken."></p-message>
+    </div>
+
     <div class="button-group">
       <p-button type="submit" label="Speichern" [disabled]="tournamentForm.invalid" />
       <p-button type="button" label="Abbrechen" severity="secondary" (click)="onCancel()" />

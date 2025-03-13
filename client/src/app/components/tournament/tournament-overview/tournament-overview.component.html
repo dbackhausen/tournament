@@ -22,10 +22,10 @@
             <div class="col-2 my-2 p-0">
               <p-button icon="pi pi-users" severity="secondary" (click)="onShowRegistrations(tournament.id)"></p-button>
             </div>
-            <div class="col-2 my-2 p-0">
+            <div class="col-2 my-2 p-0" *ngIf="isAdmin">
               <p-button icon="pi pi-pencil" severity="secondary" (click)="editTournament(tournament.id)"></p-button>
             </div>
-            <div class="col-2 my-2 p-0">
+            <div class="col-2 my-2 p-0" *ngIf="isAdmin">
               <p-button icon="pi pi-times" severity="danger" (click)="deleteTournament(tournament.id)"></p-button>
             </div>
           </div>
@@ -55,10 +55,10 @@
               <div class="flex">
                 <p-button icon="pi pi-users" severity="secondary" (click)="onShowRegistrations(tournament.id)"></p-button>
               </div>
-              <div class="flex">
+              <div class="flex" *ngIf="isAdmin">
                 <p-button icon="pi pi-pencil" severity="secondary" (click)="editTournament(tournament.id)"></p-button>
               </div>
-              <div class="flex">
+              <div class="flex" *ngIf="isAdmin">
                 <p-button icon="pi pi-times" severity="danger" (click)="deleteTournament(tournament.id)"></p-button>
               </div>
             </div>
@@ -68,7 +68,7 @@
     </p-table>
   }
 
-  <div class="button-group">
+  <div class="button-group" *ngIf="isAdmin">
     <p-button label="Neues Turnier" routerLink="/tournament/new"></p-button>
   </div>
 </p-card>

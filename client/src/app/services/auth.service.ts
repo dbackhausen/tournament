@@ -24,6 +24,7 @@ export class AuthService {
       tap((response: any) => {
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
+        localStorage.setItem('role', response.user.role);
         this.isLoggedInSubject.next(true);
       })
     )
@@ -51,5 +52,14 @@ export class AuthService {
 
   private hasToken(): boolean {
     return !!this.getToken();
+  }
+
+  isAdmin() {
+    const role = localStorage.getItem('role');
+    return role?.toUpperCase() === "ADMIN";
+  }
+
+  getRole() {
+    return localStorage.getItem('role')
   }
 }

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -12,11 +12,9 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Card } from "primeng/card";
 import { Button } from "primeng/button";
 import { FloatLabel } from "primeng/floatlabel";
-import { InputText } from "primeng/inputtext";
 import { Textarea } from "primeng/textarea";
-import { DatePicker } from "primeng/datepicker";
 import { Checkbox } from "primeng/checkbox";
-import {Registration, Tournament, TournamentDay, TournamentType} from "src/app/models/tournament.model";
+import { Registration, Tournament, TournamentDay, TournamentType } from "src/app/models/tournament.model";
 import { Select } from "primeng/select";
 import { atLeastOneDaySelectedValidator } from "src/app/validator/at-least-one-day-selected.validator";
 import { atLeastOneTypeSelectedValidator } from "src/app/validator/at-least-one-type-selected.validator";
@@ -24,6 +22,8 @@ import { selectedDateTimeValidator } from "src/app/validator/selected-date-time-
 import { AuthService } from "src/app/services/auth.service";
 import { Player } from "src/app/models/player.model";
 import { PlayerService } from "src/app/services/player.service";
+import { forkJoin, map, of, switchMap } from "rxjs";
+import { tap } from "rxjs/operators";
 
 @Component({
   selector: 'app-registration-form',
@@ -34,9 +34,7 @@ import { PlayerService } from "src/app/services/player.service";
     Card,
     Button,
     FloatLabel,
-    InputText,
     Textarea,
-    DatePicker,
     Checkbox,
     FormsModule,
     Select
@@ -49,6 +47,7 @@ export class RegistrationFormComponent implements OnInit {
   tournamentId: number | null = null;
   tournament: Tournament | null = null;
   player: Player | null = null;
+  registration: Registration | null = null;
 
   constructor(
     private authService: AuthService,
@@ -70,48 +69,105 @@ export class RegistrationFormComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.tournamentId = +id;
-        this.loadTournament(this.tournamentId);
-        this.loadProfileData();
+        const currentUser = this.authService.getUser();
+        this.loadData(this.tournamentId, currentUser.id);
       } else {
         this.router.navigate([`/tournament/edit/${id}`])
       }
     });
   }
 
-  loadTournament(id: number): void {
-    this.tournamentService.getTournament(id).subscribe((tournament) => {
-      this.tournament = tournament;
+  loadData(tournamentId: number, playerId: number) {
+    this.tournamentService.getRegistration(tournamentId, playerId).pipe(
+      map(registration => {
+        if (!registration) {
+          return { registration: null, tournament: null, player: null };
+        }
+        return {
+          registration,
+          tournament: registration.tournament,
+          player: registration.player
+        };
+      }),
+      tap(result => console.log(result.registration ? 'Existing registration found' : 'No existing registration found')),
+      switchMap((result) => {
+        if (result.registration === null) {
+          return forkJoin({
+            tournament: this.tournamentService.getTournament(tournamentId),
+            player: this.playerService.getPlayer(playerId)
+          }).pipe(
+            map(({ tournament, player }) => ({
+              registration: null,
+              tournament,
+              player
+            }))
+          );
+        } else {
+          return of(result);
+        }
+      })
+    ).subscribe({
+      next: (result) => {
+        this.registration = result.registration;
+        this.tournament = result.tournament;
+        this.player = result.player;
 
-      if (tournament?.tournamentDays?.length > 0) {
-        tournament.tournamentDays.forEach(day => {
-          this.addDayGroup(day);
-        })
+        if (this.tournament?.tournamentDays?.length > 0) {
+          this.tournament.tournamentDays.forEach(day => {
+            this.addDayGroup(day);
+          })
+        }
+
+        if (this.tournament?.tournamentTypes?.length > 0) {
+          this.tournament.tournamentTypes.forEach(type => {
+            this.addTypeGroup(type);
+          })
+        }
+
+        if (this.registration) {
+          this.restoreRegistrationData(this.registration);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading data:', err);
       }
-
-      if (tournament?.tournamentTypes?.length > 0) {
-        tournament.tournamentTypes.forEach(type => {
-          this.addTypeGroup(type);
-        })
-      }
-
-      console.log(tournament.tournamentTypes);
     });
   }
 
-  loadProfileData(): void {
-    const currentUser = this.authService.getUser();
+  private restoreRegistrationData(registration: Registration) {
+    // 1. Restore selected days
+    const daysArray = this.registerForm.get('selectableDays') as FormArray;
+    const selectedDays = registration.selectedDays;
 
-    this.playerService.getPlayer(currentUser.id).subscribe({
-      next: (data) => {
-        this.player = data;
-      },
-      error: (error) => {
-        console.error('Error loading profile');
-      },
-      complete: () => {
-        console.log('Profile successfully loaded')
+    daysArray.controls.forEach(dayGroup => {
+      const date = dayGroup.get('date')?.value;
+      const match = selectedDays.find(d => d.date === date);
+
+      if (match) {
+        let time = new Date(`1970-01-01T${match.time}`);
+        const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        dayGroup.get('selected')?.setValue(true);
+        dayGroup.get('selectedTime')?.setValue(timeString);
+      } else {
+        dayGroup.get('selected')?.setValue(false);
+        dayGroup.get('selectedTime')?.setValue('');
       }
     });
+
+    // 2. Restore selected game types
+    const typesArray = this.registerForm.get('selectableTypes') as FormArray;
+    const selectedTypes = registration.selectedTypes;
+
+    typesArray.controls.forEach(typeGroup => {
+      const type = typeGroup.get('type')?.value;
+      const isSelected = selectedTypes.includes(type.toUpperCase());
+      typeGroup.get('selected')?.setValue(isSelected);
+    });
+
+    // 3. Optional: restore any notes
+    if (registration.notes) {
+      this.registerForm.get('notes')?.setValue(registration.notes);
+    }
   }
 
   onSubmit() {
@@ -130,19 +186,35 @@ export class RegistrationFormComponent implements OnInit {
           })),
         selectedTypes: formData.selectableTypes
           .filter((type: { selected: any; }) => type.selected)
-          .map((type: { type: any; }) => type.type)
+          .map((type: { type: any; }) => type.type),
+        notes: formData.notes
       };
 
-      this.tournamentService.registerPlayerForTournament(this.tournamentId, registration).subscribe({
-        next: () => {
-          console.log('Registration successfully created');
-          this.registerForm.reset();
-          this.router.navigate(['/tournament']);
-        },
-        error: (error) => {
-          console.error('Error registering to tournament', error);
+      if (this.registration === null) {
+        this.tournamentService.addRegistration(this.tournamentId, registration).subscribe({
+          next: () => {
+            console.log('Registration successfully created');
+            this.registerForm.reset();
+            this.router.navigate(['/tournament']);
+          },
+          error: (error) => {
+            console.error('Error registering to tournament', error);
+          }
+        });
+      } else {
+        if (this.registration.id != null) {
+          this.tournamentService.updateRegistration(this.tournamentId, this.registration.id, registration).subscribe({
+            next: () => {
+              console.log('Registration successfully updated');
+              this.registerForm.reset();
+              this.router.navigate(['/tournament']);
+            },
+            error: (error) => {
+              console.error('Error updating registration', error);
+            }
+          });
         }
-      });
+      }
     } else {
       console.error('Invalid form');
     }

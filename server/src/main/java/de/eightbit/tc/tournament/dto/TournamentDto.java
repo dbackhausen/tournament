@@ -20,6 +20,7 @@ public class TournamentDto {
     private LocalDate endDate;
     private List<TournamentDayDto> tournamentDays;
     private List<TournamentType> tournamentTypes;
+    private int registrationCount = 0;
 
     @Data
     public static class TournamentDayDto {

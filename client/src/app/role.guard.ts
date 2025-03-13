@@ -7,7 +7,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const expectedRole = route.data['role'] as 'PLAYER' | 'ADMIN';
 
-  if (authService.getRole() === expectedRole) {
+  if (authService.getRole()?.toUpperCase() === expectedRole) {
     return true;
   } else {
     router.navigate(['/unauthorized']);

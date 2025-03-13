@@ -13,6 +13,8 @@ export class TournamentService {
 
   constructor(private http: HttpClient) { }
 
+  // -- TOURNAMENTS --
+
   getTournaments(): Observable<Tournament[]> {
     return this.http.get<Tournament[]>(this.apiUrl)
       .pipe(
@@ -57,14 +59,17 @@ export class TournamentService {
       );
   }
 
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.error(`${operation} failed: ${error.message}`);
-      return of(result as T);
-    };
+  // -- REGISTRATIONS --
+
+  getRegistrations(tournamentId: number): Observable<Registration[]> {
+    const url = `${this.apiUrl}/${tournamentId}/registrations`;
+    return this.http.get<Registration[]>(url)
+      .pipe(
+        catchError(this.handleError<Registration[]>('getRegistrations', []))
+      );
   }
 
-  registerPlayerForTournament(tournamentId: number, registration: Registration) {
+  addRegistration(tournamentId: number, registration: Registration) {
     const url = `${this.apiUrl}/${tournamentId}/register`;
     const httpOptions = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -75,11 +80,31 @@ export class TournamentService {
       );
   }
 
-  getRegistrations(tournamentId: number | null): Observable<Registration[]> {
-    const url = `${this.apiUrl}/${tournamentId}/registrations`;
-    return this.http.get<Registration[]>(url)
+  getRegistration(tournamentId: number, playerId: number){
+    const url = `${this.apiUrl}/${tournamentId}/registrations/${playerId}`;
+    return this.http.get<Registration>(url)
       .pipe(
-        catchError(this.handleError<Registration[]>('getRegistrations', []))
+        catchError(this.handleError<Registration>('getPlayerRegistration'))
       );
+  }
+
+  updateRegistration(tournamentId: number, registrationId: number, registration: Registration) {
+    const url = `${this.apiUrl}/${tournamentId}/registrations/${registrationId}`;
+    const httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    };
+    return this.http.put<Registration>(url, registration, httpOptions)
+      .pipe(
+        catchError(this.handleError<Registration>('updateRegistration'))
+      );
+  }
+
+  // -- UTIL --
+
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(`${operation} failed: ${error.message}`);
+      return of(result as T);
+    };
   }
 }

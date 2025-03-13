@@ -12,12 +12,17 @@ export interface TournamentDay {
   endTime: string;
 }
 
+export interface ParticipationRequest {
+  date: string;
+  time: string;
+}
+
 export interface Registration {
   id?: number
   tournament: Tournament;
   player: Player;
   notes?: string;
-  selectedDays: TournamentDay[];
+  selectedDays: ParticipationRequest[];
   selectedTypes: TournamentType[];
 }
 
@@ -30,4 +35,5 @@ export interface Tournament {
   endDate: Date;
   tournamentDays: TournamentDay[];
   tournamentTypes: TournamentType[];
+  registrationCount: number;
 }

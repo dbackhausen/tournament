@@ -12,9 +12,6 @@
           formControlName="username"
           placeholder="Geben Sie Ihren Benutzernamen ein"
         />
-<!--        <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" class="error-message">
-          Benutzername ist erforderlich.
-        </div>-->
       </div>
 
       <div class="p-field">
@@ -29,19 +26,17 @@
           [toggleMask]="true"
           placeholder="Geben Sie Ihr Passwort ein"
         ></p-password>
-        <!--<div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-message">
-          Passwort ist erforderlich.
-        </div> -->
       </div>
 
-      <button
-        pButton
-        label="Anmelden"
-        icon="pi pi-sign-in"
-        class="p-mt-2"
-        type="submit"
-        [disabled]="loginForm.invalid"
-      ></button>
+      <div *ngIf="message" class="p-fluid mb-3">
+        <p-message severity="error" text="{{ message }}"></p-message>
+      </div>
+
+      <p-button type="submit" label="Anmelden" [disabled]="loginForm.invalid" />
+
+      <p class="mt-5">
+        Noch kein Konto? <a [routerLink]="['/register']">Hier können Sie sich als Vereinsmitglied registrieren.</a>
+      </p>
     </form>
   </div>
 </div>

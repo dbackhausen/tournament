@@ -69,7 +69,7 @@
     <div class="grid mx-0 mt-3 px-0">
       <div class="col px-0">
         <p-floatlabel variant="in">
-          <textarea pTextarea id="notes" formControlName="notes" rows="4" cols="30" style="resize: none" class="w-full h-full"></textarea>
+          <textarea pTextarea id="notes" formControlName="notes" rows="4" cols="30" style="resize: none" [maxLength]="255" class="w-full h-full"></textarea>
           <label for="notes">Anmerkungen</label>
         </p-floatlabel>
       </div>
@@ -77,7 +77,7 @@
 
     <div class="grid mx-0 px-0 button-group">
       <div class="col px-0">
-        <p-button type="submit" label="Registrieren" [disabled]="registerForm.invalid" class="pr-2" />
+        <p-button type="submit" label="{{ registration ? 'Aktualisieren' : 'Registrieren' }}" [disabled]="registerForm.invalid" class="pr-2" />
         <p-button type="button" label="Abbrechen" severity="secondary" (click)="onCancel()" />
       </div>
     </div>

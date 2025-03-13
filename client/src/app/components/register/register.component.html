@@ -1,24 +1,52 @@
-<div class="container">
-  <h2>Benutzerregistrierung</h2>
+<!-- register.component.html -->
+<div class="register-container">
+  <div class="card">
+    <h2>Registrierung</h2>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="p-field">
+        <label for="username">Benutzername</label>
+        <input
+          id="username"
+          type="text"
+          pInputText
+          formControlName="username"
+          placeholder="Geben Sie Ihren Benutzernamen ein"
+        />
+      </div>
 
-  <div *ngIf="message" class="alert alert-info">{{ message }}</div>
+      <div class="p-field">
+        <label for="email">E-Mail Adresse</label>
+        <input
+          id="email"
+          type="text"
+          pInputText
+          formControlName="email"
+          placeholder="Geben Sie Ihre E-Mail Adresse ein"
+        />
+      </div>
 
-  <form (ngSubmit)="register()">
-    <div>
-      <label>Benutzername:</label>
-      <input type="text" [(ngModel)]="user.username" name="username" required />
-    </div>
+      <div class="p-field">
+        <label for="password">Passwort</label>
+        <p-password
+          id="password"
+          formControlName="password"
+          class="w-full"
+          [style]="{'width':'100%'}"
+          [inputStyle]="{'width':'100%'}"
+          [feedback]="false"
+          [toggleMask]="true"
+          placeholder="Geben Sie Ihr Passwort ein"
+        ></p-password>
+      </div>
 
-    <div>
-      <label>Email:</label>
-      <input type="email" [(ngModel)]="user.email" name="email" required />
-    </div>
+      <div *ngIf="message" class="p-fluid mb-3">
+        <p-message severity="error" text="{{ message }}"></p-message>
+      </div>
 
-    <div>
-      <label>Passwort:</label>
-      <input type="password" [(ngModel)]="user.password" name="password" required />
-    </div>
-
-    <button type="submit">Registrieren</button>
-  </form>
+      <div class="button-group">
+        <p-button type="submit" label="Registrieren" [disabled]="registerForm.invalid" />
+        <p-button type="button" label="Abbrechen" severity="secondary" (click)="onCancel()" />
+      </div>
+    </form>
+  </div>
 </div>
