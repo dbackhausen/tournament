@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterModule, RouterOutlet, RouterLink } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { CommonModule } from "@angular/common";
 import { MenubarModule } from "primeng/menubar";
-import { MenuItem, Translation} from "primeng/api";
+import { MenuItem } from "primeng/api";
 import { AuthService } from "src/app/services/auth.service";
 import { PrimeNG } from 'primeng/config';
 
@@ -22,25 +22,26 @@ export class AppComponent implements OnInit {
   isLoggedIn = false;
 
   constructor(
-    private authService: AuthService,
     private primengConfig: PrimeNG,
+    private authService: AuthService,
   ) {
   }
 
   ngOnInit() {
     this.authService.isLoggedIn$.subscribe((loggedIn) => {
       this.isLoggedIn = loggedIn;
-      this.updateMenu();
+      this.loadUser();
     })
 
     this.primengConfig.ripple.set(true);
   }
 
-  updateMenu() {
+  updateMenu(id: number) {
     this.items = [
       { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: '/dashboard' },
       { label: 'Turniere', icon: 'pi pi-fw pi-calendar-times', routerLink: '/tournament' },
-      { label: 'Mein Profil', icon: 'pi pi-fw pi-user', routerLink: '/profile-edit' },
+      { label: 'Benutzer', icon: 'pi pi-fw pi-calendar-times', routerLink: '/user' },
+      { label: 'Mein Profil', icon: 'pi pi-fw pi-user', routerLink: '/profile/edit/' + id },
       { label: 'Einstellungen', icon: 'pi pi-fw pi-user', routerLink: '/settings' },
       { label: 'Logout', icon: 'pi pi-fw pi-sign-out', command: () => this.logout() }
     ];
@@ -48,5 +49,13 @@ export class AppComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  private loadUser() {
+    const currentUser = this.authService.getUser();
+
+    if (currentUser) {
+      this.updateMenu(currentUser.id);
+    }
   }
 }

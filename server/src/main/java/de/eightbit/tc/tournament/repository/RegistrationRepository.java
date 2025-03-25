@@ -5,15 +5,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import de.eightbit.tc.tournament.model.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RegistrationRepository extends JpaRepository<Registration, Long> {
-    boolean existsByTournamentAndPlayer(Tournament tournament, Player player);
-
     List<Registration> findByTournamentId(Long tournamentId);
 
-    List<Registration> findByPlayerId(Long playerId);
-
-    Registration findByTournamentIdAndPlayerId(Long tournamentId, Long playerId);
+    List<Registration> findByUserId(Long playerId);
 
     int countByTournamentId(Long tournamentId);
+
+    boolean existsByTournamentIdAndUserId(Long tournamentId, Long userId);
+
+    Optional<Registration> findByTournamentIdAndUserId(Long tournamentId, Long userId);
 }

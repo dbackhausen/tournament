@@ -18,9 +18,9 @@ public class Registration {
     private Long id;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "player_id")
+    @JoinColumn(name = "user_id")
     @JsonBackReference
-    private Player player;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tournament_id")

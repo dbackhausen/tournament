@@ -77,7 +77,7 @@ export class TournamentFormComponent implements OnInit {
 
     // Check, if EDIT MODE is present
     this.route.paramMap.subscribe((params) => {
-      const id = params.get('id');
+      const id = params.get('tournamentId');
       if (id) {
         this.editMode = true;
         this.tournamentId = +id;
@@ -93,6 +93,7 @@ export class TournamentFormComponent implements OnInit {
       this.tournamentForm.patchValue({
         name: tournament.name,
         description: tournament.description,
+        additionalNotes: tournament.additionalNotes,
         startDate: tournament.startDate,
         endDate: tournament.endDate
       });
@@ -137,17 +138,16 @@ export class TournamentFormComponent implements OnInit {
       const tournamentDays: TournamentDay[] = formValue.tournamentDays;
 
       if (tournamentDays && tournamentDays.length > 0) {
+
         tournamentDays.sort((a, b) => {
           const dateA = new Date(a.date).getTime();
           const dateB = new Date(b.date).getTime();
           return dateA - dateB;
         });
-
         tournamentDays.forEach(day => {
-          const dateObj = new Date(day.date);
-          const startTimeObj = new Date(day.startTime);
-          const endTimeObj = new Date(day.endTime);
-
+          const dateObj = Date.parse(day.date);
+          const startTimeObj = Date.parse('1970-01-01T' + day.startTime);
+          const endTimeObj = Date.parse('1970-01-01T' + day.endTime);
           day.date = <string>this.datePipe.transform(dateObj, 'yyyy-MM-dd');
           day.startTime = <string>this.datePipe.transform(startTimeObj, 'HH:mm');
           day.endTime = <string>this.datePipe.transform(endTimeObj, 'HH:mm');
@@ -211,8 +211,10 @@ export class TournamentFormComponent implements OnInit {
   // ------------------ TOURNAMENT DAYS ------------------
 
   createTournamentDay(): FormGroup {
+    const nextDay = this.getNextDay();
+
     return this.fb.group({
-      date: [null, Validators.required],
+      date: [nextDay, Validators.required],
       startTime: [this.getDefaultTime(17, 0), Validators.required],
       endTime: [this.getDefaultTime(20, 0), Validators.required]
     });
@@ -234,6 +236,23 @@ export class TournamentFormComponent implements OnInit {
     const date = new Date();
     date.setHours(hours, minutes, 0, 0);
     return date;
+  }
+
+  getNextDay(): Date | null {
+    if (this.tournamentForm) {
+      const days = this.tournamentForm.get('tournamentDays') as FormArray;
+
+      if (days.length > 0) {
+        const lastDay = days.at(days.length - 1).value;
+        if (lastDay.date) {
+          const nextDate = new Date(lastDay.date);
+          nextDate.setDate(nextDate.getDate() + 1); // Ein Tag weiter
+          return nextDate;
+        }
+      }
+    }
+
+    return null;
   }
 
   // ------------------ TOURNAMENT TYPES ------------------

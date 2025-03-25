@@ -1,0 +1,32 @@
+<p-card header="Profil von {{ user?.firstName }} {{ user?.lastName }}" class="profile-card">
+  <div class="my-5 mx-3">
+    <div class="field">
+      <label>Anrede:</label>
+      <span [ngSwitch]="user?.gender">
+        <span *ngSwitchCase="'MALE'">Herr</span>
+        <span *ngSwitchCase="'FEMALE'">Frau</span>
+        <span *ngSwitchDefault>Unbekannt</span>
+      </span>
+    </div>
+    <div class="field">
+      <label>Vorname:</label>
+      <span>{{ user?.firstName }}</span>
+    </div>
+    <div class="field">
+      <label>Nachname:</label>
+      <span>{{ user?.lastName }}</span>
+    </div>
+    <div class="field">
+      <label>E-Mail:</label>
+      <span>{{ user?.email }}</span>
+    </div>
+    <div class="field">
+      <label>Mobiltelefon:</label>
+      <span>{{ user?.mobile }}</span>
+    </div>
+  </div>
+
+  <div class="button-group">
+    <p-button type="button" label="Zurück" severity="secondary" (click)="goBack()" />
+  </div>
+</p-card>

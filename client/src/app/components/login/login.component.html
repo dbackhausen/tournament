@@ -4,13 +4,13 @@
     <h2>Anmeldung</h2>
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="p-field">
-        <label for="username">Benutzername</label>
+        <label for="email">E-Mail</label>
         <input
-          id="username"
+          id="email"
           type="text"
           pInputText
-          formControlName="username"
-          placeholder="Geben Sie Ihren Benutzernamen ein"
+          formControlName="email"
+          placeholder="Bitte gib deine E-Mail Adresse an"
         />
       </div>
 
@@ -24,7 +24,7 @@
           [inputStyle]="{'width':'100%'}"
           [feedback]="false"
           [toggleMask]="true"
-          placeholder="Geben Sie Ihr Passwort ein"
+          placeholder="Bitte gib dein Passwort ein"
         ></p-password>
       </div>
 
@@ -34,9 +34,14 @@
 
       <p-button type="submit" label="Anmelden" [disabled]="loginForm.invalid" />
 
-      <p class="mt-5">
-        Noch kein Konto? <a [routerLink]="['/register']">Hier können Sie sich als Vereinsmitglied registrieren.</a>
-      </p>
+      <div class="text-sm text-700 font-italic">
+        <p class="mt-5">
+          Passwort vergessen? Hier kannst du es <a [routerLink]="['/reset']" class="no-underline">zurücksetzen</a>.
+        </p>
+        <p class="mt-2">
+          Noch kein Konto? Hier kannst du dich als Vereinsmitglied <a [routerLink]="['/register']" class="no-underline">registrieren</a>.
+        </p>
+      </div>
     </form>
   </div>
 </div>

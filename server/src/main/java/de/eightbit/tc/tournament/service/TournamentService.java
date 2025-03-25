@@ -1,10 +1,7 @@
 package de.eightbit.tc.tournament.service;
 
-import de.eightbit.tc.tournament.dto.RegistrationDto;
 import de.eightbit.tc.tournament.dto.TournamentDto;
 import de.eightbit.tc.tournament.model.*;
-import de.eightbit.tc.tournament.repository.PlayerRepository;
-import de.eightbit.tc.tournament.repository.RegistrationRepository;
 import de.eightbit.tc.tournament.repository.TournamentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

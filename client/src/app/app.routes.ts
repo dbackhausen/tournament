@@ -8,7 +8,7 @@ import { NotFoundComponent } from "src/app/components/not-found/not-found.compon
 import { DashboardComponent } from "src/app/components/dashboard/dashboard.component";
 import { TournamentOverviewComponent } from "src/app/components/tournament/tournament-overview/tournament-overview.component";
 import { TournamentFormComponent } from "src/app/components/tournament/tournament-form/tournament-form.component";
-import { ProfileEditComponent } from "src/app/components/profile-edit/profile-edit.component";
+import { ProfileFormComponent } from "src/app/components/profile/profile-form/profile-form.component";
 import { LoginComponent } from "src/app/components/login/login.component";
 import { RegisterComponent } from "src/app/components/register/register.component";
 import {
@@ -17,6 +17,8 @@ import {
 import {
   RegistrationOverviewComponent
 } from "src/app/components/registration/registration-overview/registration-overview.component";
+import {ProfileViewComponent} from "src/app/components/profile/profile-view/profile-view.component";
+import {UserOverviewComponent} from "src/app/components/user/user-overview/user-overview.component";
 
 export const routes: Routes = [
   {
@@ -32,30 +34,40 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'tournament/edit/:id', component: TournamentFormComponent,
+    path: 'tournament/edit/:tournamentId', component: TournamentFormComponent,
     canActivate: [authGuard]
   },
   {
-    path: 'tournament/registrations/:id', component: RegistrationOverviewComponent,
+    path: 'tournament/:tournamentId/registrations', component: RegistrationOverviewComponent,
     canActivate: [authGuard]
   },
   {
-    path: 'tournament/register/:id', component: RegistrationFormComponent,
+    path: 'tournament/:tournamentId/register', component: RegistrationFormComponent,
     canActivate: [authGuard]
   },
   {
-    path: 'tournament/register/edit/:id', component: RegistrationFormComponent,
+    path: 'tournament/:tournamentId/registration/edit/:registrationId', component: RegistrationFormComponent,
     canActivate: [authGuard]
   },
   {
-    path: 'profile-edit', component: ProfileEditComponent,
+    path: 'user', component: UserOverviewComponent,
     canActivate: [authGuard]
   },
   {
-    path: 'login', component: LoginComponent,
+    path: 'profile/:id', component: ProfileViewComponent,
+    canActivate: [authGuard]
   },
   {
-    path: 'register', component: RegisterComponent
+    path: 'profile/edit/:id', component: ProfileFormComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'login', component: LoginComponent/*,
+    canActivate: [authGuard]*/
+  },
+  {
+    path: 'register', component: RegisterComponent/*,
+    canActivate: [authGuard]*/
   },
   {
     path: '',

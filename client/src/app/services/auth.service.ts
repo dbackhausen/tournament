@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
+import { UserRegistration } from "src/app/models/user-registration.model";
 
 @Injectable({
   providedIn: 'root'
@@ -11,20 +12,19 @@ export class AuthService {
   private apiUrl = 'http://localhost:8080/api/auth';
   private isLoggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
   isLoggedIn$ = this.isLoggedInSubject.asObservable();
-  private currentRole: 'PLAYER' | 'ADMIN' | null = null;
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  register(user: any): Observable<any> {
+  register(user: UserRegistration): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, user);
   }
 
-  login(credentials: { username: string; password: string }): Observable<any> {
+  login(credentials: { email: any; password: any }): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
       tap((response: any) => {
+        console.log(response);
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
-        localStorage.setItem('role', response.user.role);
         this.isLoggedInSubject.next(true);
       })
     )
@@ -42,6 +42,10 @@ export class AuthService {
     return user ? JSON.parse(user) : null;
   }
 
+  getRoles(): string[] {
+    return this.getUser()?.roles || [];
+  }
+
   getToken(): string | null {
     return localStorage.getItem('token');
   }
@@ -55,11 +59,7 @@ export class AuthService {
   }
 
   isAdmin() {
-    const role = localStorage.getItem('role');
-    return role?.toUpperCase() === "ADMIN";
-  }
-
-  getRole() {
-    return localStorage.getItem('role')
+    const user = this.getUser();
+    return user?.roles.includes('ADMIN');
   }
 }

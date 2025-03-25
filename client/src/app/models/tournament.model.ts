@@ -1,4 +1,4 @@
-import {Player} from "src/app/models/player.model";
+import { User } from "src/app/models/user.model";
 
 export enum TournamentType {
   SINGLE = 'SINGLE',
@@ -18,16 +18,16 @@ export interface ParticipationRequest {
 }
 
 export interface Registration {
-  id?: number
+  id: number
   tournament: Tournament;
-  player: Player;
+  user: User;
   notes?: string;
   selectedDays: ParticipationRequest[];
   selectedTypes: TournamentType[];
 }
 
 export interface Tournament {
-  id?: number;
+  id: number;
   name: string;
   description?: string;
   additionalNotes?: string;

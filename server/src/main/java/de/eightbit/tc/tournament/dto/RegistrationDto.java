@@ -1,5 +1,6 @@
 package de.eightbit.tc.tournament.dto;
 
+import de.eightbit.tc.tournament.model.TournamentType;
 import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -9,8 +10,8 @@ import java.util.List;
 public class RegistrationDto {
     private Long id;
     private TournamentDto tournament;
-    private PlayerDto player;
-    private List<RegistrationDto.SelectedDay> selectedDays;
+    private UserDto user;
+    private List<SelectedDay> selectedDays;
     private List<String> selectedTypes;
     private String notes;
 

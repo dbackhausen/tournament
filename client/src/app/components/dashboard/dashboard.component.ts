@@ -7,7 +7,6 @@ import {Card} from "primeng/card";
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    RouterLink,
     Card
   ],
   templateUrl: './dashboard.component.html',

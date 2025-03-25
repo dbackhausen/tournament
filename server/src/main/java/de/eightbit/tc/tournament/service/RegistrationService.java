@@ -2,13 +2,12 @@ package de.eightbit.tc.tournament.service;
 
 import de.eightbit.tc.tournament.dto.RegistrationDto;
 import de.eightbit.tc.tournament.model.*;
-import de.eightbit.tc.tournament.repository.PlayerRepository;
 import de.eightbit.tc.tournament.repository.RegistrationRepository;
 import de.eightbit.tc.tournament.repository.TournamentRepository;
+import de.eightbit.tc.tournament.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,22 +22,26 @@ public class RegistrationService {
     private RegistrationRepository registrationRepository;
 
     @Autowired
-    private PlayerRepository playerRepository;
+    private UserRepository userRepository;
 
 
-    public Registration registerPlayerForTournament(Long tournamentId, RegistrationDto dto) {
-        Tournament tournament = tournamentRepository.findById(tournamentId)
+    public Registration register(RegistrationDto dto) {
+        Tournament tournament = tournamentRepository.findById(dto.getTournament().getId())
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
 
-        Player player = playerRepository.findById(dto.getPlayer().getId())
-                .orElseThrow(() -> new RuntimeException("Player not found"));
+        User user = userRepository.findById(dto.getUser().getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (registrationRepository.existsByTournamentAndPlayer(tournament, player)) {
-            throw new RuntimeException("Player is already registered for this tournament");
+        if (user == null) {
+            throw new RuntimeException("User found but has no user profile");
+        }
+
+        if (isUserRegisteredForTournament(tournament.getId(), user.getId())) {
+            throw new RuntimeException("User is already registered for this tournament");
         }
 
         Registration registration = new Registration();
-        registration.setPlayer(player);
+        registration.setUser(user);
         registration.setTournament(tournament);
         registration.setNotes(dto.getNotes());
 
@@ -61,8 +64,28 @@ public class RegistrationService {
         return registrationRepository.save(registration);
     }
 
-    public Registration updateRegistration(Long tournamentId, Long registrationId, RegistrationDto dto) {
-        Optional<Registration> registration = registrationRepository.findById(registrationId);
+    public Optional<Registration> getRegistration(Long registrationId) {
+        return registrationRepository.findById(registrationId);
+    }
+
+    public List<Registration> getAllRegistrationsByTournament(Long tournamentId) {
+        return registrationRepository.findByTournamentId(tournamentId);
+    }
+
+    public List<Registration> getAllRegistrationsByUser(Long userId) {
+        return registrationRepository.findByUserId(userId);
+    }
+
+    public boolean isUserRegisteredForTournament(Long tournamentId, Long userId) {
+        return registrationRepository.existsByTournamentIdAndUserId(tournamentId, userId);
+    }
+
+    public Optional<Registration> getRegistrationForUserAndTournament(Long tournamentId, Long userId) {
+        return registrationRepository.findByTournamentIdAndUserId(tournamentId, userId);
+    }
+
+    public Registration updateRegistration(RegistrationDto dto) {
+        Optional<Registration> registration = registrationRepository.findById(dto.getId());
 
         if (registration.isPresent()) {
             Registration existingRegistration = registration.get();
@@ -80,8 +103,8 @@ public class RegistrationService {
             existingRegistration.getParticipationRequests().addAll(participationRequests);
 
             List<TournamentType> tournamentTypes = dto.getSelectedTypes().stream()
-                            .map(TournamentType::fromValue) // String --> Enum
-                            .toList();
+                    .map(TournamentType::fromValue) // String --> Enum
+                    .toList();
 
             existingRegistration.getSelectedTypes().clear(); // because of "all-delete-orphan" setting
             existingRegistration.getSelectedTypes().addAll(tournamentTypes);
@@ -92,15 +115,11 @@ public class RegistrationService {
         return null;
     }
 
-    public List<Registration> getAllRegistrations(Long tournamentId) {
-        return registrationRepository.findByTournamentId(tournamentId);
-    }
-
-    public Registration getRegistration(Long tournamentId, Long playerId) {
-        return registrationRepository.findByTournamentIdAndPlayerId(tournamentId, playerId);
-    }
-
     public int countRegistrationsByTournamentId(Long tournamentId) {
         return registrationRepository.countByTournamentId(tournamentId);
+    }
+
+    public void deleteRegistration(Long registrationId) {
+        registrationRepository.deleteById(registrationId);
     }
 }

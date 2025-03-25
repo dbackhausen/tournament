@@ -1,0 +1,102 @@
+<p-card header="Benutzer">
+  @if (isMobile) {
+    <p-dataview #dv [value]="users">
+      <ng-template #list let-user>
+        <div *ngFor="let user of users; let first = first">
+          <div class="grid my-3 p-2 grid-background border-200 surface-overlay border-1 border-round">
+            <div class="col-12 my-0 p-0">
+              <div class="text-left text-sm">
+                {{ user.lastName }}
+              </div>
+            </div>
+            <div class="col-12 m-0 p-0">
+              <div class="text-left text-lg font-bold white-space-nowrap overflow-hidden">
+                {{ user.firstName }}
+              </div>
+            </div>
+            <div class="col-2 my-2 p-0" *ngIf="isAdmin">
+              <p-button icon="pi pi-pencil" severity="secondary" (click)="editUser(user.id)"></p-button>
+            </div>
+            <div class="col-2 my-2 p-0" *ngIf="isAdmin">
+              <p-button icon="pi pi-times" severity="danger" (click)="deleteUser(user.id)"></p-button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-dataview>
+  } @else {
+    <div class="my-3">
+      <p-table [value]="users" class="users-table">
+        <ng-template #header >
+          <tr>
+            <th>Nachname</th>
+            <th>Vorname</th>
+            <th>E-Mail</th>
+            <th>Mobiltelefon</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-user>
+          <tr>
+            <td>{{ user.lastName }}</td>
+            <td>{{ user.firstName }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.mobile }}</td>
+            <td>
+              <p-toggleswitch
+                [ngModel]="user.active"
+                (ngModelChange)="toggleActive(user, $event)"
+              ></p-toggleswitch>
+            </td>
+            <td>
+              <div class="flex flex-row align-items-center justify-content-end gap-3">
+                <div class="flex" *ngIf="isAdmin">
+                  <p-button icon="pi pi-pencil" severity="secondary" (click)="openEditDialog(user)" size="small"></p-button>
+                </div>
+                <div class="flex" *ngIf="isAdmin">
+                  <p-button icon="pi pi-times" severity="danger" (click)="deleteUser(user.id)" size="small"></p-button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4" class="text-center">
+              <p-message severity="info" text="Keine Benutzer vorhanden"></p-message>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+</p-card>
+
+<!-- Der Dialog -->
+<p-dialog header="Benutzer bearbeiten" [(visible)]="editDialogVisible" [modal]="true" [closable]="true" [style]="{width: '400px'}">
+  <form [formGroup]="editForm" (ngSubmit)="onSaveEdit()">
+    <div class="field">
+      <label for="firstName">Vorname</label>
+      <input id="firstName" type="text" pInputText formControlName="firstName" />
+    </div>
+    <div class="field">
+      <label for="lastName">Nachname</label>
+      <input id="lastName" type="text" pInputText formControlName="lastName" />
+    </div>
+    <div class="field">
+      <label for="email">E-Mail</label>
+      <input id="email" type="email" pInputText formControlName="email" />
+    </div>
+    <div class="field">
+      <label for="mobile">Mobil</label>
+      <input id="mobile" type="text" pInputText formControlName="mobile" />
+    </div>
+    <!-- Weitere Felder nach Bedarf -->
+
+    <div class="flex justify-content-end mt-4 gap-2">
+      <p-button label="Abbrechen" severity="secondary" (click)="editDialogVisible = false" />
+      <p-button label="Speichern" type="submit" [disabled]="editForm.invalid" />
+    </div>
+  </form>
+</p-dialog>

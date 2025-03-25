@@ -1,0 +1,22 @@
+.field {
+  display: flex;
+  flex-direction: row;
+
+  label {
+    font-weight: bold;
+    min-width: 120px;
+    display: inline-block;
+  }
+
+  span {
+    flex: 1;
+  }
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+}

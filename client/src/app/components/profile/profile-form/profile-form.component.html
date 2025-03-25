@@ -6,14 +6,14 @@
       </div>
       <div class="field col-12 md:col-6">
         <p-floatlabel variant="in">
-          <input pInputText id="firstname" formControlName="firstname" autocomplete="off" class="w-full" />
-          <label for="firstname">Vorname</label>
+          <input pInputText id="firstName" formControlName="firstName" autocomplete="off" class="w-full" />
+          <label for="firstName">Vorname</label>
         </p-floatlabel>
       </div>
       <div class="field col-12 md:col-6">
         <p-floatlabel variant="in">
-          <input pInputText id="lastname" formControlName="lastname" autocomplete="off" class="w-full" />
-          <label for="lastname">Nachname</label>
+          <input pInputText id="lastName" formControlName="lastName" autocomplete="off" class="w-full" />
+          <label for="lastName">Nachname</label>
         </p-floatlabel>
       </div>
       <div class="field col-12 md:col-6">
@@ -34,6 +34,10 @@
           <label for="birthdate">Geburtsdatum</label>
         </p-floatlabel>
       </div>
+    </div>
+
+    <div *ngIf="message" class="p-fluid mb-3">
+      <p-message [life]="3000" text="{{ message }}" severity="{{ severity }}"></p-message>
     </div>
 
     <div class="button-group">

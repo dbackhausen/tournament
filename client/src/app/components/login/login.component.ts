@@ -31,15 +31,15 @@ export class LoginComponent {
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
-      username: ['', Validators.required],
+      email: ['', Validators.required],
       password: ['', Validators.required]
     })
   }
 
   onSubmit(): void {
     if (this.loginForm.valid) {
-      const { username, password } = this.loginForm.value;
-      this.authService.login({ username, password }).subscribe({
+      const { email, password } = this.loginForm.value;
+      this.authService.login({ email, password }).subscribe({
         next: (response: { token: string; }) => {
           localStorage.setItem('token', response.token);
           this.router.navigate(['/dashboard']);

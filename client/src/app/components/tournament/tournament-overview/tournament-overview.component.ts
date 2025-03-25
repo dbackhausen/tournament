@@ -7,6 +7,7 @@ import { DataView } from 'primeng/dataview';
 import { Router, RouterLink} from "@angular/router";
 import { Card } from "primeng/card";
 import {AuthService} from "src/app/services/auth.service";
+import {Message} from "primeng/message";
 
 @Component({
   selector: 'app-tournament',
@@ -17,7 +18,8 @@ import {AuthService} from "src/app/services/auth.service";
     TableModule,
     DataView,
     RouterLink,
-    Card
+    Card,
+    Message
   ],
   templateUrl: './tournament-overview.component.html',
   styleUrl: './tournament-overview.component.scss'
@@ -35,7 +37,6 @@ export class TournamentOverviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.isAdmin = this.authService.isAdmin();
-    console.log(this.isAdmin);
     this.checkViewport();
     this.loadData();
   }
@@ -60,11 +61,11 @@ export class TournamentOverviewComponent implements OnInit {
   }
 
   onRegister(id: number) {
-    this.router.navigate([`/tournament/register/${id}`])
+    this.router.navigate([`/tournament/${id}/register`])
   }
 
   onShowRegistrations(id: number) {
-    this.router.navigate([`/tournament/registrations/${id}`])
+    this.router.navigate([`/tournament/${id}/registrations`])
   }
 
   editTournament(id: number) {

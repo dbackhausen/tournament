@@ -1,43 +1,50 @@
 package de.eightbit.tc.tournament.model;
 
-import de.eightbit.tc.tournament.util.Gender;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import de.eightbit.tc.tournament.dto.UserRegistrationDto;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "users")
-public abstract class User {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Column(nullable = false, unique = true)
+    private String email;
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
-    private String role = Role.PLAYER.toString();
+    private String gender;
+    private String title;
+    @Column(nullable = false)
+    private String firstName;
+    @Column(nullable = false)
+    private String lastName;
+    @Column(nullable = false)
+    private String mobile;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birthdate;
+    private Double performanceClass;
+    private boolean active;
 
-    public User() {
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles = new HashSet<>();
+
+    public boolean isAdmin() {
+        return roles.contains(Role.ADMIN);
     }
 
-    public User(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
-
-    public User(String username, String password, Role role) {
-        this.username = username;
-        this.password = password;
-        this.setRole(role);
-    }
-
-    public void setRole(Role role) {
-        this.role = role != null ? role.name() : null;
-    }
-
-    public Role getRoleAsEnum() {
-        return role != null ? Role.valueOf(role) : null;
+    public boolean isPlayer() {
+        return roles.contains(Role.PLAYER);
     }
 }

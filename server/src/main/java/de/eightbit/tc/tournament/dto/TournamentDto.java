@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 public class TournamentDto {
-    private String id;
+    private Long id;
     private String name;
     private String description;
     private String additionalNotes;

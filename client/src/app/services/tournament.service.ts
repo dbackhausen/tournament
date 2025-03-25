@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from "rxjs/internal/Observable";
-import {Registration, Tournament} from "../models/tournament.model";
+import { Tournament} from "../models/tournament.model";
 import { catchError, of } from "rxjs";
-import {Player} from "src/app/models/player.model";
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +11,6 @@ export class TournamentService {
   private apiUrl = 'http://localhost:8080/api/tournaments'; // Basis-URL des Backends
 
   constructor(private http: HttpClient) { }
-
-  // -- TOURNAMENTS --
 
   getTournaments(): Observable<Tournament[]> {
     return this.http.get<Tournament[]>(this.apiUrl)
@@ -56,46 +53,6 @@ export class TournamentService {
     return this.http.delete<void>(url)
       .pipe(
         catchError(this.handleError<void>('deleteTournament'))
-      );
-  }
-
-  // -- REGISTRATIONS --
-
-  getRegistrations(tournamentId: number): Observable<Registration[]> {
-    const url = `${this.apiUrl}/${tournamentId}/registrations`;
-    return this.http.get<Registration[]>(url)
-      .pipe(
-        catchError(this.handleError<Registration[]>('getRegistrations', []))
-      );
-  }
-
-  addRegistration(tournamentId: number, registration: Registration) {
-    const url = `${this.apiUrl}/${tournamentId}/register`;
-    const httpOptions = {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    };
-    return this.http.post<Registration>(url, registration, httpOptions)
-      .pipe(
-        catchError(this.handleError<Registration>('register'))
-      );
-  }
-
-  getRegistration(tournamentId: number, playerId: number){
-    const url = `${this.apiUrl}/${tournamentId}/registrations/${playerId}`;
-    return this.http.get<Registration>(url)
-      .pipe(
-        catchError(this.handleError<Registration>('getPlayerRegistration'))
-      );
-  }
-
-  updateRegistration(tournamentId: number, registrationId: number, registration: Registration) {
-    const url = `${this.apiUrl}/${tournamentId}/registrations/${registrationId}`;
-    const httpOptions = {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    };
-    return this.http.put<Registration>(url, registration, httpOptions)
-      .pipe(
-        catchError(this.handleError<Registration>('updateRegistration'))
       );
   }
 

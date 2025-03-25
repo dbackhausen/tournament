@@ -1,10 +1,9 @@
 package de.eightbit.tc.tournament.controller;
 
-import de.eightbit.tc.tournament.dto.AuthResponse;
-import de.eightbit.tc.tournament.dto.LoginRequest;
-import de.eightbit.tc.tournament.dto.UserDto;
-import de.eightbit.tc.tournament.model.Player;
-import de.eightbit.tc.tournament.repository.PlayerRepository;
+import de.eightbit.tc.tournament.dto.*;
+import de.eightbit.tc.tournament.model.Role;
+import de.eightbit.tc.tournament.model.User;
+import de.eightbit.tc.tournament.service.UserService;
 import de.eightbit.tc.tournament.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,7 @@ import java.util.Optional;
 public class AuthController {
 
     @Autowired
-    private PlayerRepository playerRepository;
+    private UserService userService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -30,38 +29,40 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Player player) {
-        if (playerRepository.findByUsername(player.getUsername()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already exists");
-        }
 
-        if (playerRepository.findByEmail(player.getEmail()).isPresent()) {
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody UserRegistrationDto dto) {
+        if (userService.getUserByEmail(dto.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("E-Mail address already registered");
         }
 
-        player.setPassword(passwordEncoder.encode(player.getPassword()));
-        Player savedPlayer = playerRepository.save(player);
+        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
+        User newUser = new User();
+        newUser.setEmail(dto.getEmail());
+        newUser.setPassword(dto.getPassword());
+        newUser.setGender(dto.getGender());
+        newUser.setFirstName(dto.getFirstName());
+        newUser.setLastName(dto.getFirstName());
+        newUser.setMobile(dto.getMobile());
+        newUser.getRoles().add(Role.PLAYER);
+        newUser.setActive(false); // not active till registration confirmation
 
-        return ResponseEntity.ok(savedPlayer);
+        User saveUser = userService.createUser(newUser);
+        return ResponseEntity.ok(saveUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        Optional<Player> playerOptional = playerRepository.findByUsername(request.getUsername());
-
-        if (playerOptional.isEmpty()) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        Optional<User> user = userService.getUserByEmail(loginRequest.getEmail());
+        if (user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
-
-        Player player = playerOptional.get();
-        if (!passwordEncoder.matches(request.getPassword(), player.getPassword())) {
+        User existingUser = user.get();
+        if (!passwordEncoder.matches(loginRequest.getPassword(), existingUser.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
-
-        String token = jwtUtil.generateToken(player.getUsername());
-        UserDto user = new UserDto(player);
-
-        return ResponseEntity.ok(new AuthResponse(token, user));
+        String token = jwtUtil.generateToken(existingUser.getEmail());
+        UserDto userDto = userService.mapToDto(existingUser);
+        return ResponseEntity.ok(new AuthResponse(token, userDto));
     }
 }

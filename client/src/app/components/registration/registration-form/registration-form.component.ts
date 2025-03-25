@@ -20,10 +20,10 @@ import { atLeastOneDaySelectedValidator } from "src/app/validator/at-least-one-d
 import { atLeastOneTypeSelectedValidator } from "src/app/validator/at-least-one-type-selected.validator";
 import { selectedDateTimeValidator } from "src/app/validator/selected-date-time-validator";
 import { AuthService } from "src/app/services/auth.service";
-import { Player } from "src/app/models/player.model";
-import { PlayerService } from "src/app/services/player.service";
 import { forkJoin, map, of, switchMap } from "rxjs";
 import { tap } from "rxjs/operators";
+import { User } from "src/app/models/user.model";
+import { RegistrationService } from "src/app/services/registration.service";
 
 @Component({
   selector: 'app-registration-form',
@@ -46,13 +46,13 @@ export class RegistrationFormComponent implements OnInit {
   registerForm: FormGroup;
   tournamentId: number | null = null;
   tournament: Tournament | null = null;
-  player: Player | null = null;
+  user: User | null = null;
   registration: Registration | null = null;
 
   constructor(
     private authService: AuthService,
-    private playerService: PlayerService,
     private tournamentService: TournamentService,
+    private registrationService: RegistrationService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router
@@ -66,118 +66,143 @@ export class RegistrationFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
-      const id = params.get('id');
-      if (id) {
-        this.tournamentId = +id;
-        const currentUser = this.authService.getUser();
-        this.loadData(this.tournamentId, currentUser.id);
-      } else {
-        this.router.navigate([`/tournament/edit/${id}`])
-      }
-    });
-  }
+      const url = this.route.snapshot.url.map(segment => segment.path).join('/');
+      const tournamentId = params.get('tournamentId');
 
-  loadData(tournamentId: number, playerId: number) {
-    this.tournamentService.getRegistration(tournamentId, playerId).pipe(
-      map(registration => {
-        if (!registration) {
-          return { registration: null, tournament: null, player: null };
-        }
-        return {
-          registration,
-          tournament: registration.tournament,
-          player: registration.player
-        };
-      }),
-      tap(result => console.log(result.registration ? 'Existing registration found' : 'No existing registration found')),
-      switchMap((result) => {
-        if (result.registration === null) {
-          return forkJoin({
-            tournament: this.tournamentService.getTournament(tournamentId),
-            player: this.playerService.getPlayer(playerId)
-          }).pipe(
-            map(({ tournament, player }) => ({
-              registration: null,
-              tournament,
-              player
-            }))
-          );
+      if (tournamentId) {
+        this.tournamentId = +tournamentId;
+
+        if (url.includes('registration/edit')) {
+          const registrationId = params.get('registrationId');
+          if (registrationId) {
+            this.registrationService.getRegistration(Number(registrationId)).subscribe({
+              next: (data) => {
+                this.registration = data;
+                this.restoreRegistrationData();
+              },
+              error: (error) => {
+                console.error('Error loading tournaments');
+              },
+              complete: () => {
+                console.log('Tournaments successfully loaded')
+              }
+            });
+          }
         } else {
-          return of(result);
+          this.user = this.authService.getUser();
+          this.loadData(this.tournamentId);
         }
-      })
-    ).subscribe({
-      next: (result) => {
-        this.registration = result.registration;
-        this.tournament = result.tournament;
-        this.player = result.player;
-
-        if (this.tournament?.tournamentDays?.length > 0) {
-          this.tournament.tournamentDays.forEach(day => {
-            this.addDayGroup(day);
-          })
-        }
-
-        if (this.tournament?.tournamentTypes?.length > 0) {
-          this.tournament.tournamentTypes.forEach(type => {
-            this.addTypeGroup(type);
-          })
-        }
-
-        if (this.registration) {
-          this.restoreRegistrationData(this.registration);
-        }
-      },
-      error: (err) => {
-        console.error('Error loading data:', err);
+      } else {
+        this.router.navigate([`/tournament`])
       }
     });
   }
 
-  private restoreRegistrationData(registration: Registration) {
-    // 1. Restore selected days
-    const daysArray = this.registerForm.get('selectableDays') as FormArray;
-    const selectedDays = registration.selectedDays;
+  loadData(tournamentId: number) {
+    if (this.user && this.user) {
+      this.registrationService.getRegistrationByTournamentAndUser(tournamentId, this.user.id).pipe(
+        map(registration => {
+          if (!registration) {
+            return { registration: null, tournament: null, user: null };
+          }
+          return {
+            registration,
+            tournament: registration.tournament,
+            user: registration.user
+          };
+        }),
+        tap(result => console.log(result.registration ? 'Existing registration found' : 'No existing registration found')),
+        switchMap((result) => {
+          if (result.registration === null) {
+            return forkJoin({
+              tournament: this.tournamentService.getTournament(tournamentId),
+            }).pipe(
+              map(({ tournament }) => ({
+                registration: null,
+                tournament,
+                user: this.user
+              }))
+            );
+          } else {
+            return of(result);
+          }
+        })
+      ).subscribe({
+        next: (result) => {
+          this.registration = result.registration;
+          this.tournament = result.tournament;
 
-    daysArray.controls.forEach(dayGroup => {
-      const date = dayGroup.get('date')?.value;
-      const match = selectedDays.find(d => d.date === date);
+          if (this.tournament?.tournamentDays?.length > 0) {
+            this.tournament.tournamentDays.forEach(day => {
+              this.addDayGroup(day);
+            })
+          }
 
-      if (match) {
-        let time = new Date(`1970-01-01T${match.time}`);
-        const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        dayGroup.get('selected')?.setValue(true);
-        dayGroup.get('selectedTime')?.setValue(timeString);
-      } else {
-        dayGroup.get('selected')?.setValue(false);
-        dayGroup.get('selectedTime')?.setValue('');
+          if (this.tournament?.tournamentTypes?.length > 0) {
+            this.tournament.tournamentTypes.forEach(type => {
+              this.addTypeGroup(type);
+            })
+          }
+
+          if (this.registration) {
+            this.restoreRegistrationData();
+          }
+        },
+        error: (err) => {
+          console.error('Error loading data:', err);
+        }
+      });
+    }
+  }
+
+  private restoreRegistrationData() {
+    console.log(this.registration);
+
+    if (this.registration) {
+      // 1. Restore selected days
+      const daysArray = this.registerForm.get('selectableDays') as FormArray;
+      const selectedDays = this.registration.selectedDays;
+
+      daysArray.controls.forEach(dayGroup => {
+        const date = dayGroup.get('date')?.value;
+        const match = selectedDays.find(d => d.date === date);
+
+        if (match) {
+          let time = new Date(`1970-01-01T${match.time}`);
+          const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          dayGroup.get('selected')?.setValue(true);
+          dayGroup.get('selectedTime')?.setValue(timeString);
+        } else {
+          dayGroup.get('selected')?.setValue(false);
+          dayGroup.get('selectedTime')?.setValue('');
+        }
+      });
+
+      // 2. Restore selected game types
+      const typesArray = this.registerForm.get('selectableTypes') as FormArray;
+      const selectedTypes = this.registration.selectedTypes;
+
+      typesArray.controls.forEach(typeGroup => {
+        const type = typeGroup.get('type')?.value;
+        const isSelected = selectedTypes.includes(type.toUpperCase());
+        typeGroup.get('selected')?.setValue(isSelected);
+      });
+
+      // 3. Optional: restore any notes
+      if (this.registration.notes) {
+        this.registerForm.get('notes')?.setValue(this.registration.notes);
       }
-    });
-
-    // 2. Restore selected game types
-    const typesArray = this.registerForm.get('selectableTypes') as FormArray;
-    const selectedTypes = registration.selectedTypes;
-
-    typesArray.controls.forEach(typeGroup => {
-      const type = typeGroup.get('type')?.value;
-      const isSelected = selectedTypes.includes(type.toUpperCase());
-      typeGroup.get('selected')?.setValue(isSelected);
-    });
-
-    // 3. Optional: restore any notes
-    if (registration.notes) {
-      this.registerForm.get('notes')?.setValue(registration.notes);
     }
   }
 
   onSubmit() {
-    if (this.player && this.tournamentId && this.tournament && this.registerForm.valid) {
+    if (this.user && this.user &&  this.tournamentId && this.tournament && this.registerForm.valid) {
       const formData = this.registerForm.value;
 
       const registration: Registration = {
         id: this.tournamentId,
         tournament: this.tournament,
-        player: this.player,
+        user: this.user,
         selectedDays: formData.selectableDays
           .filter((day: { selected: any; }) => day.selected)
           .map((day: { date: any; selectedTime: any; }) => ({
@@ -191,7 +216,7 @@ export class RegistrationFormComponent implements OnInit {
       };
 
       if (this.registration === null) {
-        this.tournamentService.addRegistration(this.tournamentId, registration).subscribe({
+        this.registrationService.addRegistration(registration).subscribe({
           next: () => {
             console.log('Registration successfully created');
             this.registerForm.reset();
@@ -203,7 +228,7 @@ export class RegistrationFormComponent implements OnInit {
         });
       } else {
         if (this.registration.id != null) {
-          this.tournamentService.updateRegistration(this.tournamentId, this.registration.id, registration).subscribe({
+          this.registrationService.updateRegistration(this.registration).subscribe({
             next: () => {
               console.log('Registration successfully updated');
               this.registerForm.reset();
