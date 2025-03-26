@@ -58,7 +58,7 @@ public class TournamentController {
     public ResponseEntity<TournamentDto> updateTournament(
             @PathVariable Long id,
             @RequestBody TournamentDto tournamentDto) {
-        Optional<Tournament> updatedTournament = tournamentService.updateTournament(id, tournamentDto);
+            Optional<Tournament> updatedTournament = tournamentService.updateTournament(id, tournamentDto);
         if (updatedTournament.isEmpty()) {
             return ResponseEntity.notFound().build();
         }

@@ -52,7 +52,7 @@
             <td>
               <div class="flex flex-row align-items-center justify-content-end gap-3">
                 <div class="flex" *ngIf="isAdmin">
-                  <p-button icon="pi pi-pencil" severity="secondary" (click)="openEditDialog(user)" size="small"></p-button>
+                  <p-button icon="pi pi-pencil" severity="secondary" (click)="editUser(user.id)" size="small"></p-button>
                 </div>
                 <div class="flex" *ngIf="isAdmin">
                   <p-button icon="pi pi-times" severity="danger" (click)="deleteUser(user.id)" size="small"></p-button>
@@ -72,31 +72,3 @@
     </div>
   }
 </p-card>
-
-<!-- Der Dialog -->
-<p-dialog header="Benutzer bearbeiten" [(visible)]="editDialogVisible" [modal]="true" [closable]="true" [style]="{width: '400px'}">
-  <form [formGroup]="editForm" (ngSubmit)="onSaveEdit()">
-    <div class="field">
-      <label for="firstName">Vorname</label>
-      <input id="firstName" type="text" pInputText formControlName="firstName" />
-    </div>
-    <div class="field">
-      <label for="lastName">Nachname</label>
-      <input id="lastName" type="text" pInputText formControlName="lastName" />
-    </div>
-    <div class="field">
-      <label for="email">E-Mail</label>
-      <input id="email" type="email" pInputText formControlName="email" />
-    </div>
-    <div class="field">
-      <label for="mobile">Mobil</label>
-      <input id="mobile" type="text" pInputText formControlName="mobile" />
-    </div>
-    <!-- Weitere Felder nach Bedarf -->
-
-    <div class="flex justify-content-end mt-4 gap-2">
-      <p-button label="Abbrechen" severity="secondary" (click)="editDialogVisible = false" />
-      <p-button label="Speichern" type="submit" [disabled]="editForm.invalid" />
-    </div>
-  </form>
-</p-dialog>

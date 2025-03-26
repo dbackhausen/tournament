@@ -106,8 +106,8 @@ export class TournamentFormComponent implements OnInit {
         tournament.tournamentDays.forEach(day => {
           daysFormArray.push(this.fb.group({
             date: [new Date(day.date)],
-            startTime: [day.startTime],
-            endTime: [day.endTime]
+            startTime: [this.convertTimeStringToDate(day.startTime)],
+            endTime: [this.convertTimeStringToDate(day.endTime)]
           }));
         });
       }
@@ -138,19 +138,15 @@ export class TournamentFormComponent implements OnInit {
       const tournamentDays: TournamentDay[] = formValue.tournamentDays;
 
       if (tournamentDays && tournamentDays.length > 0) {
-
         tournamentDays.sort((a, b) => {
           const dateA = new Date(a.date).getTime();
           const dateB = new Date(b.date).getTime();
           return dateA - dateB;
         });
         tournamentDays.forEach(day => {
-          const dateObj = Date.parse(day.date);
-          const startTimeObj = Date.parse('1970-01-01T' + day.startTime);
-          const endTimeObj = Date.parse('1970-01-01T' + day.endTime);
-          day.date = <string>this.datePipe.transform(dateObj, 'yyyy-MM-dd');
-          day.startTime = <string>this.datePipe.transform(startTimeObj, 'HH:mm');
-          day.endTime = <string>this.datePipe.transform(endTimeObj, 'HH:mm');
+          day.date = <string>this.datePipe.transform(day.date, 'yyyy-MM-dd');
+          day.startTime = <string>this.datePipe.transform(day.startTime, 'HH:mm');
+          day.endTime = <string>this.datePipe.transform(day.endTime, 'HH:mm');
         });
 
         const startDate = tournamentDays[0].date;
@@ -253,6 +249,14 @@ export class TournamentFormComponent implements OnInit {
     }
 
     return null;
+  }
+
+  private convertTimeStringToDate(timeString: string): Date | null {
+    if (!timeString) return null;
+    const timeParts = timeString.split(':');
+    const time = new Date();
+    time.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), 0, 0);
+    return time;
   }
 
   // ------------------ TOURNAMENT TYPES ------------------

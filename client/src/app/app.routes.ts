@@ -19,6 +19,7 @@ import {
 } from "src/app/components/registration/registration-overview/registration-overview.component";
 import {ProfileViewComponent} from "src/app/components/profile/profile-view/profile-view.component";
 import {UserOverviewComponent} from "src/app/components/user/user-overview/user-overview.component";
+import {UserFormComponent} from "src/app/components/user/user-form/user-form.component";
 
 export const routes: Routes = [
   {
@@ -51,6 +52,10 @@ export const routes: Routes = [
   },
   {
     path: 'user', component: UserOverviewComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'user/:id', component: UserFormComponent,
     canActivate: [authGuard]
   },
   {
