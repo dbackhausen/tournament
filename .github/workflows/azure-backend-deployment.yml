@@ -14,7 +14,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Set up JDK
+      # Set Working Directory (falls dein Backend in einem Unterordner liegt)
+      - name: Change Directory to Backend
+        run: cd backend
+
+      # Set up JDK 21
       - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
@@ -29,7 +33,7 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'TC69 Tournament'
+          app-name: 'TC69_Tournament'   # Name der Azure Web App
           slot-name: 'production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: ./build/libs/*.jar
