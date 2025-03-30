@@ -4,9 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "prebuild": "cp ./scripts/set-env.js ./src/assets/set-env.js",
-    "build": "ng build --configuration=production",
     "postbuild": "node scripts/set-env.js",
+    "build": "ng build --configuration=production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
