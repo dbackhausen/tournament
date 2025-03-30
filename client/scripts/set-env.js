@@ -1,5 +1,5 @@
 const fs = require('fs');
-const targetPath = './dist/tournament/browser/assets/env.js';
+const targetPath = './src/assets/env.js';
 
 const envConfig = `
 window.env = {
