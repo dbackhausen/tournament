@@ -1,18 +1,16 @@
 const fs = require('fs');
-const targetPath = './src/assets/env.js';
+const targetPath = './dist/tournament/browser/assets/env.js';
 
-const envConfigFile = `
-(function (window) {
-  window.env = {
-    API_URL: '${process.env.API_URL || 'http://localhost:8080/api/'}'
-  };
-})(this);
+const envConfig = `
+window.env = {
+  API_URL: "${process.env.API_URL || 'http://localhost:8080/api/'}"
+};
 `;
 
-fs.writeFile(targetPath, envConfigFile, function (err) {
+fs.writeFile(targetPath, envConfig, (err) => {
   if (err) {
-    console.error('Error creating env.js file', err);
+    console.error('Error writing env.js', err);
   } else {
-    console.log(`env.js file created at ${targetPath}`);
+    console.log('Environment variables set successfully at ' + targetPath);
   }
 });
