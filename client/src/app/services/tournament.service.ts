@@ -3,12 +3,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from "rxjs/internal/Observable";
 import { Tournament} from "../models/tournament.model";
 import { catchError, of } from "rxjs";
+import { environment } from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root',
 })
 export class TournamentService {
-  private apiUrl = 'http://localhost:8080/api/tournaments'; // Basis-URL des Backends
+  private apiUrl = environment.apiUrl + '/tournaments'; // Basis-URL des Backends
 
   constructor(private http: HttpClient) { }
 
