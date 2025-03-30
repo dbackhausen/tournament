@@ -10,18 +10,20 @@ import { environment } from "../../environments/environment";
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = environment.apiUrl + '/auth';
+  private apiUrl = environment.apiUrl;
   private isLoggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
   isLoggedIn$ = this.isLoggedInSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {}
 
   register(user: UserRegistration): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, user);
+    const url = `${this.apiUrl}/auth/register`;
+    return this.http.post(url, user);
   }
 
   login(credentials: { email: any; password: any }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
+    const url = `${this.apiUrl}/auth/login`;
+    return this.http.post(url, credentials).pipe(
       tap((response: any) => {
         console.log(response);
         localStorage.setItem('token', response.token);

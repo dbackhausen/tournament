@@ -9,26 +9,29 @@ import { environment } from "../../environments/environment";
   providedIn: 'root',
 })
 export class UserService {
-  private apiUrl = environment.apiUrl + '/api/users';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
   getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl)
+    const url = `${this.apiUrl}/users`;
+    return this.http.get<User[]>(url)
       .pipe(
         catchError(this.handleError<User[]>('getUsers', []))
       );
   }
 
   getUser(id: number): Observable<User> {
-    return this.http.get<any>(this.apiUrl + "/" + id)
+    const url = `${this.apiUrl}/users/${id}`;
+    return this.http.get<any>(url)
       .pipe(
         catchError(this.handleError<User>('getUser'))
       );
   }
 
   updateUser(user: User): Observable<User> {
-    return this.http.put<any>(this.apiUrl + "/" + user.id, user)
+    const url = `${this.apiUrl}/users/${user.id}`;
+    return this.http.put<any>(url, user)
       .pipe(
         catchError(this.handleError<User>('updateUser'))
       );

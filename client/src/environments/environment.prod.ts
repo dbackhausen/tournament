@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'tournament-app-backend-e7bvhbgefqfchtfm.germanywestcentral-01.azurewebsites.net/api/'
+  apiUrl: (window as any).env?.API_URL || 'http://localhost:8080/api/'
 };

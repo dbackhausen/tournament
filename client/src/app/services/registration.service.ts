@@ -9,12 +9,12 @@ import { environment } from "../../environments/environment";
   providedIn: 'root',
 })
 export class RegistrationService {
-  private apiUrl = environment.apiUrl + '/registrations'; // Basis-URL des Backends
+  private apiUrl = environment.apiUrl; // Basis-URL des Backends
 
   constructor(private http: HttpClient) { }
 
   addRegistration(registration: Registration) {
-    const url = `${this.apiUrl}`;
+    const url = `${this.apiUrl}/registrations`;
     const httpOptions = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     };
@@ -25,7 +25,7 @@ export class RegistrationService {
   }
 
   getRegistration(registrationId: number){
-    const url = `${this.apiUrl}/${registrationId}`;
+    const url = `${this.apiUrl}/registrations/${registrationId}`;
     return this.http.get<Registration>(url)
       .pipe(
         catchError(this.handleError<Registration>(`getRegistration registrationId=${registrationId}`))
@@ -33,7 +33,7 @@ export class RegistrationService {
   }
 
   getRegistrationsByTournament(tournamentId: number): Observable<Registration[]> {
-    const url = `${this.apiUrl}/find/by-tournament?tournamentId=${tournamentId}`;
+    const url = `${this.apiUrl}/registrations/find/by-tournament?tournamentId=${tournamentId}`;
     return this.http.get<Registration[]>(url)
       .pipe(
         catchError(this.handleError<Registration[]>(`getRegistrationsByTournament tournamentId=${tournamentId}`, []))
@@ -41,7 +41,7 @@ export class RegistrationService {
   }
 
   getRegistrationsByUser(userId: number){
-    const url = `${this.apiUrl}/find/by-user?userId=${userId}`;
+    const url = `${this.apiUrl}/registrations/find/by-user?userId=${userId}`;
     return this.http.get<Registration>(url)
       .pipe(
         catchError(this.handleError<Registration>(`getRegistrationsByUser userId=${userId}`))
@@ -49,14 +49,14 @@ export class RegistrationService {
   }
 
   getRegistrationByTournamentAndUser(tournamentId: number, userId: number): Observable<Registration | null> {
-    const url = `${this.apiUrl}/find/by-tournament-and-user?tournamentId=${tournamentId}&userId=${userId}`;
+    const url = `${this.apiUrl}/registrations/find/by-tournament-and-user?tournamentId=${tournamentId}&userId=${userId}`;
     return this.http.get<Registration>(url).pipe(
       catchError(this.handleError<Registration>(`getRegistrationByTournamentAndUser tournamentId=${tournamentId} userId=${userId}`))
     );
   }
 
   updateRegistration(registration: Registration) {
-    const url = `${this.apiUrl}`;
+    const url = `${this.apiUrl}/registrations`;
     const httpOptions = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     };
@@ -67,7 +67,7 @@ export class RegistrationService {
   }
 
   deleteRegistration(registrationId: number) {
-    const url = `${this.apiUrl}/${registrationId}`;
+    const url = `${this.apiUrl}/registrations/${registrationId}`;
     return this.http.delete<Registration>(url)
       .pipe(
         catchError(this.handleError<Registration>('getUserRegistration'))
