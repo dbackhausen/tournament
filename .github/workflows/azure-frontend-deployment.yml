@@ -20,11 +20,6 @@ jobs:
           submodules: true
           lfs: false
 
-      - name: Check API_URL
-        run: echo "API_URL is set"
-        env:
-          API_URL: ${{ secrets.API_URL }}
-
       # Set Environment Variables Step
       - name: Set Environment Variables
         run: echo "API_URL=${{ secrets.API_URL }}" >> $GITHUB_ENV
