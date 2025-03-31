@@ -23,6 +23,7 @@ jobs:
       # Set Environment Variables Step
       - name: Set Environment Variables
         run: echo "API_URL=${{ secrets.API_URL }}" >> $GITHUB_ENV
+        working-directory: ./client
 
       # Install Node.js
       - name: Set up Node.js
@@ -38,15 +39,18 @@ jobs:
       # Create env.js file
       - name: Create env.js
         run: |
-          echo "window.env = { API_URL: '$(echo $API_URL)' };" > ./src/assets/env.js
+          echo "window.env = { API_URL: '$(echo $API_URL)' };" > ./assets/env.js
+        working-directory: ./client
 
       # Build the Angular App
       - name: Build Angular App
         run: npm run build --configuration=production
+        working-directory: ./client
 
       # Move env.js to dist after build
       - name: Move env.js to dist folder
         run: cp ./src/assets/env.js ./dist/tournament/browser/assets/env.js
+        working-directory: ./client
 
       # Build And Deploy
       - name: Build And Deploy
