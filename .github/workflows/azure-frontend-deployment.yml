@@ -30,6 +30,10 @@ jobs:
         with:
           node-version: '18'
 
+      # Set working directory
+      - name: Set working directory
+        run: cd client
+
       # Install Dependencies
       - name: Install Dependencies
         run: npm install
