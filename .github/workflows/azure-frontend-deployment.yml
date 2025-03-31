@@ -30,17 +30,20 @@ jobs:
         with:
           node-version: '18'
 
-      # Set working directory
-      - name: Set working directory
-        run: cd client
-
       # Install Dependencies
       - name: Install Dependencies
         run: npm install
+        working-directory: ./client
 
       # Prebuild Step: Copy env.js
       - name: Prepare Environment File
         run: cp ./scripts/set-env.js ./src/assets/env.js
+        working-directory: ./client
+
+      # Build Project
+      - name: Build Project
+        run: npm run build
+        working-directory: ./client
 
       # Build And Deploy
       - name: Build And Deploy
