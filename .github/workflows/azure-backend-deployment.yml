@@ -26,9 +26,13 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      # Make gradlew executable
+      - name: Make gradlew executable
+        run: chmod +x ./server/gradlew
+
       # Build the Spring Boot Application
       - name: Build with Gradle
-        run: ./gradlew clean build -x test
+        run: ./server/gradlew clean build -x test
 
       # Deploy to Azure Web App
       - name: Deploy to Azure Web App
