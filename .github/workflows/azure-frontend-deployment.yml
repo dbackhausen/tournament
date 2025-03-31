@@ -20,10 +20,14 @@ jobs:
           submodules: true
           lfs: false
 
+      - name: Check API_URL
+        run: echo "API_URL is set"
+        env:
+          API_URL: ${{ secrets.API_URL }}
+
       # Set Environment Variables Step
       - name: Set Environment Variables
         run: echo "API_URL=${{ secrets.API_URL }}" >> $GITHUB_ENV
-        working-directory: ./client
 
       # Install Node.js
       - name: Set up Node.js
@@ -39,7 +43,7 @@ jobs:
       # Create env.js file
       - name: Create env.js
         run: |
-          echo "window.env = { API_URL: '$(echo $API_URL)' };" > ./assets/env.js
+          echo "window.env = { API_URL: '${{ secrets.API_URL }}' };" > ./src/assets/env.js
         working-directory: ./client
 
       # Build the Angular App
