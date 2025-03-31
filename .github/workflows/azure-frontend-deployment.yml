@@ -35,15 +35,18 @@ jobs:
         run: npm install
         working-directory: ./client
 
-      # Prebuild Step: Copy env.js
-      - name: Prepare Environment File
-        run: cp ./scripts/set-env.js ./src/assets/env.js
-        working-directory: ./client
+      # Create env.js file
+      - name: Create env.js
+        run: |
+          echo "window.env = { API_URL: '$(echo $API_URL)' };" > ./src/assets/env.js
 
-      # Build Project
-      - name: Build Project
-        run: npm run build
-        working-directory: ./client
+      # Build the Angular App
+      - name: Build Angular App
+        run: npm run build --configuration=production
+
+      # Move env.js to dist after build
+      - name: Move env.js to dist folder
+        run: cp ./src/assets/env.js ./dist/tournament/browser/assets/env.js
 
       # Build And Deploy
       - name: Build And Deploy
