@@ -17,7 +17,7 @@ jobs:
 
       # Set Working Directory (falls dein Backend in einem Unterordner liegt)
       - name: Change Directory to Backend
-        run: cd backend
+        run: cd server
 
       # Set up JDK 21
       - name: Set up JDK 21
