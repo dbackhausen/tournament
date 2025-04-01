@@ -34,12 +34,12 @@ jobs:
 
       # Überprüfe die Verzeichnisstruktur nach dem Build
       - name: List build directory
-        run: ls -R ./server/build
+        run: ls -R build
         working-directory: ./server
 
       # Überprüfe die Verzeichnisstruktur nach dem Build
       - name: List build libs directory
-        run: ls -R ./server/build/libs
+        run: ls -R build/libs
         working-directory: ./server
 
       # Deploy to Azure Web App
