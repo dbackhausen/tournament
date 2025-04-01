@@ -33,20 +33,20 @@ jobs:
         working-directory: ./server
 
       # Überprüfe die Verzeichnisstruktur nach dem Build
-      - name: List build directory
-        run: ls -R build
-        working-directory: ./server
-
-      # Überprüfe die Verzeichnisstruktur nach dem Build
       - name: List build libs directory
         run: ls -R build/libs
         working-directory: ./server
+
+      # Find the latest JAR file
+      - name: Find JAR file
+        id: find_jar
+        run: echo "jarfile=$(ls ./server/build/libs/*.jar | head -n 1)" >> $GITHUB_ENV
 
       # Deploy to Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'tournament-app-backend'   # Name der Azure Web App
+          app-name: 'tournament-app-backend'
           slot-name: 'production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ./server/build/libs/*.jar
+          package: ${{ env.jarfile }}
