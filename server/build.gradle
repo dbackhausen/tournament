@@ -18,6 +18,12 @@ java {
 	}
 }
 
+jar {
+	archiveBaseName = 'tournament-app-backend'
+	archiveVersion = '1.0'
+	destinationDirectory = layout.buildDirectory.dir("libs")
+}
+
 repositories {
 	mavenCentral()
 }
