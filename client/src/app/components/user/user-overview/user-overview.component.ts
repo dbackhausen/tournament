@@ -78,7 +78,7 @@ export class UserOverviewComponent implements OnInit {
     }
   }
 
-  toggleAdminRole(user: User, active: boolean) {
+  toggleActive(user: User, active: boolean) {
     user.active = active;
     this.userService.updateUser(user).subscribe({
       next: () => {
@@ -90,7 +90,7 @@ export class UserOverviewComponent implements OnInit {
     });
   }
 
-  toggleActive(user: User, admin: boolean) {
+  toggleAdminRole(user: User, admin: boolean) {
     const adminIndex = user.roles.indexOf('ADMIN');
 
     if (admin) {
