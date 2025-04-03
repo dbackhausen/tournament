@@ -33,6 +33,7 @@ export interface Tournament {
   additionalNotes?: string;
   startDate: Date;
   endDate: Date;
+  deadline: Date;
   tournamentDays: TournamentDay[];
   tournamentTypes: TournamentType[];
   registrationCount: number;

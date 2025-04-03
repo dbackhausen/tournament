@@ -26,6 +26,7 @@ public class TournamentService {
         tournament.setAdditionalNotes(tournamentDto.getAdditionalNotes());
         tournament.setStartDate(tournamentDto.getStartDate());
         tournament.setEndDate(tournamentDto.getEndDate());
+        tournament.setDeadline(tournamentDto.getDeadline());
         tournament.setTournamentTypes(tournamentDto.getTournamentTypes());
 
         List<TournamentDay> days = tournamentDto.getTournamentDays().stream()
@@ -46,6 +47,7 @@ public class TournamentService {
             tournament.setAdditionalNotes(tournamentDto.getAdditionalNotes());
             tournament.setStartDate(tournamentDto.getStartDate());
             tournament.setEndDate(tournamentDto.getEndDate());
+            tournament.setDeadline(tournamentDto.getDeadline());
             tournament.setTournamentTypes(tournamentDto.getTournamentTypes());
 
             List<TournamentDay> days = tournamentDto.getTournamentDays().stream()

@@ -19,7 +19,8 @@ import { DatePicker } from "primeng/datepicker";
 import { Checkbox } from "primeng/checkbox";
 import { Tournament, TournamentDay, TournamentType } from "src/app/models/tournament.model";
 import { DatePipe } from '@angular/common';
-import {Message} from "primeng/message";
+import { Message } from "primeng/message";
+import { deadlineBeforeFirstDayValidator } from "src/app/validator/deadlineBeforeFirstDay.validator";
 
 @Component({
   selector: 'app-tournament-form',
@@ -67,8 +68,9 @@ export class TournamentFormComponent implements OnInit {
       description: [''],
       additionalNotes: [''],
       tournamentDays: this.fb.array([this.createTournamentDay()]),
-      tournamentTypes: this.fb.array([], Validators.required)
-    });
+      tournamentTypes: this.fb.array([], Validators.required),
+      deadline: ['', Validators.required]
+    }, { validators: deadlineBeforeFirstDayValidator });
   }
 
   ngOnInit(): void {
@@ -89,13 +91,15 @@ export class TournamentFormComponent implements OnInit {
   loadTournament(id: number): void {
     this.tournamentService.getTournament(id).subscribe((tournament) => {
       this.tournament = tournament;
+      const deadlineDate = tournament.deadline ? new Date(tournament.deadline) : null;
 
       this.tournamentForm.patchValue({
         name: tournament.name,
         description: tournament.description,
         additionalNotes: tournament.additionalNotes,
         startDate: tournament.startDate,
-        endDate: tournament.endDate
+        endDate: tournament.endDate,
+        deadline: deadlineDate
       });
 
       // Set the tournament dates
@@ -152,12 +156,19 @@ export class TournamentFormComponent implements OnInit {
         const startDate = tournamentDays[0].date;
         const endDate = tournamentDays[tournamentDays.length - 1].date;
 
+        const deadlineDate = new Date(formValue.deadline);
+        const deadline = <string>this.datePipe.transform(deadlineDate, 'yyyy-MM-dd HH:mm');
+        console.log('Formatted Deadline:', deadline);
+
         const tournamentData = {
           ...formValue,
           tournamentTypes: selectedTypes,
           startDate,
-          endDate
+          endDate,
+          deadline
         };
+
+        console.log(tournamentData);
 
         if (this.editMode && this.tournamentId) {
           // Update an existing tournament
