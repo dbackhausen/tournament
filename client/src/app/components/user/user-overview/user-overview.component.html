@@ -50,6 +50,12 @@
               ></p-toggleswitch>
             </td>
             <td>
+              <p-toggleswitch
+                [ngModel]="user.role"
+                (ngModelChange)="toggleAdminRole(user, $event)"
+              ></p-toggleswitch>
+            </td>
+            <td>
               <div class="flex flex-row align-items-center justify-content-end gap-3">
                 <div class="flex" *ngIf="isAdmin">
                   <p-button icon="pi pi-pencil" severity="secondary" (click)="editUser(user.id)" size="small"></p-button>

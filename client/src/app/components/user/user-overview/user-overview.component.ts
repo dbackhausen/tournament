@@ -78,14 +78,37 @@ export class UserOverviewComponent implements OnInit {
     }
   }
 
-  toggleActive(user: User, newValue: boolean) {
-    user.active = newValue;
+  toggleAdminRole(user: User, active: boolean) {
+    user.active = active;
     this.userService.updateUser(user).subscribe({
       next: () => {
-        console.log(`User ${user.email} erfolgreich aktualisiert.`);
+        console.log(`User ${user.email} successfully updated.`);
       },
       error: (err) => {
-        console.error('Fehler beim Aktualisieren des Status', err);
+        console.error('Error updating user', err);
+      }
+    });
+  }
+
+  toggleActive(user: User, admin: boolean) {
+    const adminIndex = user.roles.indexOf('ADMIN');
+
+    if (admin) {
+      if (adminIndex === -1) {
+        user.roles.push('ADMIN');
+      }
+    } else {
+      if (adminIndex > -1) {
+        user.roles.splice(adminIndex, 1);
+      }
+    }
+
+    this.userService.updateUser(user).subscribe({
+      next: () => {
+        console.log(`User ${user.email} successfully updated.`);
+      },
+      error: (err) => {
+        console.error('Error updating user', err);
       }
     });
   }
