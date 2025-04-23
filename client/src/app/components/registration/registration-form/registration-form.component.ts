@@ -200,7 +200,7 @@ export class RegistrationFormComponent implements OnInit {
       const formData = this.registerForm.value;
 
       const registration: Registration = {
-        id: this.tournamentId,
+        id: this.registration?.id ?? this.tournamentId,
         tournament: this.tournament,
         user: this.user,
         selectedDays: formData.selectableDays
@@ -227,18 +227,16 @@ export class RegistrationFormComponent implements OnInit {
           }
         });
       } else {
-        if (this.registration.id != null) {
-          this.registrationService.updateRegistration(this.registration).subscribe({
-            next: () => {
-              console.log('Registration successfully updated');
-              this.registerForm.reset();
-              this.router.navigate(['/tournament']);
-            },
-            error: (error) => {
-              console.error('Error updating registration', error);
-            }
-          });
-        }
+        this.registrationService.updateRegistration(registration).subscribe({
+          next: () => {
+            console.log('Registration successfully updated');
+            this.registerForm.reset();
+            this.router.navigate(['/tournament']);
+          },
+          error: (error) => {
+            console.error('Error updating registration', error);
+          }
+        });
       }
     } else {
       console.error('Invalid form');

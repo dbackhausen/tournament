@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -75,15 +72,29 @@ public class RegistrationController {
     @GetMapping("/find/by-tournament")
     public ResponseEntity<Iterable<RegistrationDto>> getRegistrationsByTournament(@RequestParam Long tournamentId) {
         List<Registration> registrations = registrationService.getAllRegistrationsByTournament(tournamentId);
-        List<RegistrationDto> registrationDtos = MappingUtils.mapList(registrations, RegistrationDto.class);
-        return ResponseEntity.ok(registrationDtos);
+        if (!registrations.isEmpty()) {
+            List<RegistrationDto> registrationDtos = new ArrayList<>();
+            for (Registration registration : registrations) {
+                registrationDtos.add(mapRegistration(registration));
+            }
+            return ResponseEntity.ok(registrationDtos);
+        } else {
+            return ResponseEntity.notFound().build(); // return 404
+        }
     }
 
     @GetMapping("/find/by-user")
     public ResponseEntity<Iterable<RegistrationDto>> getRegistrationsByUser(@RequestParam Long userId) {
         List<Registration> registrations = registrationService.getAllRegistrationsByUser(userId);
-        List<RegistrationDto> registrationDtos = MappingUtils.mapList(registrations, RegistrationDto.class);
-        return ResponseEntity.ok(registrationDtos);
+        if (!registrations.isEmpty()) {
+            List<RegistrationDto> registrationDtos = new ArrayList<>();
+            for (Registration registration : registrations) {
+                registrationDtos.add(mapRegistration(registration));
+            }
+            return ResponseEntity.ok(registrationDtos);
+        } else {
+            return ResponseEntity.notFound().build(); // return 404
+        }
     }
 
     @PutMapping

@@ -69,7 +69,7 @@ export class TournamentFormComponent implements OnInit {
       additionalNotes: [''],
       tournamentDays: this.fb.array([this.createTournamentDay()]),
       tournamentTypes: this.fb.array([], Validators.required),
-      deadline: ['', Validators.required]
+      deadline: ['', Validators.required],
     }, { validators: deadlineBeforeFirstDayValidator });
   }
 
@@ -91,6 +91,8 @@ export class TournamentFormComponent implements OnInit {
   loadTournament(id: number): void {
     this.tournamentService.getTournament(id).subscribe((tournament) => {
       this.tournament = tournament;
+      console.log(JSON.stringify(tournament));
+
       const deadlineDate = tournament.deadline ? new Date(tournament.deadline) : null;
 
       this.tournamentForm.patchValue({
@@ -291,5 +293,22 @@ export class TournamentFormComponent implements OnInit {
     } else if (!checked && index !== -1) {
       this.tournamentTypes.removeAt(index);
     }
+  }
+
+  parseDeadline(deadlineStr: string | null): Date | null {
+    if (!deadlineStr) return null;
+
+    // Normalize whitespace und trimmen
+    const normalized = deadlineStr.replace(/\s+/g, ' ').trim();
+
+    const [datePart, timePart] = normalized.split(' ');
+    if (!datePart || !timePart) return null;
+
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, minute] = timePart.split(':').map(Number);
+
+    if ([year, month, day, hour, minute].some(isNaN)) return null;
+
+    return new Date(year, month - 1, day, hour, minute);
   }
 }

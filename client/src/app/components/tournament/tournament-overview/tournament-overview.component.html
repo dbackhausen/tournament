@@ -40,6 +40,7 @@
             <th>Startdatum</th>
             <th>Enddatum</th>
             <th>Name</th>
+            <th>Meldeschluss</th>
             <th></th>
           </tr>
         </ng-template>
@@ -48,6 +49,7 @@
             <td>{{ tournament.startDate | date:'dd.MM.yyyy' }}</td>
             <td>{{ tournament.endDate | date:'dd.MM.yyyy' }}</td>
             <td>{{ tournament.name }}</td>
+            <td>{{ tournament.deadline | date:'dd.MM. HH:mm' }} Uhr</td>
             <td>
               <div class="flex flex-row align-items-center justify-content-end gap-3">
                 <div class="flex">

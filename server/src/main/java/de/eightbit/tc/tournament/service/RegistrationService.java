@@ -99,15 +99,13 @@ public class RegistrationService {
                         req.setRegistration(existingRegistration);
                         return req;
                     }).toList();
-            existingRegistration.getParticipationRequests().clear(); // because of "all-delete-orphan" setting
-            existingRegistration.getParticipationRequests().addAll(participationRequests);
+            existingRegistration.setParticipationRequests(participationRequests);
 
             List<TournamentType> tournamentTypes = dto.getSelectedTypes().stream()
                     .map(TournamentType::fromValue) // String --> Enum
                     .toList();
 
-            existingRegistration.getSelectedTypes().clear(); // because of "all-delete-orphan" setting
-            existingRegistration.getSelectedTypes().addAll(tournamentTypes);
+            existingRegistration.setSelectedTypes(tournamentTypes);
 
             return registrationRepository.save(existingRegistration);
         }

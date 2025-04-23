@@ -4,12 +4,13 @@ import { Card } from "primeng/card";
 import { Button } from "primeng/button";
 import { TournamentService } from "src/app/services/tournament.service";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
-import { Registration, Tournament } from "src/app/models/tournament.model";
+import {Registration, Tournament, TournamentType} from "src/app/models/tournament.model";
 import { TableModule } from "primeng/table";
 import { AuthService } from "src/app/services/auth.service";
 import { map, switchMap } from "rxjs";
 import { Message } from "primeng/message";
 import { RegistrationService } from "src/app/services/registration.service";
+import {DataView} from "primeng/dataview";
 
 @Component({
   selector: 'app-registration-overview',
@@ -20,14 +21,15 @@ import { RegistrationService } from "src/app/services/registration.service";
     Button,
     TableModule,
     RouterLink,
-    Message
+    Message,
+    DataView
   ],
   templateUrl: './registration-overview.component.html',
   styleUrl: './registration-overview.component.scss'
 })
 export class RegistrationOverviewComponent implements OnInit {
   tournamentId: number | null = null;
-  private tournament: Tournament | null = null;
+  protected tournament: Tournament | null = null;
   protected registrations: Registration[] = [];
   isMobile: boolean = false;
   isAdmin: boolean = false;
@@ -112,22 +114,59 @@ export class RegistrationOverviewComponent implements OnInit {
 
   downloadRegistrationsAsCSV() {
     if (this.tournament) {
-      const headers = ['Vorname', 'Nachname', 'E-Mail', 'Spieltypen', 'Spieltage', 'Bemerkung'];
-      const rows = this.registrations.map(reg => [
-        reg.user.firstName,
-        reg.user.lastName,
-        reg.user.email,
-        (reg.selectedTypes || []).join(' | '),
-        (reg.selectedDays || []).map(day => `${day.date}`).join(' | '),
-        reg.notes?.replace(/\n/g, ' ') || ''
-      ]);
+      const tournament = this.tournament;
 
-      const csvContent = [headers, ...rows].map(e => e.map(this.escapeCsv).join(';')).join('\n');
+      const typeColumns: TournamentType[] = [
+        TournamentType.SINGLE,
+        TournamentType.DOUBLE,
+        TournamentType.MIXED
+      ];
+
+      const typeColumnLabels: Record<TournamentType, string> = {
+        [TournamentType.SINGLE]: 'Einzel',
+        [TournamentType.DOUBLE]: 'Doppel',
+        [TournamentType.MIXED]: 'Mixed'
+      };
+
+      const fixedHeaders = ['Vorname', 'Nachname', 'E-Mail', 'Mobil', ...typeColumns.map(type => typeColumnLabels[type])];
+      const dayHeaders = tournament.tournamentDays.map(day => day.date);
+      const headers = [...fixedHeaders, ...dayHeaders, 'Bemerkung'];
+
+      const rows = this.registrations.map(reg => {
+        const { user, selectedTypes = [], selectedDays = [], notes } = reg;
+
+        const typeFlags = typeColumns.map(type =>
+          selectedTypes.includes(type) ? 'ja' : 'nein'
+        );
+
+        const fixedData = [
+          user.firstName,
+          user.lastName,
+          user.email,
+          user.mobile,
+          ...typeFlags
+        ];
+
+        const selected = Array.isArray(selectedDays) ? selectedDays : [];
+        const dayData = tournament.tournamentDays.map(day => {
+          const match = selected.find(d => d.date === day.date);
+          return match && match.time ? `ab ${match.time}` : 'nicht gemeldet';
+        });
+
+        const remarks = notes?.replace(/\n/g, ' ') || '';
+
+        return [...fixedData, ...dayData, remarks];
+      });
+
+      const csvContent = [headers, ...rows]
+        .map(e => e.map(this.escapeCsv).join(';'))
+        .join('\n');
+
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download =  this.tournament.name + '.csv';
+      a.download = tournament.name + '.csv';
       a.click();
       URL.revokeObjectURL(url);
     }

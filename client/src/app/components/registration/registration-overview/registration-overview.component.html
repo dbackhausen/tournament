@@ -1,43 +1,75 @@
-<p-card header="Teilnehmer">
-  <p-table [value]="registrations" class="registrations-table">
-    <ng-template #header >
-      <tr>
-        <th>Nachname</th>
-        <th>Vorname</th>
-        <th>E-Mail</th>
-        <th>Mobilrufnummer</th>
-        <th></th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-registration>
-      <tr>
-        <td>{{ registration.user.lastName }}</td>
-        <td>{{ registration.user.firstName }}</td>
-        <td>{{ registration.user.email }}</td>
-        <td>{{ registration.user.mobile }}</td>
-        <td>
-          <div class="flex flex-row align-items-center justify-content-end gap-3">
-            <div class="flex">
+<p-card header="Teilnehmer {{ tournament?.name }}">
+  @if (isMobile) {
+    <p-dataview #dv [value]="registrations">
+      <ng-template #list let-registration>
+        <div *ngFor="let registration of registrations; let first = first">
+          <div class="grid my-3 p-2 grid-background border-200 surface-overlay border-1 border-round">
+            <div class="col-12 my-0 p-0">
+              <div class="text-left text-sm">
+                {{ registration.user.lastName }}, {{ registration.user.firstName }}
+              </div>
+            </div>
+            <div class="col-12 m-0 p-0">
+              <div class="text-left text-lg font-bold white-space-nowrap overflow-hidden">
+                {{ registration.user.email }}
+              </div>
+            </div>
+            <div class="col-6 my-2 p-0">
               <p-button icon="pi pi-users" severity="primary" (click)="showProfile(registration.user.id)"></p-button>
             </div>
-            <div class="flex" *ngIf="isAdmin">
+            <div class="col-3 my-2 p-0">
               <p-button icon="pi pi-pencil" severity="secondary" (click)="editRegistration(registration.id)"></p-button>
             </div>
-            <div class="flex" *ngIf="isAdmin">
+            <div class="col-3 my-2 p-0" *ngIf="isAdmin">
               <p-button icon="pi pi-times" severity="danger" (click)="deleteRegistration(registration.id)"></p-button>
             </div>
           </div>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="6" class="text-center">
-          <p-message severity="info" text="Keine Registrierungen vorhanden"></p-message>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+        </div>
+      </ng-template>
+    </p-dataview>
+  } @else {
+    <div class="my-3">
+      <p-table [value]="registrations" class="registrations-table">
+        <ng-template #header >
+          <tr>
+            <th>Nachname</th>
+            <th>Vorname</th>
+            <th>E-Mail</th>
+            <th>Mobilrufnummer</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-registration>
+          <tr>
+            <td>{{ registration.user.lastName }}</td>
+            <td>{{ registration.user.firstName }}</td>
+            <td>{{ registration.user.email }}</td>
+            <td>{{ registration.user.mobile }}</td>
+            <td>
+              <div class="flex flex-row align-items-center justify-content-end gap-3">
+                <div class="flex">
+                  <p-button icon="pi pi-users" severity="primary" (click)="showProfile(registration.user.id)"></p-button>
+                </div>
+                <div class="flex" *ngIf="isAdmin">
+                  <p-button icon="pi pi-pencil" severity="secondary" (click)="editRegistration(registration.id)"></p-button>
+                </div>
+                <div class="flex" *ngIf="isAdmin">
+                  <p-button icon="pi pi-times" severity="danger" (click)="deleteRegistration(registration.id)"></p-button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center">
+              <p-message severity="info" text="Keine Registrierungen vorhanden"></p-message>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
 
   <div class="button-group">
     <p-button label="Übersicht" severity="secondary" routerLink="/tournament"></p-button>

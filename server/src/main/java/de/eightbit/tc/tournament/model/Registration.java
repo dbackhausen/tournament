@@ -6,6 +6,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -17,7 +18,7 @@ public class Registration {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
@@ -31,11 +32,25 @@ public class Registration {
     @CollectionTable(name = "registration_types", joinColumns = @JoinColumn(name = "registration_id"))
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    private List<TournamentType> selectedTypes;
+    private List<TournamentType> selectedTypes = new ArrayList<>();
 
     @OneToMany(mappedBy = "registration", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ParticipationRequest> participationRequests;
+    private List<ParticipationRequest> participationRequests = new ArrayList<>();
 
     @Length(max = 255)
     private String notes;
+
+    public void setSelectedTypes(List<TournamentType> selectedTypes) {
+        this.selectedTypes.clear();
+        if (selectedTypes != null) {
+            this.selectedTypes.addAll(selectedTypes);
+        }
+    }
+
+    public void setParticipationRequests(List<ParticipationRequest> requests) {
+        this.participationRequests.clear();
+        if (requests != null) {
+            this.participationRequests.addAll(requests);
+        }
+    }
 }
