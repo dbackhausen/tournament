@@ -83,7 +83,10 @@ public class AuthController {
             passwordResetService.resetPassword(request.getToken(), request.getNewPassword());
             return ResponseEntity.ok("Password updated successfully");
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token");
+            if (e.getMessage() != null && e.getMessage().contains("expired")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token");
+            }
+            throw e;
         }
     }
 }
