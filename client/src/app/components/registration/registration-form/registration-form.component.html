@@ -21,32 +21,20 @@
     </div>
 
     <div class="grid mx-0 mt-3 md:mt-4 mb-2 px-0">
-      <span>Ich kann an folgenden Tagen teilnehmen:</span>
+      <span>Ich kann an folgenden Tagen und Zeiten teilnehmen:</span>
     </div>
 
     <div formArrayName="selectableDays" class="tournament-days">
-      <div *ngFor="let day of selectableDays.controls; let i = index" [formGroupName]="i">
-        <div class="flex align-items-center justify-content-between flex-wrap" style="min-height: 50px">
-          <div class="flex align-items-center justify-content-start col-6">
+      <div *ngFor="let day of selectableDays.controls; let i = index" [formGroupName]="i" class="day-row">
+        <span class="day-label">{{ day.get('date')?.value | date:'EE, dd.MM.yyyy' }}</span>
+        <div formArrayName="times" class="time-slots">
+          <div *ngFor="let timeSlot of getTimesArray(i).controls; let j = index" [formGroupName]="j" class="time-slot">
             <p-checkbox
               formControlName="selected"
-              inputId="dayCheckbox{{ i }}"
+              inputId="time_{{ i }}_{{ j }}"
               binary="true"
               size="large" />
-            <label for="dayCheckbox{{ i }}" class="pl-2">{{ day.get('date')?.value | date:'EE, dd.MM.yyyy' }}</label>
-          </div>
-          <div class="col-1">
-            <span>ab</span>
-          </div>
-          <div class="flex align-items-center justify-content-start col-5">
-            <p-select
-              [options]="day.get('timeslots')?.value"
-              formControlName="selectedTime"
-              optionLabel="label"
-              optionValue="value"
-              size="small"
-              styleClass="time-select"
-            />
+            <label for="time_{{ i }}_{{ j }}">{{ timeSlot.get('time')?.value }}</label>
           </div>
         </div>
       </div>

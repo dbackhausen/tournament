@@ -3,10 +3,9 @@ import { AuthService } from 'src/app/services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { InputText } from 'primeng/inputtext';
+import { Password } from 'primeng/password';
+import { Button } from 'primeng/button';
 import { Message } from "primeng/message";
 
 @Component({
@@ -15,10 +14,9 @@ import { Message } from "primeng/message";
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    CardModule,
-    InputTextModule,
-    PasswordModule,
-    ButtonModule,
+    InputText,
+    Password,
+    Button,
     Message,
     RouterLink
   ],
@@ -40,8 +38,7 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
       this.authService.login({ email, password }).subscribe({
-        next: (response: { token: string; }) => {
-          localStorage.setItem('token', response.token);
+        next: () => {
           this.router.navigate(['/dashboard']);
         },
         error: (error) => {

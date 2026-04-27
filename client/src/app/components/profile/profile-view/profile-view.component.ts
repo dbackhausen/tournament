@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Card } from "primeng/card";
 import { Location } from '@angular/common';
@@ -17,6 +18,9 @@ import {User} from "src/app/models/user.model"; //
 export class ProfileViewComponent implements OnInit {
   protected userId: number | undefined;
   protected user: User | null = null;
+  protected profileImageUrl: string | null = null;
+  protected imageError = false;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -27,7 +31,7 @@ export class ProfileViewComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.userId = +id;
@@ -42,6 +46,7 @@ export class ProfileViewComponent implements OnInit {
     this.userService.getUser(id).subscribe({
       next: (data) => {
         this.user = data;
+        this.profileImageUrl = this.userService.getProfileImageUrl(id) + '?t=' + Date.now();
       },
       error: (error) => {
         console.error('Error loading profile');

@@ -5,6 +5,7 @@ import de.eightbit.tc.tournament.model.Role;
 import de.eightbit.tc.tournament.model.User;
 import de.eightbit.tc.tournament.service.UserService;
 import de.eightbit.tc.tournament.util.JwtUtil;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserRegistrationDto dto) {
+    public ResponseEntity<?> register(@Valid @RequestBody UserRegistrationDto dto) {
         if (userService.getUserByEmail(dto.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("E-Mail address already registered");
         }
@@ -42,13 +43,13 @@ public class AuthController {
         newUser.setPassword(dto.getPassword());
         newUser.setGender(dto.getGender());
         newUser.setFirstName(dto.getFirstName());
-        newUser.setLastName(dto.getFirstName());
+        newUser.setLastName(dto.getLastName());
         newUser.setMobile(dto.getMobile());
         newUser.getRoles().add(Role.PLAYER);
         newUser.setActive(false); // not active till registration confirmation
 
         User saveUser = userService.createUser(newUser);
-        return ResponseEntity.ok(saveUser);
+        return ResponseEntity.ok(userService.mapToDto(saveUser));
     }
 
     @PostMapping("/login")

@@ -1,17 +1,39 @@
 .tournament-days {
   width: 100%;
-  max-width: 375px;
 }
 
-.time-select {
-  width: 100px;
-  max-width: 375px;
-}
-
-.button-group {
+.day-row {
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
-  padding-top: 10px;
-  border-top: 1px solid #ddd;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  min-height: 48px;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.day-label {
+  min-width: 160px;
+  font-weight: 500;
+}
+
+.time-slots {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.time-slot {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  label {
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
 }

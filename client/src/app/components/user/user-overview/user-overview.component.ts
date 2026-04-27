@@ -1,4 +1,5 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, DestroyRef, HostListener, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from "@angular/common";
 import { ButtonModule } from "primeng/button";
 import { TableModule } from "primeng/table";
@@ -30,9 +31,10 @@ import { ToggleSwitch } from "primeng/toggleswitch";
   styleUrl: './user-overview.component.scss'
 })
 export class UserOverviewComponent implements OnInit {
-  users: any[] = [];
+  users: User[] = [];
   isMobile: boolean = false;
   isAdmin: boolean = false;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private userService: UserService,
@@ -47,7 +49,7 @@ export class UserOverviewComponent implements OnInit {
   }
 
   loadData(): void {
-    this.userService.getUsers().subscribe({
+    this.userService.getUsers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.users = data;
       },
@@ -66,7 +68,7 @@ export class UserOverviewComponent implements OnInit {
 
   deleteUser(id: number) {
     if (confirm('Möchten Sie diesen Benutzer wirklich löschen?')) {
-      this.userService.deleteUser(id).subscribe({
+      this.userService.deleteUser(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           alert('Benutzer erfolgreich gelöscht.');
           this.loadData();
@@ -80,7 +82,7 @@ export class UserOverviewComponent implements OnInit {
 
   toggleActive(user: User, active: boolean) {
     user.active = active;
-    this.userService.updateUser(user).subscribe({
+    this.userService.updateUser(user).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         console.log(`User ${user.email} successfully updated.`);
       },
@@ -103,7 +105,7 @@ export class UserOverviewComponent implements OnInit {
       }
     }
 
-    this.userService.updateUser(user).subscribe({
+    this.userService.updateUser(user).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         console.log(`User ${user.email} successfully updated.`);
       },

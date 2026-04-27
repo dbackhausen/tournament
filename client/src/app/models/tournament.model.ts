@@ -8,8 +8,9 @@ export enum TournamentType {
 
 export interface TournamentDay {
   date: string;
-  startTime: string;
-  endTime: string;
+  time1: string | null;
+  time2: string | null;
+  time3: string | null;
 }
 
 export interface ParticipationRequest {
@@ -22,6 +23,7 @@ export interface Registration {
   tournament: Tournament;
   user: User;
   notes?: string;
+  payed: boolean;
   selectedDays: ParticipationRequest[];
   selectedTypes: TournamentType[];
 }

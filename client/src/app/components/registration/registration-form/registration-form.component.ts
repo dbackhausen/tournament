@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormGroup,
@@ -18,10 +19,9 @@ import { Registration, Tournament, TournamentDay, TournamentType } from "src/app
 import { Select } from "primeng/select";
 import { atLeastOneDaySelectedValidator } from "src/app/validator/at-least-one-day-selected.validator";
 import { atLeastOneTypeSelectedValidator } from "src/app/validator/at-least-one-type-selected.validator";
-import { selectedDateTimeValidator } from "src/app/validator/selected-date-time-validator";
 import { AuthService } from "src/app/services/auth.service";
-import { forkJoin, map, of, switchMap } from "rxjs";
-import { tap } from "rxjs/operators";
+import { map, of, switchMap } from "rxjs";
+import { catchError, tap } from "rxjs/operators";
 import { User } from "src/app/models/user.model";
 import { RegistrationService } from "src/app/services/registration.service";
 
@@ -48,6 +48,7 @@ export class RegistrationFormComponent implements OnInit {
   tournament: Tournament | null = null;
   user: User | null = null;
   registration: Registration | null = null;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private authService: AuthService,
@@ -58,14 +59,14 @@ export class RegistrationFormComponent implements OnInit {
     private router: Router
   ) {
     this.registerForm = this.fb.group({
-      selectableDays: this.fb.array([], [atLeastOneDaySelectedValidator, selectedDateTimeValidator]),
+      selectableDays: this.fb.array([], [atLeastOneDaySelectedValidator]),
       selectableTypes: this.fb.array([], atLeastOneTypeSelectedValidator),
       notes: [''],
     });
   }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const url = this.route.snapshot.url.map(segment => segment.path).join('/');
       const tournamentId = params.get('tournamentId');
 
@@ -75,16 +76,25 @@ export class RegistrationFormComponent implements OnInit {
         if (url.includes('registration/edit')) {
           const registrationId = params.get('registrationId');
           if (registrationId) {
-            this.registrationService.getRegistration(Number(registrationId)).subscribe({
+            this.registrationService.getRegistration(Number(registrationId)).pipe(
+              takeUntilDestroyed(this.destroyRef)
+            ).subscribe({
               next: (data) => {
                 this.registration = data;
+                this.tournament = data.tournament;
+                this.user = data.user;
+
+                if (this.tournament?.tournamentDays?.length > 0) {
+                  this.tournament.tournamentDays.forEach(day => this.addDayGroup(day));
+                }
+                if (this.tournament?.tournamentTypes?.length > 0) {
+                  this.tournament.tournamentTypes.forEach(type => this.addTypeGroup(type));
+                }
+
                 this.restoreRegistrationData();
               },
               error: (error) => {
-                console.error('Error loading tournaments');
-              },
-              complete: () => {
-                console.log('Tournaments successfully loaded')
+                console.error('Error loading registration', error);
               }
             });
           }
@@ -99,33 +109,18 @@ export class RegistrationFormComponent implements OnInit {
   }
 
   loadData(tournamentId: number) {
-    if (this.user && this.user) {
+    if (this.user) {
       this.registrationService.getRegistrationByTournamentAndUser(tournamentId, this.user.id).pipe(
-        map(registration => {
-          if (!registration) {
-            return { registration: null, tournament: null, user: null };
+        takeUntilDestroyed(this.destroyRef),
+        catchError(() => of(null)),
+        tap(registration => console.log(registration ? 'Existing registration found' : 'No existing registration found')),
+        switchMap(registration => {
+          if (registration) {
+            return of({ registration, tournament: registration.tournament });
           }
-          return {
-            registration,
-            tournament: registration.tournament,
-            user: registration.user
-          };
-        }),
-        tap(result => console.log(result.registration ? 'Existing registration found' : 'No existing registration found')),
-        switchMap((result) => {
-          if (result.registration === null) {
-            return forkJoin({
-              tournament: this.tournamentService.getTournament(tournamentId),
-            }).pipe(
-              map(({ tournament }) => ({
-                registration: null,
-                tournament,
-                user: this.user
-              }))
-            );
-          } else {
-            return of(result);
-          }
+          return this.tournamentService.getTournament(tournamentId).pipe(
+            map(tournament => ({ registration: null, tournament }))
+          );
         })
       ).subscribe({
         next: (result) => {
@@ -133,15 +128,11 @@ export class RegistrationFormComponent implements OnInit {
           this.tournament = result.tournament;
 
           if (this.tournament?.tournamentDays?.length > 0) {
-            this.tournament.tournamentDays.forEach(day => {
-              this.addDayGroup(day);
-            })
+            this.tournament.tournamentDays.forEach(day => this.addDayGroup(day));
           }
 
           if (this.tournament?.tournamentTypes?.length > 0) {
-            this.tournament.tournamentTypes.forEach(type => {
-              this.addTypeGroup(type);
-            })
+            this.tournament.tournamentTypes.forEach(type => this.addTypeGroup(type));
           }
 
           if (this.registration) {
@@ -163,19 +154,22 @@ export class RegistrationFormComponent implements OnInit {
       const daysArray = this.registerForm.get('selectableDays') as FormArray;
       const selectedDays = this.registration.selectedDays;
 
+      // Group selected times by date for quick lookup
+      const selectedByDate = new Map<string, string[]>();
+      selectedDays.forEach(d => {
+        const times = selectedByDate.get(d.date) || [];
+        times.push(d.time.substring(0, 5)); // normalise to HH:mm
+        selectedByDate.set(d.date, times);
+      });
+
       daysArray.controls.forEach(dayGroup => {
         const date = dayGroup.get('date')?.value;
-        const match = selectedDays.find(d => d.date === date);
-
-        if (match) {
-          let time = new Date(`1970-01-01T${match.time}`);
-          const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          dayGroup.get('selected')?.setValue(true);
-          dayGroup.get('selectedTime')?.setValue(timeString);
-        } else {
-          dayGroup.get('selected')?.setValue(false);
-          dayGroup.get('selectedTime')?.setValue('');
-        }
+        const checkedTimes = selectedByDate.get(date) || [];
+        const timesArray = dayGroup.get('times') as FormArray;
+        timesArray.controls.forEach(timeGroup => {
+          const time = timeGroup.get('time')?.value;
+          timeGroup.get('selected')?.setValue(checkedTimes.includes(time));
+        });
       });
 
       // 2. Restore selected game types
@@ -203,20 +197,20 @@ export class RegistrationFormComponent implements OnInit {
         id: this.registration?.id ?? this.tournamentId,
         tournament: this.tournament,
         user: this.user,
-        selectedDays: formData.selectableDays
-          .filter((day: { selected: any; }) => day.selected)
-          .map((day: { date: any; selectedTime: any; }) => ({
-            date: day.date,
-            time: day.selectedTime
-          })),
+        selectedDays: formData.selectableDays.flatMap((day: any) =>
+          (day.times || [])
+            .filter((t: any) => t.selected)
+            .map((t: any) => ({ date: day.date, time: t.time }))
+        ),
         selectedTypes: formData.selectableTypes
           .filter((type: { selected: any; }) => type.selected)
           .map((type: { type: any; }) => type.type),
-        notes: formData.notes
+        notes: formData.notes,
+        payed: formData.payed ?? false
       };
 
       if (this.registration === null) {
-        this.registrationService.addRegistration(registration).subscribe({
+        this.registrationService.addRegistration(registration).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
             console.log('Registration successfully created');
             this.registerForm.reset();
@@ -227,7 +221,7 @@ export class RegistrationFormComponent implements OnInit {
           }
         });
       } else {
-        this.registrationService.updateRegistration(registration).subscribe({
+        this.registrationService.updateRegistration(registration).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
             console.log('Registration successfully updated');
             this.registerForm.reset();
@@ -259,43 +253,22 @@ export class RegistrationFormComponent implements OnInit {
   // --
 
   private addDayGroup(day: TournamentDay): void {
-    const timeslots = this.getTimeslots(day.startTime, day.endTime, 60);
+    const availableTimes = [day.time1, day.time2, day.time3].filter(t => !!t) as string[];
+
+    const timesArray = this.fb.array(
+      availableTimes.map(time => this.fb.group({ time: [time], selected: [false] }))
+    );
+
     const dayGroup = this.fb.group({
       date: [day.date],
-      selected: [false],
-      selectedTime: [''],
-      timeslots: [timeslots]
-    });
-
-    const selectedControl = dayGroup.get('selected') as FormControl;
-    selectedControl.valueChanges.subscribe((isSelected: boolean) => {
-      if (!isSelected) {
-        dayGroup.get('selectedTime')?.reset();
-      }
-    });
-
-    const selectedTimeControl = dayGroup.get('selectedTime') as FormControl;
-    selectedTimeControl.valueChanges.subscribe((selectedTime: string) => {
-      if (selectedTime) {
-        dayGroup.get('selected')?.setValue(true, { emitEvent: false });
-      }
+      times: timesArray
     });
 
     this.selectableDays.push(dayGroup);
   }
 
-  private getTimeslots(startTime: string, endTime: string, intervalMinutes: number) {
-    const slots = [];
-    let start = new Date(`1970-01-01T${startTime}`);
-    let end = new Date(`1970-01-01T${endTime}`);
-
-    while (start <= end) {
-      const timeString = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      slots.push({ label: timeString, value: timeString });
-      start.setMinutes(start.getMinutes() + intervalMinutes);
-    }
-
-    return slots;
+  getTimesArray(dayIndex: number): FormArray {
+    return this.selectableDays.at(dayIndex).get('times') as FormArray;
   }
 
   private addTypeGroup(type: TournamentType): void {

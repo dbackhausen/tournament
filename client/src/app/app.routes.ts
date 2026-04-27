@@ -1,78 +1,79 @@
-import { registerLocaleData } from '@angular/common';
-import localeDe from '@angular/common/locales/de';
-import { RouterModule, Routes } from '@angular/router';
-import { LOCALE_ID, NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser'
-import { authGuard } from './auth.guard'
-import { NotFoundComponent } from "src/app/components/not-found/not-found.component";
-import { DashboardComponent } from "src/app/components/dashboard/dashboard.component";
-import { TournamentOverviewComponent } from "src/app/components/tournament/tournament-overview/tournament-overview.component";
-import { TournamentFormComponent } from "src/app/components/tournament/tournament-form/tournament-form.component";
-import { ProfileFormComponent } from "src/app/components/profile/profile-form/profile-form.component";
-import { LoginComponent } from "src/app/components/login/login.component";
-import { RegisterComponent } from "src/app/components/register/register.component";
-import {
-  RegistrationFormComponent
-} from "src/app/components/registration/registration-form/registration-form.component";
-import {
-  RegistrationOverviewComponent
-} from "src/app/components/registration/registration-overview/registration-overview.component";
-import {ProfileViewComponent} from "src/app/components/profile/profile-view/profile-view.component";
-import {UserOverviewComponent} from "src/app/components/user/user-overview/user-overview.component";
-import {UserFormComponent} from "src/app/components/user/user-form/user-form.component";
+import { Routes } from '@angular/router';
+import { authGuard } from './auth.guard';
+import { roleGuard } from './role.guard';
 
 export const routes: Routes = [
   {
-    path: 'dashboard', component: DashboardComponent,
+    path: 'dashboard',
+    loadComponent: () => import('src/app/components/dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [authGuard]
   },
   {
-    path: 'tournament', component: TournamentOverviewComponent,
+    path: 'tournament',
+    loadComponent: () => import('src/app/components/tournament/tournament-overview/tournament-overview.component').then(m => m.TournamentOverviewComponent),
     canActivate: [authGuard]
   },
   {
-    path: 'tournament/new', component: TournamentFormComponent,
+    path: 'tournament/new',
+    loadComponent: () => import('src/app/components/tournament/tournament-form/tournament-form.component').then(m => m.TournamentFormComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'ADMIN' }
+  },
+  {
+    path: 'tournament/edit/:tournamentId',
+    loadComponent: () => import('src/app/components/tournament/tournament-form/tournament-form.component').then(m => m.TournamentFormComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'ADMIN' }
+  },
+  {
+    path: 'tournament/:tournamentId/registrations',
+    loadComponent: () => import('src/app/components/registration/registration-overview/registration-overview.component').then(m => m.RegistrationOverviewComponent),
     canActivate: [authGuard]
   },
   {
-    path: 'tournament/edit/:tournamentId', component: TournamentFormComponent,
+    path: 'tournament/:tournamentId/register',
+    loadComponent: () => import('src/app/components/registration/registration-form/registration-form.component').then(m => m.RegistrationFormComponent),
     canActivate: [authGuard]
   },
   {
-    path: 'tournament/:tournamentId/registrations', component: RegistrationOverviewComponent,
+    path: 'tournament/:tournamentId/registration/edit/:registrationId',
+    loadComponent: () => import('src/app/components/registration/registration-form/registration-form.component').then(m => m.RegistrationFormComponent),
     canActivate: [authGuard]
   },
   {
-    path: 'tournament/:tournamentId/register', component: RegistrationFormComponent,
+    path: 'tournament/:id',
+    loadComponent: () => import('src/app/components/tournament/tournament-detail/tournament-detail.component').then(m => m.TournamentDetailComponent),
     canActivate: [authGuard]
   },
   {
-    path: 'tournament/:tournamentId/registration/edit/:registrationId', component: RegistrationFormComponent,
+    path: 'user',
+    loadComponent: () => import('src/app/components/user/user-overview/user-overview.component').then(m => m.UserOverviewComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'ADMIN' }
+  },
+  {
+    path: 'user/:id',
+    loadComponent: () => import('src/app/components/user/user-form/user-form.component').then(m => m.UserFormComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'ADMIN' }
+  },
+  {
+    path: 'profile/:id',
+    loadComponent: () => import('src/app/components/profile/profile-view/profile-view.component').then(m => m.ProfileViewComponent),
     canActivate: [authGuard]
   },
   {
-    path: 'user', component: UserOverviewComponent,
+    path: 'profile/edit/:id',
+    loadComponent: () => import('src/app/components/profile/profile-form/profile-form.component').then(m => m.ProfileFormComponent),
     canActivate: [authGuard]
   },
   {
-    path: 'user/:id', component: UserFormComponent,
-    canActivate: [authGuard]
+    path: 'login',
+    loadComponent: () => import('src/app/components/login/login.component').then(m => m.LoginComponent)
   },
   {
-    path: 'profile/:id', component: ProfileViewComponent,
-    canActivate: [authGuard]
-  },
-  {
-    path: 'profile/edit/:id', component: ProfileFormComponent,
-    canActivate: [authGuard]
-  },
-  {
-    path: 'login', component: LoginComponent/*,
-    canActivate: [authGuard]*/
-  },
-  {
-    path: 'register', component: RegisterComponent/*,
-    canActivate: [authGuard]*/
+    path: 'register',
+    loadComponent: () => import('src/app/components/register/register.component').then(m => m.RegisterComponent)
   },
   {
     path: '',
@@ -80,26 +81,7 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: '**', component: NotFoundComponent
+    path: '**',
+    loadComponent: () => import('src/app/components/not-found/not-found.component').then(m => m.NotFoundComponent)
   }
 ];
-
-@NgModule({
-  declarations: [
-  ],
-  imports: [
-    RouterModule.forRoot(routes),
-    BrowserModule
-  ],
-  providers: [
-    { provide: LOCALE_ID, useValue: 'de-DE' },
-  ],
-  bootstrap: [
-
-  ]
-})
-export class AppModule {
-  constructor() {
-    registerLocaleData(localeDe);
-  }
-}

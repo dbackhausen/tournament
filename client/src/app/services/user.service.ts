@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { User } from "../models/user.model";
 import { Observable } from "rxjs/internal/Observable";
-import { catchError, of } from "rxjs";
 import { environment } from "../../environments/environment";
 
 @Injectable({
@@ -15,42 +14,31 @@ export class UserService {
 
   getUsers(): Observable<User[]> {
     const url = `${this.apiUrl}/users`;
-    return this.http.get<User[]>(url)
-      .pipe(
-        catchError(this.handleError<User[]>('getUsers', []))
-      );
+    return this.http.get<User[]>(url);
   }
 
   getUser(id: number): Observable<User> {
     const url = `${this.apiUrl}/users/${id}`;
-    return this.http.get<any>(url)
-      .pipe(
-        catchError(this.handleError<User>('getUser'))
-      );
+    return this.http.get<User>(url);
   }
 
   updateUser(user: User): Observable<User> {
     const url = `${this.apiUrl}/users/${user.id}`;
-    return this.http.put<any>(url, user)
-      .pipe(
-        catchError(this.handleError<User>('updateUser'))
-      );
+    return this.http.put<User>(url, user);
   }
 
   deleteUser(id: number) {
-    const url = `${this.apiUrl}/${id}`;
-    return this.http.delete<void>(url)
-      .pipe(
-        catchError(this.handleError<void>('deleteUser'))
-      );
+    const url = `${this.apiUrl}/users/${id}`;
+    return this.http.delete<void>(url);
   }
 
-  // -- UTIL --
+  uploadProfileImage(id: number, file: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<void>(`${this.apiUrl}/users/${id}/profile-image`, formData);
+  }
 
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.error(`${operation} failed: ${error.message}`);
-      return of(result as T);
-    };
+  getProfileImageUrl(id: number): string {
+    return `${this.apiUrl}/users/${id}/profile-image`;
   }
 }

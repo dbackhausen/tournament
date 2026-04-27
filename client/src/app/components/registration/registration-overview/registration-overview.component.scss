@@ -1,8 +1,165 @@
+// Non-admin participant list
+.participant-list {
+  padding: 0.25rem 0;
+  margin: 0 -1.125rem;
+}
+
+.participant-count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #7a8ba8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.75rem;
+  padding-left: 1.125rem;
+}
+
+.participant-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.625rem 1.125rem;
+  border-bottom: 1px solid #f0f3fa;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.participant-rank {
+  width: 1.5rem;
+  text-align: right;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #b0bdd4;
+  flex-shrink: 0;
+}
+
+.participant-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3570c4, #4d8bda);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+
+  .participant-avatar-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    z-index: 2;
+  }
+
+  .participant-avatar-initials {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.participant-name {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1a2744;
+}
+
+.participant-self-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #3570c4;
+  background: #e8f0fd;
+  border-radius: 20px;
+  padding: 0.15rem 0.5rem;
+  flex-shrink: 0;
+}
+
+.participant-empty {
+  padding: 1rem 0;
+}
+
+// Admin mobile list
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0.25rem 0;
+}
+
+.name-link {
+  cursor: pointer;
+  color: #3570c4;
+  font-weight: 600;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.admin-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: #f8faff;
+  border: 1px solid #e2e8f5;
+  border-radius: 10px;
+  padding: 0.75rem;
+  cursor: pointer;
+
+  &:hover {
+    background: #eef4fc;
+  }
+
+  .admin-card-info {
+    flex: 1;
+    min-width: 0;
+
+    .admin-card-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1a2744;
+    }
+
+    .admin-card-email {
+      font-size: 0.75rem;
+      color: #7a8ba8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .admin-card-payed {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.3rem;
+      font-size: 0.8rem;
+      color: #4b5a7a;
+    }
+  }
+
+  .admin-card-actions {
+    display: flex;
+    gap: 0.375rem;
+    flex-shrink: 0;
+  }
+}
+
 .button-group {
   display: flex;
   gap: 10px;
   margin-top: 20px;
   padding-top: 10px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #e8ecf4;
 }
-

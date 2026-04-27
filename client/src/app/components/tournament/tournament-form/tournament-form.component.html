@@ -56,7 +56,7 @@
       <div class="field col-12 md:col-12">
         <div formArrayName="tournamentDays">
           <div *ngFor="let day of tournamentDays.controls; let i = index" [formGroupName]="i">
-            <div class="formgroup-inline">
+            <div class="formgroup-inline align-items-center">
               <div class="field">
                 <p-floatlabel variant="in" class="date-picker">
                   <p-datepicker
@@ -64,33 +64,27 @@
                     [minDate]="today"
                     dateFormat="dd.mm.yy"
                     showIcon="true"
-                    inputId="endTime{{ i }}"
+                    inputId="dayDate{{ i }}"
                   ></p-datepicker>
-                  <label for="endTime{{ i }}">Datum</label>
+                  <label for="dayDate{{ i }}">Datum</label>
                 </p-floatlabel>
               </div>
               <div class="field">
                 <p-floatlabel variant="in" class="start-time">
-                  <p-datepicker
-                    formControlName="startTime"
-                    [showTime]="true"
-                    [timeOnly]="true"
-                    hourFormat="24"
-                    inputId="startTime{{ i }}"
-                  ></p-datepicker>
-                  <label for="startTime{{ i }}">Startzeit</label>
+                  <p-datepicker formControlName="time1" [showTime]="true" [timeOnly]="true" hourFormat="24" inputId="time1_{{ i }}"></p-datepicker>
+                  <label for="time1_{{ i }}">Zeit 1</label>
                 </p-floatlabel>
               </div>
               <div class="field">
-                <p-floatlabel variant="in" class="end-time">
-                  <p-datepicker
-                    formControlName="endTime"
-                    [showTime]="true"
-                    [timeOnly]="true"
-                    hourFormat="24"
-                    inputId="endTime{{ i }}"
-                  ></p-datepicker>
-                  <label for="endTime{{ i }}">Endzeit</label>
+                <p-floatlabel variant="in" class="start-time">
+                  <p-datepicker formControlName="time2" [showTime]="true" [timeOnly]="true" hourFormat="24" inputId="time2_{{ i }}"></p-datepicker>
+                  <label for="time2_{{ i }}">Zeit 2</label>
+                </p-floatlabel>
+              </div>
+              <div class="field">
+                <p-floatlabel variant="in" class="start-time">
+                  <p-datepicker formControlName="time3" [showTime]="true" [timeOnly]="true" hourFormat="24" inputId="time3_{{ i }}"></p-datepicker>
+                  <label for="time3_{{ i }}">Zeit 3</label>
                 </p-floatlabel>
               </div>
               <div class="field pt-2">
@@ -109,13 +103,13 @@
       <p-message severity="warn" text="Achtung: Es existieren bereits Registrierungen für dieses Turnier. Änderungen könnten sich auf diese auswirken."></p-message>
     </div>
 
-    <div *ngIf="tournamentForm.hasError('deadlineAfterFirstDay')">
-      <p-message severity="error" text="Die Anmeldefrist muss vor dem ersten Turniertag liegen."></p-message>
+    <div class="flex flex-column gap-2 mb-3">
+      <p-message *ngIf="tournamentForm.hasError('deadlineAfterFirstDay') && tournamentForm.get('deadline')?.dirty" severity="error" text="Die Anmeldefrist muss vor dem ersten Turniertag liegen."></p-message>
     </div>
 
     <div class="button-group">
-      <p-button type="submit" label="Speichern" [disabled]="tournamentForm.invalid" />
       <p-button type="button" label="Abbrechen" severity="secondary" (click)="onCancel()" />
+      <p-button type="submit" label="Speichern" [disabled]="tournamentForm.invalid" />
     </div>
 
   </form>

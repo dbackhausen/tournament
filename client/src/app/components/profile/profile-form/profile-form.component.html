@@ -1,5 +1,21 @@
 <p-card header="Mein Profil">
   <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+
+    <!-- Avatar upload -->
+    <div class="avatar-section">
+      <div class="avatar-wrapper" (click)="triggerImageInput()" title="Foto ändern">
+        <img *ngIf="pendingImagePreview" [src]="pendingImagePreview" class="avatar-img" alt="Profilbild" />
+        <img *ngIf="!pendingImagePreview && profileImageUrl" [src]="profileImageUrl" class="avatar-img" alt="Profilbild"
+             (error)="profileImageUrl = null" />
+        <div *ngIf="!pendingImagePreview && !profileImageUrl" class="avatar-initials">{{ avatarInitials }}</div>
+        <div class="avatar-overlay">
+          <i class="pi pi-camera"></i>
+        </div>
+      </div>
+      <span class="avatar-hint">Foto ändern</span>
+      <input id="profileImageInput" type="file" accept="image/*" (change)="onImageSelect($event)" style="display:none" />
+    </div>
+
     <div class="formgrid grid my-3">
       <div class="field col-12 md:col-12">
         <p-select [options]="genders" formControlName="gender" placeholder="Geschlecht" class="w-full md:w-3" />
@@ -41,11 +57,8 @@
     </div>
 
     <div class="button-group">
-      <p-button type="submit" label="Speichern" [disabled]="profileForm.invalid" />
       <p-button type="button" label="Abbrechen" severity="secondary" (click)="onCancel()" />
+      <p-button type="submit" label="Speichern" [disabled]="profileForm.invalid" />
     </div>
   </form>
 </p-card>
-
-
-

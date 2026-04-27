@@ -21,11 +21,12 @@ public class UserDto {
     private LocalDate birthdate;
     private Set<Role> roles;
     private Double performanceClass;
+    private Float strength;
     private boolean active;
 
     public UserDto() {
     }
-    
+
     public UserDto(User user) {
         this.id = user.getId();
         this.gender = user.getGender();
@@ -36,6 +37,7 @@ public class UserDto {
         this.mobile = user.getMobile();
         this.birthdate = user.getBirthdate();
         this.roles = user.getRoles();
+        this.strength = user.getStrength();
         this.active = user.isActive();
     }
 }

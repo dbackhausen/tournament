@@ -1,4 +1,5 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, DestroyRef, HostListener, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TournamentService } from "../../../services/tournament.service";
 import { CommonModule } from "@angular/common";
 import { ButtonModule } from 'primeng/button';
@@ -6,8 +7,12 @@ import { TableModule } from 'primeng/table';
 import { DataView } from 'primeng/dataview';
 import { Router, RouterLink} from "@angular/router";
 import { Card } from "primeng/card";
-import {AuthService} from "src/app/services/auth.service";
-import {Message} from "primeng/message";
+import { AuthService } from "src/app/services/auth.service";
+import { Message } from "primeng/message";
+import { Tournament } from "src/app/models/tournament.model";
+import { TooltipModule } from 'primeng/tooltip';
+import { RegistrationService } from "src/app/services/registration.service";
+import { catchError, forkJoin, of } from "rxjs";
 
 @Component({
   selector: 'app-tournament',
@@ -19,18 +24,22 @@ import {Message} from "primeng/message";
     DataView,
     RouterLink,
     Card,
-    Message
+    Message,
+    TooltipModule
   ],
   templateUrl: './tournament-overview.component.html',
   styleUrl: './tournament-overview.component.scss'
 })
 export class TournamentOverviewComponent implements OnInit {
-  tournaments: any[] = [];
+  tournaments: Tournament[] = [];
+  registeredTournamentIds = new Set<number>();
   isMobile: boolean = false;
   isAdmin: boolean = false;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private tournamentService: TournamentService,
+    private registrationService: RegistrationService,
     private authService: AuthService,
     private router: Router
   ) {}
@@ -42,22 +51,32 @@ export class TournamentOverviewComponent implements OnInit {
   }
 
   loadData(): void {
-    this.tournamentService.getTournaments().subscribe({
-      next: (data) => {
+    const user = this.authService.getUser();
+    const registrations$ = user
+      ? this.registrationService.getRegistrationsByUser(user.id).pipe(catchError(() => of([])))
+      : of([]);
+
+    forkJoin({
+      tournaments: this.tournamentService.getTournaments(),
+      registrations: registrations$
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: ({ tournaments, registrations }) => {
         const today = new Date();
-        if (this.isAdmin) {
-          this.tournaments = data;
-        } else {
-          this.tournaments = data.filter(tournament => new Date(tournament.endDate) >= today);
-        }
+        this.tournaments = this.isAdmin
+          ? tournaments
+          : tournaments.filter(t => new Date(t.endDate) >= today);
+        this.registeredTournamentIds = new Set((registrations as any[]).map(r => r.tournament.id));
       },
-        error: (error) => {
-        console.error('Error loading tournaments');
-      },
-        complete: () => {
-        console.log('Tournaments successfully loaded')
-      }
+      error: () => console.error('Error loading tournaments')
     });
+  }
+
+  isRegistered(tournamentId: number): boolean {
+    return this.registeredTournamentIds.has(tournamentId);
+  }
+
+  goToDetail(id: number): void {
+    this.router.navigate([`/tournament/${id}`]);
   }
 
   onRegister(id: number) {
@@ -74,7 +93,7 @@ export class TournamentOverviewComponent implements OnInit {
 
   deleteTournament(id: number) {
     if (confirm('Möchten Sie dieses Turnier wirklich löschen?')) {
-      this.tournamentService.deleteTournament(id).subscribe({
+      this.tournamentService.deleteTournament(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           alert('Turnier erfolgreich gelöscht.');
           this.loadData();

@@ -1,19 +1,25 @@
 package de.eightbit.tc.tournament.controller;
 
 import de.eightbit.tc.tournament.dto.RegistrationDto;
+import de.eightbit.tc.tournament.dto.TournamentDto;
 import de.eightbit.tc.tournament.dto.UserDto;
+import de.eightbit.tc.tournament.model.TournamentDay;
 import de.eightbit.tc.tournament.model.Registration;
 import de.eightbit.tc.tournament.model.TournamentType;
 import de.eightbit.tc.tournament.service.RegistrationService;
-import de.eightbit.tc.tournament.util.MappingUtils;
-import org.modelmapper.ModelMapper;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,20 +30,13 @@ public class RegistrationController {
     @Autowired
     private RegistrationService registrationService;
 
-    private final ModelMapper modelMapper;
-
-    public RegistrationController(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
-
     @PostMapping
-    public ResponseEntity<RegistrationDto> register(@RequestBody RegistrationDto dto) {
+    public ResponseEntity<RegistrationDto> register(@Valid @RequestBody RegistrationDto dto) {
         Registration savedRegistration = registrationService.register(dto);
-        RegistrationDto savedRegistrationDto = modelMapper.map(savedRegistration, RegistrationDto.class);
-        return ResponseEntity.ok(savedRegistrationDto);
+        return ResponseEntity.ok(mapRegistration(savedRegistration));
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<RegistrationDto> getRegistration(@PathVariable Long id) {
         Optional<Registration> registration = registrationService.getRegistration(id);
         if (registration.isPresent()) {
@@ -98,14 +97,20 @@ public class RegistrationController {
     }
 
     @PutMapping
-    public ResponseEntity<RegistrationDto> updateRegistration(@RequestBody RegistrationDto dto) {
+    public ResponseEntity<RegistrationDto> updateRegistration(@Valid @RequestBody RegistrationDto dto) {
         Registration savedRegistration = registrationService.updateRegistration(dto);
-        RegistrationDto savedRegistrationDto = modelMapper.map(savedRegistration, RegistrationDto.class);
-        return ResponseEntity.ok(savedRegistrationDto);
+        return ResponseEntity.ok(mapRegistration(savedRegistration));
+    }
+
+    @PatchMapping("/{id}/payed")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<RegistrationDto> updatePayed(@PathVariable Long id, @RequestBody Map<String, Boolean> body) {
+        Registration registration = registrationService.updatePayed(id, body.get("payed"));
+        return ResponseEntity.ok(mapRegistration(registration));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<RegistrationDto> updateRegistration(@PathVariable Long id) {
+    public ResponseEntity<RegistrationDto> deleteRegistration(@PathVariable Long id) {
         registrationService.deleteRegistration(id);
         return ResponseEntity.noContent().build();
     }
@@ -113,7 +118,34 @@ public class RegistrationController {
     // -- MAPPING UTILS ----
 
     private RegistrationDto mapRegistration(Registration registration) {
-        RegistrationDto dto = modelMapper.map(registration, RegistrationDto.class);
+        RegistrationDto dto = new RegistrationDto();
+        dto.setId(registration.getId());
+        dto.setNotes(registration.getNotes());
+        dto.setPayed(registration.isPayed());
+
+        dto.setUser(new UserDto(registration.getUser()));
+
+        TournamentDto tournamentDto = new TournamentDto();
+        tournamentDto.setId(registration.getTournament().getId());
+        tournamentDto.setName(registration.getTournament().getName());
+        tournamentDto.setStartDate(registration.getTournament().getStartDate());
+        tournamentDto.setEndDate(registration.getTournament().getEndDate());
+        tournamentDto.setDescription(registration.getTournament().getDescription());
+        tournamentDto.setTournamentTypes(registration.getTournament().getTournamentTypes());
+
+        List<TournamentDto.TournamentDayDto> dayDtos = registration.getTournament().getTournamentDays().stream()
+                .map(day -> {
+                    TournamentDto.TournamentDayDto dayDto = new TournamentDto.TournamentDayDto();
+                    dayDto.setDate(day.getDate());
+                    dayDto.setTime1(day.getTime1());
+                    dayDto.setTime2(day.getTime2());
+                    dayDto.setTime3(day.getTime3());
+                    return dayDto;
+                })
+                .collect(Collectors.toList());
+        tournamentDto.setTournamentDays(dayDtos);
+
+        dto.setTournament(tournamentDto);
 
         List<RegistrationDto.SelectedDay> selectedDays = registration.getParticipationRequests().stream()
                 .map(pr -> {

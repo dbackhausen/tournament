@@ -5,6 +5,7 @@ import de.eightbit.tc.tournament.model.*;
 import de.eightbit.tc.tournament.repository.TournamentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ public class TournamentService {
         return tournamentRepository.findById(id);
     }
 
+    @Transactional
     public Tournament createTournament(TournamentDto tournamentDto) {
         Tournament tournament = new Tournament();
         tournament.setName(tournamentDto.getName());
@@ -30,13 +32,14 @@ public class TournamentService {
         tournament.setTournamentTypes(tournamentDto.getTournamentTypes());
 
         List<TournamentDay> days = tournamentDto.getTournamentDays().stream()
-                .map(dayDto -> new TournamentDay(dayDto.getDate(), dayDto.getStartTime(), dayDto.getEndTime()))
+                .map(dayDto -> new TournamentDay(dayDto.getDate(), dayDto.getTime1(), dayDto.getTime2(), dayDto.getTime3()))
                 .collect(Collectors.toList());
         tournament.setTournamentDays(days);
 
         return tournamentRepository.save(tournament);
     }
 
+    @Transactional
     public Optional<Tournament> updateTournament(Long id, TournamentDto tournamentDto) {
         Optional<Tournament> existingTournament = tournamentRepository.findById(id);
 
@@ -51,7 +54,7 @@ public class TournamentService {
             tournament.setTournamentTypes(tournamentDto.getTournamentTypes());
 
             List<TournamentDay> days = tournamentDto.getTournamentDays().stream()
-                    .map(dayDto -> new TournamentDay(dayDto.getDate(), dayDto.getStartTime(), dayDto.getEndTime()))
+                    .map(dayDto -> new TournamentDay(dayDto.getDate(), dayDto.getTime1(), dayDto.getTime2(), dayDto.getTime3()))
                     .collect(Collectors.toList());
             tournament.setTournamentDays(days);
 
@@ -65,6 +68,7 @@ public class TournamentService {
         return tournamentRepository.findAll();
     }
 
+    @Transactional
     public void deleteTournament(Long id) {
         tournamentRepository.deleteById(id);
     }

@@ -1,0 +1,134 @@
+.detail-header {
+  margin-bottom: 1.5rem;
+}
+
+.detail-dates {
+  font-size: 0.78rem;
+  color: #9aa3b8;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.detail-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1a2744;
+  margin: 0 0 0.6rem 0;
+  line-height: 1.25;
+}
+
+.detail-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.type-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #3570c4;
+  background: #e8f0fd;
+  border-radius: 20px;
+  padding: 0.2rem 0.65rem;
+}
+
+.detail-section {
+  padding: 0.875rem 0;
+  border-top: 1px solid #f0f3fa;
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover .section-label {
+      color: #3570c4;
+    }
+
+    &:hover .registrations-icon {
+      color: #3570c4;
+    }
+  }
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #9aa3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.35rem;
+}
+
+.registrations-icon {
+  font-size: 0.65rem;
+  color: #b0bdd4;
+  transition: color 0.15s;
+}
+
+.section-value {
+  font-size: 0.95rem;
+  color: #1a2744;
+  line-height: 1.5;
+}
+
+.deadline-value {
+  font-weight: 600;
+  color: #a07800;
+}
+
+.days-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.day-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.day-date {
+  font-size: 0.875rem;
+  color: #1a2744;
+  font-weight: 500;
+  min-width: 10rem;
+}
+
+.day-times {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.time-chip {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #4b5a7a;
+  background: #eef2fa;
+  border-radius: 6px;
+  padding: 0.15rem 0.45rem;
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e8ecf4;
+}
+
+::ng-deep .btn-registered.p-button {
+  background: #2e7d32;
+  border-color: #2e7d32;
+  color: #fff;
+
+  &:hover {
+    background: #1b5e20;
+    border-color: #1b5e20;
+  }
+}

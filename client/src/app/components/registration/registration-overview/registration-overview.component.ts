@@ -1,5 +1,7 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, DestroyRef, HostListener, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 import { Card } from "primeng/card";
 import { Button } from "primeng/button";
 import { TournamentService } from "src/app/services/tournament.service";
@@ -7,22 +9,24 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import {Registration, Tournament, TournamentType} from "src/app/models/tournament.model";
 import { TableModule } from "primeng/table";
 import { AuthService } from "src/app/services/auth.service";
-import { map, switchMap } from "rxjs";
+import { catchError, map, of, switchMap } from "rxjs";
 import { Message } from "primeng/message";
 import { RegistrationService } from "src/app/services/registration.service";
-import {DataView} from "primeng/dataview";
+import { UserService } from "src/app/services/user.service";
+import { Checkbox } from "primeng/checkbox";
 
 @Component({
   selector: 'app-registration-overview',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     Card,
     Button,
     TableModule,
     RouterLink,
     Message,
-    DataView
+    Checkbox
   ],
   templateUrl: './registration-overview.component.html',
   styleUrl: './registration-overview.component.scss'
@@ -33,6 +37,8 @@ export class RegistrationOverviewComponent implements OnInit {
   protected registrations: Registration[] = [];
   isMobile: boolean = false;
   isAdmin: boolean = false;
+  currentUserId: number | null = null;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private router: Router,
@@ -40,14 +46,16 @@ export class RegistrationOverviewComponent implements OnInit {
     private authService: AuthService,
     private tournamentService: TournamentService,
     private registrationService: RegistrationService,
+    private userService: UserService,
   ) {
   }
 
   ngOnInit(): void {
     this.isAdmin = this.authService.isAdmin();
+    this.currentUserId = this.authService.getUser()?.id ?? null;
     this.checkViewport();
 
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const tournamentId = params.get('tournamentId');
       if (tournamentId) {
         this.tournamentId = +tournamentId;
@@ -58,21 +66,22 @@ export class RegistrationOverviewComponent implements OnInit {
 
   loadData(id: number): void {
     this.tournamentService.getTournament(id).pipe(
+      takeUntilDestroyed(this.destroyRef),
       switchMap(tournament =>
         this.registrationService.getRegistrationsByTournament(tournament.id).pipe(
+          catchError(() => of([])),
           map(registrations => ({ tournament, registrations }))
         )
       )
     ).subscribe({
       next: ({ tournament, registrations }) => {
         this.tournament = tournament;
-        this.registrations = registrations;
+        this.registrations = (registrations as Registration[]).sort((a, b) =>
+          a.user.lastName.localeCompare(b.user.lastName, 'de')
+        );
       },
       error: (error) => {
-        console.error('Error loading tournament with its registrations', error);
-      },
-      complete: () => {
-        console.log('Tournament and its registrations successfully loaded');
+        console.error('Error loading tournament', error);
       }
     });
   }
@@ -105,6 +114,33 @@ export class RegistrationOverviewComponent implements OnInit {
           }
         });
       }
+    }
+  }
+
+  togglePayed(registration: Registration) {
+    this.registrationService.updatePayed(registration.id, !registration.payed).subscribe({
+      next: (updated) => {
+        registration.payed = updated.payed;
+      },
+      error: (error) => {
+        console.error('Error updating payed status', error);
+      }
+    });
+  }
+
+  getProfileImageUrl(userId: number): string {
+    return this.userService.getProfileImageUrl(userId);
+  }
+
+  hideImage(event: Event): void {
+    (event.target as HTMLImageElement).style.display = 'none';
+  }
+
+  goBack(): void {
+    if (this.tournamentId) {
+      this.router.navigate([`/tournament/${this.tournamentId}`]);
+    } else {
+      this.router.navigate(['/tournament']);
     }
   }
 
@@ -149,8 +185,8 @@ export class RegistrationOverviewComponent implements OnInit {
 
         const selected = Array.isArray(selectedDays) ? selectedDays : [];
         const dayData = tournament.tournamentDays.map(day => {
-          const match = selected.find(d => d.date === day.date);
-          return match && match.time ? `ab ${match.time}` : 'nicht gemeldet';
+          const matches = selected.filter(d => d.date === day.date);
+          return matches.length > 0 ? matches.map(m => m.time).join(', ') : 'nicht gemeldet';
         });
 
         const remarks = notes?.replace(/\n/g, ' ') || '';
@@ -170,6 +206,62 @@ export class RegistrationOverviewComponent implements OnInit {
       a.click();
       URL.revokeObjectURL(url);
     }
+  }
+
+  downloadMatchTemplate(): void {
+    if (!this.tournament || this.registrations.length === 0) return;
+
+    import('xlsx').then(XLSX => {
+      const wb = XLSX.utils.book_new();
+      const tournament = this.tournament!;
+
+      // ── Sheet 1: Participants ───────────────────────
+      const participantRows: any[][] = [
+        ['Nr.', 'Name', 'Stärke'],
+        ...this.registrations.map((reg, i) => [
+          i + 1,
+          `${reg.user.lastName}, ${reg.user.firstName}`,
+          reg.user.strength ?? ''
+        ])
+      ];
+      const wsP = XLSX.utils.aoa_to_sheet(participantRows);
+      wsP['!cols'] = [{ wch: 5 }, { wch: 30 }, { wch: 10 }];
+      XLSX.utils.book_append_sheet(wb, wsP, 'Teilnehmer');
+
+      // ── Sheet per tournament day ────────────────────
+      const playerRange = `Teilnehmer!$B$2:$B$${this.registrations.length + 1}`;
+      const matchRows = 20;
+
+      for (const day of tournament.tournamentDays) {
+        const date = new Date(day.date);
+        const sheetName = date.toLocaleDateString('de-DE', {
+          weekday: 'short', day: '2-digit', month: '2-digit'
+        }).replace(/,/g, '').trim().substring(0, 31);
+
+        const times = [day.time1, day.time2, day.time3].filter(Boolean);
+        const timeFormula = times.length ? `"${times.join(',')}"` : '"18:00,19:30,21:00"';
+
+        const headers = ['Spiel', 'Typ', 'Zeit', 'Spieler 1', 'Spieler 2', 'Spieler 3', 'Spieler 4'];
+        const data: any[][] = [headers];
+        for (let i = 1; i <= matchRows; i++) data.push([i, '', '', '', '', '', '']);
+
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        ws['!cols'] = [{ wch: 8 }, { wch: 12 }, { wch: 10 }, { wch: 28 }, { wch: 28 }, { wch: 28 }, { wch: 28 }];
+
+        (ws as any)['!dataValidations'] = [
+          { type: 'list', sqref: `B2:B${matchRows + 1}`, formula1: '"Einzel,Doppel,Mixed"', allowBlank: true, showDropDown: false },
+          { type: 'list', sqref: `C2:C${matchRows + 1}`, formula1: timeFormula,              allowBlank: true, showDropDown: false },
+          { type: 'list', sqref: `D2:D${matchRows + 1}`, formula1: playerRange,               allowBlank: true, showDropDown: false },
+          { type: 'list', sqref: `E2:E${matchRows + 1}`, formula1: playerRange,               allowBlank: true, showDropDown: false },
+          { type: 'list', sqref: `F2:F${matchRows + 1}`, formula1: playerRange,               allowBlank: true, showDropDown: false },
+          { type: 'list', sqref: `G2:G${matchRows + 1}`, formula1: playerRange,               allowBlank: true, showDropDown: false },
+        ];
+
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+      }
+
+      XLSX.writeFile(wb, `${tournament.name}_Spielplan.xlsx`);
+    });
   }
 
   private escapeCsv(value: any): string {

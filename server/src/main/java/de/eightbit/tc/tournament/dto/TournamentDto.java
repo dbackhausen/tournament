@@ -2,6 +2,7 @@ package de.eightbit.tc.tournament.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import de.eightbit.tc.tournament.model.TournamentType;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.util.List;
 @Data
 public class TournamentDto {
     private Long id;
+    @NotBlank(message = "Tournament name must not be empty")
     private String name;
     private String description;
     private String additionalNotes;
@@ -30,8 +32,10 @@ public class TournamentDto {
         @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDate date;
         @JsonFormat(pattern = "HH:mm")
-        private LocalTime startTime;
+        private LocalTime time1;
         @JsonFormat(pattern = "HH:mm")
-        private LocalTime endTime;
+        private LocalTime time2;
+        @JsonFormat(pattern = "HH:mm")
+        private LocalTime time3;
     }
 }

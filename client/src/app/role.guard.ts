@@ -10,7 +10,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
   if (authService.getRoles()?.some(role => role.toUpperCase() === expectedRole)) {
     return true;
   } else {
-    router.navigate(['/unauthorized']);
+    router.navigate(['/dashboard']);
     return false;
   }
 };

@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from "rxjs/internal/Observable";
 import { Tournament} from "../models/tournament.model";
-import { catchError, of } from "rxjs";
 import { environment } from "../../environments/environment";
 
 @Injectable({
@@ -15,56 +14,26 @@ export class TournamentService {
 
   getTournaments(): Observable<Tournament[]> {
     const url = `${this.apiUrl}/tournaments`;
-    return this.http.get<Tournament[]>(url)
-      .pipe(
-        catchError(this.handleError<Tournament[]>('getTournaments', []))
-      );
+    return this.http.get<Tournament[]>(url);
   }
 
   getTournament(id: number): Observable<Tournament> {
     const url = `${this.apiUrl}/tournaments/${id}`;
-    return this.http.get<Tournament>(url)
-      .pipe(
-        catchError(this.handleError<Tournament>(`getTournament id=${id}`))
-      );
+    return this.http.get<Tournament>(url);
   }
 
   addTournament(tournament: Tournament): Observable<Tournament> {
-    const httpOptions = {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    };
     const url = `${this.apiUrl}/tournaments`;
-    return this.http.post<Tournament>(url, tournament, httpOptions)
-      .pipe(
-        catchError(this.handleError<Tournament>('addTournament'))
-      );
+    return this.http.post<Tournament>(url, tournament);
   }
 
-  updateTournament(id: number, tournament: Tournament): Observable<any> {
-    const httpOptions = {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    };
+  updateTournament(id: number, tournament: Tournament): Observable<Tournament> {
     const url = `${this.apiUrl}/tournaments/${id}`;
-    return this.http.put(url, tournament, httpOptions)
-      .pipe(
-        catchError(this.handleError<any>('updateTournament'))
-      );
+    return this.http.put<Tournament>(url, tournament);
   }
 
   deleteTournament(id: number): Observable<void> {
     const url = `${this.apiUrl}/tournaments/${id}`;
-    return this.http.delete<void>(url)
-      .pipe(
-        catchError(this.handleError<void>('deleteTournament'))
-      );
-  }
-
-  // -- UTIL --
-
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.error(`${operation} failed: ${error.message}`);
-      return of(result as T);
-    };
+    return this.http.delete<void>(url);
   }
 }

@@ -1,78 +1,94 @@
 <p-card header="Teilnehmer {{ tournament?.name }}">
-  @if (isMobile) {
-    <p-dataview #dv [value]="registrations">
-      <ng-template #list let-registration>
-        <div *ngFor="let registration of registrations; let first = first">
-          <div class="grid my-3 p-2 grid-background border-200 surface-overlay border-1 border-round">
-            <div class="col-12 my-0 p-0">
-              <div class="text-left text-sm">
-                {{ registration.user.lastName }}, {{ registration.user.firstName }}
-              </div>
-            </div>
-            <div class="col-12 m-0 p-0">
-              <div class="text-left text-lg font-bold white-space-nowrap overflow-hidden">
-                {{ registration.user.email }}
-              </div>
-            </div>
-            <div class="col-6 my-2 p-0">
-              <p-button icon="pi pi-users" severity="primary" (click)="showProfile(registration.user.id)"></p-button>
-            </div>
-            <div class="col-3 my-2 p-0">
-              <p-button icon="pi pi-pencil" severity="secondary" (click)="editRegistration(registration.id)"></p-button>
-            </div>
-            <div class="col-3 my-2 p-0" *ngIf="isAdmin">
-              <p-button icon="pi pi-times" severity="danger" (click)="deleteRegistration(registration.id)"></p-button>
-            </div>
-          </div>
+
+  <!-- Non-admin: clean participant list -->
+  @if (!isAdmin) {
+    <div class="participant-list">
+      <div class="participant-count">{{ registrations.length }} Teilnehmer</div>
+      <div *ngFor="let registration of registrations; let i = index" class="participant-row">
+        <span class="participant-rank">{{ i + 1 }}</span>
+        <div class="participant-avatar">
+          <img [src]="getProfileImageUrl(registration.user.id)" class="participant-avatar-img" alt=""
+               (error)="hideImage($event)" />
+          <span class="participant-avatar-initials">{{ registration.user.firstName.charAt(0) }}{{ registration.user.lastName.charAt(0) }}</span>
         </div>
-      </ng-template>
-    </p-dataview>
-  } @else {
-    <div class="my-3">
-      <p-table [value]="registrations" class="registrations-table">
-        <ng-template #header >
-          <tr>
-            <th>Nachname</th>
-            <th>Vorname</th>
-            <th>E-Mail</th>
-            <th>Mobilrufnummer</th>
-            <th></th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-registration>
-          <tr>
-            <td>{{ registration.user.lastName }}</td>
-            <td>{{ registration.user.firstName }}</td>
-            <td>{{ registration.user.email }}</td>
-            <td>{{ registration.user.mobile }}</td>
-            <td>
-              <div class="flex flex-row align-items-center justify-content-end gap-3">
-                <div class="flex">
-                  <p-button icon="pi pi-users" severity="primary" (click)="showProfile(registration.user.id)"></p-button>
-                </div>
-                <div class="flex" *ngIf="isAdmin">
-                  <p-button icon="pi pi-pencil" severity="secondary" (click)="editRegistration(registration.id)"></p-button>
-                </div>
-                <div class="flex" *ngIf="isAdmin">
-                  <p-button icon="pi pi-times" severity="danger" (click)="deleteRegistration(registration.id)"></p-button>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="6" class="text-center">
-              <p-message severity="info" text="Keine Registrierungen vorhanden"></p-message>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+        <span class="participant-name">{{ registration.user.lastName }}, {{ registration.user.firstName }}</span>
+        <span class="participant-self-badge" *ngIf="registration.user.id === currentUserId">Du</span>
+      </div>
+      <div *ngIf="registrations.length === 0" class="participant-empty">
+        <p-message severity="info" text="Keine Registrierungen vorhanden"></p-message>
+      </div>
     </div>
   }
 
+  <!-- Admin: full table with actions -->
+  @if (isAdmin) {
+    @if (isMobile) {
+      <div class="admin-list">
+        <div *ngFor="let registration of registrations" class="admin-card" (click)="showProfile(registration.user.id)">
+          <div class="admin-card-info">
+            <div class="admin-card-name">{{ registration.user.lastName }}, {{ registration.user.firstName }}</div>
+            <div class="admin-card-email">{{ registration.user.email }}</div>
+            <div class="admin-card-payed">
+              <p-checkbox [binary]="true" [ngModel]="registration.payed" (onChange)="togglePayed(registration)" (click)="$event.stopPropagation()" inputId="payed_{{registration.id}}"></p-checkbox>
+              <label [for]="'payed_' + registration.id" (click)="$event.stopPropagation()">Bezahlt</label>
+            </div>
+          </div>
+          <div class="admin-card-actions" (click)="$event.stopPropagation()">
+            <p-button icon="pi pi-pencil" severity="secondary" size="small" (click)="editRegistration(registration.id)"></p-button>
+            <p-button icon="pi pi-times" severity="danger" size="small" (click)="deleteRegistration(registration.id)"></p-button>
+          </div>
+        </div>
+        <div *ngIf="registrations.length === 0" class="mt-3">
+          <p-message severity="info" text="Keine Registrierungen vorhanden"></p-message>
+        </div>
+      </div>
+    } @else {
+      <div class="my-3">
+        <p-table [value]="registrations" class="registrations-table">
+          <ng-template #header>
+            <tr>
+              <th>Nachname</th>
+              <th>Vorname</th>
+              <th>E-Mail</th>
+              <th>Mobilrufnummer</th>
+              <th>Stärke</th>
+              <th>Bezahlt</th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-registration>
+            <tr>
+              <td class="name-link" (click)="showProfile(registration.user.id)">{{ registration.user.lastName }}</td>
+              <td>{{ registration.user.firstName }}</td>
+              <td>{{ registration.user.email }}</td>
+              <td>{{ registration.user.mobile }}</td>
+              <td>{{ registration.user.strength ?? '–' }}</td>
+              <td>
+                <p-checkbox [binary]="true" [ngModel]="registration.payed" (onChange)="togglePayed(registration)" inputId="payed_{{registration.id}}"></p-checkbox>
+              </td>
+              <td>
+                <div class="flex flex-row align-items-center justify-content-end gap-2">
+                  <p-button icon="pi pi-pencil" severity="secondary" size="small" (click)="editRegistration(registration.id)"></p-button>
+                  <p-button icon="pi pi-times" severity="danger" size="small" (click)="deleteRegistration(registration.id)"></p-button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="7" class="text-center">
+                <p-message severity="info" text="Keine Registrierungen vorhanden"></p-message>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
+  }
+
   <div class="button-group">
-    <p-button label="Übersicht" severity="secondary" routerLink="/tournament"></p-button>
-    <p-button label="Download" (click)="downloadRegistrationsAsCSV()" *ngIf="isAdmin"></p-button>
+    <p-button label="Zurück" severity="secondary" icon="pi pi-arrow-left" (click)="goBack()"></p-button>
+    <p-button label="Teilnehmerliste" icon="pi pi-download" severity="secondary" (click)="downloadRegistrationsAsCSV()" *ngIf="isAdmin"></p-button>
+    <p-button label="Spielplan" icon="pi pi-file-excel" (click)="downloadMatchTemplate()" *ngIf="isAdmin"></p-button>
   </div>
 </p-card>

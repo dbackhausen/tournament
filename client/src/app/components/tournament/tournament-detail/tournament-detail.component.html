@@ -1,0 +1,56 @@
+<p-card *ngIf="tournament">
+  <div class="detail-header">
+    <div class="detail-dates">{{ tournament.startDate | date:'dd.MM.yyyy' }} – {{ tournament.endDate | date:'dd.MM.yyyy' }}</div>
+    <h2 class="detail-title">{{ tournament.name }}</h2>
+    <div class="detail-types">
+      <span class="type-badge" *ngFor="let type of tournament.tournamentTypes">{{ typeLabel(type) }}</span>
+    </div>
+  </div>
+
+  <div class="detail-section" *ngIf="tournament.description">
+    <div class="section-label">Beschreibung</div>
+    <div class="section-value">{{ tournament.description }}</div>
+  </div>
+
+  <div class="detail-section" *ngIf="tournament.deadline">
+    <div class="section-label">Meldeschluss</div>
+    <div class="section-value deadline-value">{{ tournament.deadline | date:'dd.MM.yyyy, HH:mm' }} Uhr</div>
+  </div>
+
+  <div class="detail-section" *ngIf="tournament.tournamentDays?.length">
+    <div class="section-label">Turniertage</div>
+    <div class="days-list">
+      <div *ngFor="let day of tournament.tournamentDays" class="day-row">
+        <span class="day-date">{{ day.date | date:'EE, dd.MM.yyyy' }}</span>
+        <div class="day-times">
+          <span class="time-chip" *ngIf="day.time1">{{ day.time1 }}</span>
+          <span class="time-chip" *ngIf="day.time2">{{ day.time2 }}</span>
+          <span class="time-chip" *ngIf="day.time3">{{ day.time3 }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-section registrations-row" (click)="isMobile ? onShowRegistrations() : null"
+       [class.clickable]="isMobile">
+    <div class="section-label">
+      Anmeldungen
+      <i class="pi pi-chevron-right registrations-icon" *ngIf="isMobile"></i>
+    </div>
+    <div class="section-value">{{ tournament.registrationCount }} Spieler</div>
+  </div>
+
+  <div class="detail-section" *ngIf="tournament.additionalNotes">
+    <div class="section-label">Hinweise</div>
+    <div class="section-value">{{ tournament.additionalNotes }}</div>
+  </div>
+
+  <div class="button-group">
+    <p-button label="Zurück" severity="secondary" icon="pi pi-arrow-left" (click)="goBack()" />
+    <p-button *ngIf="!isRegistered" label="Anmeldung" icon="pi pi-plus" (click)="onRegister()" />
+    <p-button *ngIf="isRegistered && isMobile" label="Anmeldung" icon="pi pi-pencil" styleClass="btn-registered" (click)="onRegister()" />
+    <p-button *ngIf="isRegistered && !isMobile" label="Anmeldung bearbeiten" icon="pi pi-pencil" styleClass="btn-registered" (click)="onRegister()" />
+    <p-button *ngIf="!isMobile" label="Teilnehmer" icon="pi pi-users" severity="secondary" (click)="onShowRegistrations()" />
+    <p-button *ngIf="isAdmin && !isMobile" label="Bearbeiten" icon="pi pi-pencil" severity="secondary" (click)="onEdit()" />
+  </div>
+</p-card>

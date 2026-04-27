@@ -1,35 +1,49 @@
-// register.component.scss
 .register-container {
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f4f4f4;
+  justify-content: center;
+  background: linear-gradient(150deg, #1c3a72 0%, #3570c4 60%, #4d8bda 100%);
+  padding: 1rem;
 
   .card {
-    padding: 2rem;
-    width: 400px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    text-align: center;
-    background-color: #FFFFFF;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 400px;
 
     h2 {
-      margin-bottom: 1.5rem;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #1a2744;
+      margin: 0 0 1.5rem 0;
+      letter-spacing: -0.02em;
     }
 
     .p-field {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
       text-align: left;
 
       label {
         display: block;
-        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #4b5a7a;
+        margin-bottom: 0.4rem;
       }
 
       input,
       p-password {
         width: 100%;
+      }
+
+      .p-error {
+        display: block;
+        margin-top: 0.3rem;
+        font-size: 0.8rem;
+        color: #e53935;
       }
     }
   }
@@ -39,6 +53,6 @@
     gap: 10px;
     margin-top: 20px;
     padding-top: 10px;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid #e8ecf4;
   }
 }

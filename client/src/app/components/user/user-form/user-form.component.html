@@ -1,26 +1,47 @@
 <p-card header="Benutzer bearbeiten">
   <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
-    <div class="field">
-      <label>Vorname</label>
-      <input pInputText formControlName="firstName" />
+    <div class="formgrid grid my-3">
+      <div class="field col-12 md:col-6">
+        <p-select [options]="genders" formControlName="gender" placeholder="Anrede" class="w-full" />
+      </div>
+      <div class="field col-12 md:col-6 hidden md:flex"></div>
+      <div class="field col-12 md:col-6">
+        <p-floatlabel variant="in">
+          <input pInputText id="firstName" formControlName="firstName" autocomplete="off" class="w-full" />
+          <label for="firstName">Vorname</label>
+        </p-floatlabel>
+      </div>
+      <div class="field col-12 md:col-6">
+        <p-floatlabel variant="in">
+          <input pInputText id="lastName" formControlName="lastName" autocomplete="off" class="w-full" />
+          <label for="lastName">Nachname</label>
+        </p-floatlabel>
+      </div>
+      <div class="field col-12 md:col-6">
+        <p-floatlabel variant="in">
+          <input pInputText id="email" formControlName="email" autocomplete="off" class="w-full" />
+          <label for="email">E-Mail</label>
+        </p-floatlabel>
+      </div>
+      <div class="field col-12 md:col-6">
+        <p-floatlabel variant="in">
+          <input pInputText id="mobile" formControlName="mobile" autocomplete="off" class="w-full" />
+          <label for="mobile">Mobiltelefon</label>
+        </p-floatlabel>
+      </div>
+      <div class="field col-12 md:col-6">
+        <p-floatlabel variant="in">
+          <p-inputNumber id="strength" formControlName="strength" [minFractionDigits]="1" [maxFractionDigits]="2" [min]="0" class="w-full" [inputStyle]="{'width':'100%'}" />
+          <label for="strength">Stärke</label>
+        </p-floatlabel>
+      </div>
+      <div class="field col-12 flex align-items-center gap-3">
+        <p-toggleSwitch formControlName="active"></p-toggleSwitch>
+        <span>{{ userForm.get('active')?.value ? '(aktiv)' : '(inaktiv)' }}</span>
+      </div>
     </div>
-    <div class="field">
-      <label>Nachname</label>
-      <input pInputText formControlName="lastName" />
-    </div>
-    <div class="field">
-      <label>E-Mail</label>
-      <input pInputText formControlName="email" />
-    </div>
-    <div class="field">
-      <label>Mobil</label>
-      <input pInputText formControlName="mobile" />
-    </div>
-    <div class="field">
-      <label>Status</label>
-      <p-toggleSwitch formControlName="active"></p-toggleSwitch>
-    </div>
-    <div class="mt-4 flex justify-content-end gap-2">
+
+    <div class="button-group">
       <p-button label="Zurück" (click)="router.navigate(['/user'])" severity="secondary" />
       <p-button label="Speichern" type="submit" [disabled]="userForm.invalid" />
     </div>

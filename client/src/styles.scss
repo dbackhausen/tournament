@@ -2,10 +2,55 @@
 @use 'primeflex/primeflex.scss' as *;
 
 * {
-  font-family: sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  box-sizing: border-box;
 }
 
 body {
-  margin: 10px;
-  background-color: #CECECE;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f7fc;
+  min-height: 100vh;
+}
+
+// ── Cards ──────────────────────────────────────────────
+.p-card {
+  border-radius: 16px !important;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07) !important;
+  border: none !important;
+}
+
+.p-card .p-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a2744;
+}
+
+// ── Buttons ────────────────────────────────────────────
+.p-button {
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+}
+
+// ── Inputs ─────────────────────────────────────────────
+.p-inputtext,
+.p-select {
+  border-radius: 10px !important;
+}
+
+// ── Tables ─────────────────────────────────────────────
+.p-datatable .p-datatable-thead > tr > th {
+  background-color: #eef4fc !important;
+  color: #1a2744 !important;
+  font-weight: 700 !important;
+  border-bottom: 2px solid #d5e5f7 !important;
+}
+
+// ── Button group (shared across forms) ─────────────────
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #d5e5f7;
 }

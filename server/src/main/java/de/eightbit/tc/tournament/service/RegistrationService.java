@@ -5,8 +5,10 @@ import de.eightbit.tc.tournament.model.*;
 import de.eightbit.tc.tournament.repository.RegistrationRepository;
 import de.eightbit.tc.tournament.repository.TournamentRepository;
 import de.eightbit.tc.tournament.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,16 +27,13 @@ public class RegistrationService {
     private UserRepository userRepository;
 
 
+    @Transactional
     public Registration register(RegistrationDto dto) {
         Tournament tournament = tournamentRepository.findById(dto.getTournament().getId())
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
 
         User user = userRepository.findById(dto.getUser().getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (user == null) {
-            throw new RuntimeException("User found but has no user profile");
-        }
 
         if (isUserRegisteredForTournament(tournament.getId(), user.getId())) {
             throw new RuntimeException("User is already registered for this tournament");
@@ -84,6 +83,7 @@ public class RegistrationService {
         return registrationRepository.findByTournamentIdAndUserId(tournamentId, userId);
     }
 
+    @Transactional
     public Registration updateRegistration(RegistrationDto dto) {
         Optional<Registration> registration = registrationRepository.findById(dto.getId());
 
@@ -110,13 +110,22 @@ public class RegistrationService {
             return registrationRepository.save(existingRegistration);
         }
 
-        return null;
+        throw new EntityNotFoundException("Registration not found");
     }
 
     public int countRegistrationsByTournamentId(Long tournamentId) {
         return registrationRepository.countByTournamentId(tournamentId);
     }
 
+    @Transactional
+    public Registration updatePayed(Long registrationId, boolean payed) {
+        Registration registration = registrationRepository.findById(registrationId)
+                .orElseThrow(() -> new EntityNotFoundException("Registration not found"));
+        registration.setPayed(payed);
+        return registrationRepository.save(registration);
+    }
+
+    @Transactional
     public void deleteRegistration(Long registrationId) {
         registrationRepository.deleteById(registrationId);
     }

@@ -1,4 +1,11 @@
 <p-card header="Profil von {{ user?.firstName }} {{ user?.lastName }}" class="profile-card">
+  <div class="profile-avatar-row">
+    <img *ngIf="profileImageUrl && !imageError" [src]="profileImageUrl" class="profile-avatar-img" alt="Profilbild"
+         (error)="imageError = true" />
+    <div *ngIf="!profileImageUrl || imageError" class="profile-avatar-initials">
+      {{ (user?.firstName?.charAt(0) || '') + (user?.lastName?.charAt(0) || '') }}
+    </div>
+  </div>
   <div class="my-5 mx-3">
     <div class="field">
       <label>Anrede:</label>

@@ -1,8 +1,59 @@
-<div class="flex flex-column align-items-center justify-content-center row-gap-2">
-  <div class="w-full md:w-6">
-    <p-menubar *ngIf="isLoggedIn" [model]="items">TC69</p-menubar>
-  </div>
-  <div class="w-full md:w-6">
+<ng-container *ngIf="isLoggedIn">
+  <!-- Top Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <a class="header-brand" routerLink="/dashboard">
+        <img src="assets/TC69_Logo_Nachbau_2023_11.png" alt="TC69" class="header-logo" />
+        <span class="header-title">Turnierverwaltung</span>
+      </a>
+      <nav class="desktop-nav">
+        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+          <i class="pi pi-home"></i> Dashboard
+        </a>
+        <a routerLink="/tournament" routerLinkActive="active">
+          <i class="pi pi-calendar"></i> Turniere
+        </a>
+        <a *ngIf="isAdmin" routerLink="/user" routerLinkActive="active">
+          <i class="pi pi-users"></i> Benutzer
+        </a>
+        <a [routerLink]="'/profile/edit/' + currentUserId" routerLinkActive="active">
+          <i class="pi pi-user"></i> Mein Profil
+        </a>
+        <button class="logout-btn" (click)="logout()">
+          <i class="pi pi-sign-out"></i> Abmelden
+        </button>
+      </nav>
+    </div>
+  </header>
+</ng-container>
+
+<!-- Main content -->
+<main class="app-main" [class.has-header]="isLoggedIn" [class.has-bottom-nav]="isLoggedIn">
+  <div class="content-container">
     <router-outlet></router-outlet>
   </div>
-</div>
+</main>
+
+<!-- Mobile bottom nav -->
+<nav class="mobile-bottom-nav" *ngIf="isLoggedIn">
+  <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+    <i class="pi pi-home"></i>
+    <span>Dashboard</span>
+  </a>
+  <a routerLink="/tournament" routerLinkActive="active">
+    <i class="pi pi-calendar"></i>
+    <span>Turniere</span>
+  </a>
+  <a *ngIf="isAdmin" routerLink="/user" routerLinkActive="active">
+    <i class="pi pi-users"></i>
+    <span>Benutzer</span>
+  </a>
+  <a [routerLink]="'/profile/edit/' + currentUserId" routerLinkActive="active">
+    <i class="pi pi-user"></i>
+    <span>Profil</span>
+  </a>
+  <a class="logout-item" (click)="logout()">
+    <i class="pi pi-sign-out"></i>
+    <span>Abmelden</span>
+  </a>
+</nav>

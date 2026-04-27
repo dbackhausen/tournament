@@ -8,6 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -44,18 +45,27 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    @Transactional
     public User createUser(User user) {
         return userRepository.save(user);
     }
 
+    @Transactional
     public User updateUser(User user) {
         userRepository.findById(user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found!"));
         return userRepository.save(user);
     }
 
+    @Transactional
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
+    }
+
+    public boolean isOwner(Long userId, String email) {
+        return userRepository.findById(userId)
+                .map(user -> user.getEmail().equals(email))
+                .orElse(false);
     }
 
     // -- MAPPING UTILS ----
@@ -75,6 +85,7 @@ public class UserService {
         user.setLastName(dto.getLastName());
         user.setMobile(dto.getMobile());
         user.setBirthdate(dto.getBirthdate());
+        user.setStrength(dto.getStrength());
         user.setActive(dto.isActive());
 
         if (dto.getRoles() != null) {

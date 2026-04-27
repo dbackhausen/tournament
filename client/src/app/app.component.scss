@@ -1,0 +1,176 @@
+// ── Top Header ─────────────────────────────────────────
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1.5rem;
+
+  @media (min-width: 768px) {
+    padding: 0.6rem 1.5rem;
+  }
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+}
+
+.header-logo {
+  height: 38px;
+  width: 38px;
+  object-fit: contain;
+}
+
+.header-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #1a2744;
+  letter-spacing: -0.02em;
+}
+
+// ── Desktop nav ────────────────────────────────────────
+.desktop-nav {
+  display: none;
+
+  @media (min-width: 768px) {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #4b5a7a;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover {
+      background: #eef4fc;
+      color: #3570c4;
+    }
+
+    &.active {
+      background: #eef4fc;
+      color: #3570c4;
+      font-weight: 600;
+    }
+  }
+
+  .logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: 0.5rem;
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background: #3570c4;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover {
+      background: #2a5aa8;
+    }
+  }
+}
+
+// ── Layout ─────────────────────────────────────────────
+.app-main {
+  min-height: 100vh;
+
+  &.has-header {
+    padding-top: 54px;
+
+    @media (min-width: 768px) {
+      padding-top: 57px;
+    }
+  }
+
+  &.has-bottom-nav {
+    @media (max-width: 767px) {
+      padding-bottom: 72px;
+    }
+  }
+}
+
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+
+  @media (max-width: 767px) {
+    padding: 1rem;
+  }
+}
+
+// ── Mobile bottom nav ──────────────────────────────────
+.mobile-bottom-nav {
+  @media (min-width: 768px) {
+    display: none;
+  }
+
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: #ffffff;
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+
+  a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    text-decoration: none;
+    color: #9aa3b8;
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 0.4rem 0.75rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: color 0.15s;
+    min-width: 52px;
+
+    i {
+      font-size: 1.2rem;
+    }
+
+    &.active {
+      color: #3570c4;
+    }
+
+    &:hover,
+    &.logout-item:hover {
+      color: #3570c4;
+    }
+  }
+}

@@ -11,14 +11,17 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "registrations")
+@Table(name = "registrations", indexes = {
+        @Index(name = "idx_reg_user", columnList = "user_id"),
+        @Index(name = "idx_reg_tournament", columnList = "tournament_id")
+})
 public class Registration {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
@@ -28,7 +31,7 @@ public class Registration {
     @JsonBackReference
     private Tournament tournament;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "registration_types", joinColumns = @JoinColumn(name = "registration_id"))
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
@@ -39,6 +42,8 @@ public class Registration {
 
     @Length(max = 255)
     private String notes;
+
+    private boolean payed;
 
     public void setSelectedTypes(List<TournamentType> selectedTypes) {
         this.selectedTypes.clear();

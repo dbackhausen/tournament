@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
 import { UserService } from "src/app/services/user.service";
@@ -37,7 +38,11 @@ export class ProfileFormComponent implements OnInit {
   genders: SelectItem[];
   message = '';
   severity = 'success';
+  profileImageUrl: string | null = null;
+  pendingImageFile: File | null = null;
+  pendingImagePreview: string | null = null;
   private currentUser: User | null = null;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private fb: FormBuilder,
@@ -68,22 +73,45 @@ export class ProfileFormComponent implements OnInit {
     this.currentUser = this.authService.getUser();
 
     if (this.currentUser) {
-      this.userService.getUser(this.currentUser.id).subscribe({
+      this.profileImageUrl = this.userService.getProfileImageUrl(this.currentUser.id) + '?t=' + Date.now();
+
+      this.userService.getUser(this.currentUser.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (data) => {
           this.profileForm.patchValue(data);
         },
         error: (error) => {
           console.error('Error loading profile');
-        },
-        complete: () => {
-          console.log('Profile successfully loaded')
         }
       });
     }
   }
 
+  get avatarInitials(): string {
+    const first = this.profileForm.value.firstName || this.currentUser?.firstName || '';
+    const last = this.profileForm.value.lastName || this.currentUser?.lastName || '';
+    return (first.charAt(0) + last.charAt(0)).toUpperCase();
+  }
+
+  onImageSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) return;
+
+    this.pendingImageFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.pendingImagePreview = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  triggerImageInput(): void {
+    document.getElementById('profileImageInput')?.click();
+  }
+
   onSubmit(): void {
-    this.message = "";
+    this.message = '';
 
     if (!this.profileForm.valid || !this.currentUser) {
       this.message = 'Ungültige bzw. fehlende Angaben.';
@@ -109,14 +137,29 @@ export class ProfileFormComponent implements OnInit {
       active: this.currentUser.active
     };
 
-    this.userService.updateUser(userData).subscribe({
-      next: (response) => {
-        console.log('Profil erfolgreich aktualisiert', response);
-        this.message = 'Profil erfolgreich aktualisiert.';
-        this.severity = 'success';
+    this.userService.updateUser(userData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        if (this.pendingImageFile && this.currentUser) {
+          this.userService.uploadProfileImage(this.currentUser.id, this.pendingImageFile)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: () => {
+                this.pendingImageFile = null;
+                this.profileImageUrl = this.userService.getProfileImageUrl(this.currentUser!.id) + '?t=' + Date.now();
+                this.message = 'Profil erfolgreich aktualisiert.';
+                this.severity = 'success';
+              },
+              error: () => {
+                this.message = 'Profil gespeichert, aber Bild konnte nicht hochgeladen werden.';
+                this.severity = 'warn';
+              }
+            });
+        } else {
+          this.message = 'Profil erfolgreich aktualisiert.';
+          this.severity = 'success';
+        }
       },
-      error: (error) => {
-        console.error('Fehler beim Aktualisieren des Profils', error);
+      error: () => {
         this.message = 'Fehler beim Speichern des Profils.';
         this.severity = 'error';
       }

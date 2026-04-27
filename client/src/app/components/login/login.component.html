@@ -1,16 +1,21 @@
-<!-- login.component.html -->
-<div class="login-container">
-  <div class="card">
-    <h2>Anmeldung</h2>
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="assets/TC69_Logo_Nachbau_2023_11.png" alt="TC69 Logo" />
+      <h1>TC69</h1>
+      <p>Turnierverwaltung</p>
+    </div>
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="p-field">
         <label for="email">E-Mail</label>
         <input
           id="email"
-          type="text"
+          type="email"
           pInputText
           formControlName="email"
-          placeholder="Bitte gib deine E-Mail Adresse an"
+          placeholder="E-Mail Adresse"
+          class="w-full"
         />
       </div>
 
@@ -24,24 +29,20 @@
           [inputStyle]="{'width':'100%'}"
           [feedback]="false"
           [toggleMask]="true"
-          placeholder="Bitte gib dein Passwort ein"
+          placeholder="Passwort"
         ></p-password>
       </div>
 
-      <div *ngIf="message" class="p-fluid mb-3">
-        <p-message severity="error" text="{{ message }}"></p-message>
+      <div *ngIf="message" class="mb-3">
+        <p-message severity="error" [text]="message"></p-message>
       </div>
 
-      <p-button type="submit" label="Anmelden" [disabled]="loginForm.invalid" />
-
-      <div class="text-sm text-700 font-italic">
-        <p class="mt-5">
-          Passwort vergessen? Hier kannst du es <a [routerLink]="['/reset']" class="no-underline">zurücksetzen</a>.
-        </p>
-        <p class="mt-2">
-          Noch kein Konto? Hier kannst du dich als Vereinsmitglied <a [routerLink]="['/register']" class="no-underline">registrieren</a>.
-        </p>
-      </div>
+      <p-button type="submit" label="Anmelden" [disabled]="loginForm.invalid" styleClass="w-full login-submit" />
     </form>
+
+    <div class="login-links">
+      <a [routerLink]="['/reset']">Passwort vergessen?</a>
+      <a [routerLink]="['/register']">Noch kein Konto? Registrieren</a>
+    </div>
   </div>
 </div>

@@ -11,5 +11,6 @@ export interface User {
   birthdate?: string | null;
   roles: Role[];
   performanceClass: number;
+  strength?: number | null;
   active: boolean;
 }

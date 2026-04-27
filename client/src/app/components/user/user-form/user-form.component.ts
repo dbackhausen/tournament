@@ -1,12 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from "@angular/common";
-import { ButtonModule } from "primeng/button";
-import { TableModule } from "primeng/table";
-import { DataView } from "primeng/dataview";
 import { Card } from "primeng/card";
-import { Message } from "primeng/message";
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Button } from "primeng/button";
+import { InputText } from "primeng/inputtext";
+import { InputNumber } from "primeng/inputnumber";
+import { FloatLabel } from "primeng/floatlabel";
 import { ToggleSwitch } from "primeng/toggleswitch";
+import { Select } from "primeng/select";
+import { SelectItem } from "primeng/api";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { User } from "src/app/models/user.model";
 import { ActivatedRoute, Router } from "@angular/router";
 import { UserService } from "src/app/services/user.service";
@@ -16,12 +19,14 @@ import { UserService } from "src/app/services/user.service";
   standalone: true,
   imports: [
     CommonModule,
-    ButtonModule,
-    TableModule,
-    Card,
-    FormsModule,
-    ToggleSwitch,
     ReactiveFormsModule,
+    Card,
+    Button,
+    InputText,
+    InputNumber,
+    FloatLabel,
+    ToggleSwitch,
+    Select,
   ],
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.scss'
@@ -30,6 +35,11 @@ export class UserFormComponent implements OnInit {
   userId!: number;
   user!: User;
   userForm!: FormGroup;
+  genders: SelectItem[] = [
+    { label: 'Herr', value: 'MALE' },
+    { label: 'Frau', value: 'FEMALE' }
+  ];
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -46,22 +56,26 @@ export class UserFormComponent implements OnInit {
 
   private initializeForm() {
     this.userForm = this.fb.group({
+      gender: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       mobile: [''],
+      strength: [null],
       active: [false]
     });
   }
 
   loadUser(): void {
-    this.userService.getUser(this.userId).subscribe(user => {
+    this.userService.getUser(this.userId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(user => {
       this.user = user;
       this.userForm.patchValue({
+        gender: user.gender,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
         mobile: user.mobile,
+        strength: user.strength ?? null,
         active: user.active
       });
     });
@@ -74,7 +88,7 @@ export class UserFormComponent implements OnInit {
         ...this.userForm.value
       };
 
-      this.userService.updateUser(updatedUser).subscribe(() => {
+      this.userService.updateUser(updatedUser).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         this.router.navigate(['/user']); //
       });
     }

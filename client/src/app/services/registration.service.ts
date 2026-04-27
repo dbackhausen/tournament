@@ -1,85 +1,54 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from "rxjs/internal/Observable";
 import { Registration } from "../models/tournament.model";
-import { catchError, of } from "rxjs";
 import { environment } from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root',
 })
 export class RegistrationService {
-  private apiUrl = environment.apiUrl; // Basis-URL des Backends
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
   addRegistration(registration: Registration) {
     const url = `${this.apiUrl}/registrations`;
-    const httpOptions = {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    };
-    return this.http.post<Registration>(url, registration, httpOptions)
-      .pipe(
-        catchError(this.handleError<Registration>('register'))
-      );
+    return this.http.post<Registration>(url, registration);
   }
 
-  getRegistration(registrationId: number){
+  getRegistration(registrationId: number) {
     const url = `${this.apiUrl}/registrations/${registrationId}`;
-    return this.http.get<Registration>(url)
-      .pipe(
-        catchError(this.handleError<Registration>(`getRegistration registrationId=${registrationId}`))
-      );
+    return this.http.get<Registration>(url);
   }
 
   getRegistrationsByTournament(tournamentId: number): Observable<Registration[]> {
     const url = `${this.apiUrl}/registrations/find/by-tournament?tournamentId=${tournamentId}`;
-    return this.http.get<Registration[]>(url)
-      .pipe(
-        catchError(this.handleError<Registration[]>(`getRegistrationsByTournament tournamentId=${tournamentId}`, []))
-      );
+    return this.http.get<Registration[]>(url);
   }
 
-  getRegistrationsByUser(userId: number){
+  getRegistrationsByUser(userId: number): Observable<Registration[]> {
     const url = `${this.apiUrl}/registrations/find/by-user?userId=${userId}`;
-    return this.http.get<Registration>(url)
-      .pipe(
-        catchError(this.handleError<Registration>(`getRegistrationsByUser userId=${userId}`))
-      );
+    return this.http.get<Registration[]>(url);
   }
 
   getRegistrationByTournamentAndUser(tournamentId: number, userId: number): Observable<Registration | null> {
     const url = `${this.apiUrl}/registrations/find/by-tournament-and-user?tournamentId=${tournamentId}&userId=${userId}`;
-    return this.http.get<Registration>(url).pipe(
-      catchError(this.handleError<Registration>(`getRegistrationByTournamentAndUser tournamentId=${tournamentId} userId=${userId}`))
-    );
+    return this.http.get<Registration>(url);
   }
 
   updateRegistration(registration: Registration) {
     const url = `${this.apiUrl}/registrations`;
-    const httpOptions = {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    };
-    return this.http.put<Registration>(url, registration, httpOptions)
-      .pipe(
-        catchError(this.handleError<Registration>('updateRegistration'))
-      );
+    return this.http.put<Registration>(url, registration);
+  }
+
+  updatePayed(registrationId: number, payed: boolean) {
+    const url = `${this.apiUrl}/registrations/${registrationId}/payed`;
+    return this.http.patch<Registration>(url, { payed });
   }
 
   deleteRegistration(registrationId: number) {
     const url = `${this.apiUrl}/registrations/${registrationId}`;
-    return this.http.delete<Registration>(url)
-      .pipe(
-        catchError(this.handleError<Registration>('getUserRegistration'))
-      );
-  }
-
-  // -- UTIL --
-
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.error(`${operation} failed: ${error.message}`);
-      return of(result as T);
-    };
+    return this.http.delete<Registration>(url);
   }
 }

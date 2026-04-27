@@ -25,7 +25,6 @@ export class AuthService {
     const url = `${this.apiUrl}/auth/login`;
     return this.http.post(url, credentials).pipe(
       tap((response: any) => {
-        console.log(response);
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
         this.isLoggedInSubject.next(true);
@@ -53,8 +52,19 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
-  isLoggedIn() {
-    return this.isLoggedIn$;
+  isLoggedIn(): boolean {
+    return this.hasToken() && !this.isTokenExpired();
+  }
+
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) return true;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
   }
 
   private hasToken(): boolean {

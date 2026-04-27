@@ -1,36 +1,90 @@
-// login.component.scss
-.login-container {
+.login-page {
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f4f4f4;
+  justify-content: center;
+  background: linear-gradient(150deg, #1c3a72 0%, #3570c4 60%, #4d8bda 100%);
+  padding: 1rem;
+}
 
-  .card {
-    padding: 2rem;
-    width: 400px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    text-align: center;
-    background-color: #FFFFFF;
+.login-card {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 400px;
+}
 
-    h2 {
-      margin-bottom: 1.5rem;
-    }
+.login-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
 
-    .p-field {
-      margin-bottom: 1.5rem;
-      text-align: left;
+  img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    margin-bottom: 0.75rem;
+  }
 
-      label {
-        display: block;
-        margin-bottom: 0.5rem;
-      }
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #1a2744;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
 
-      input,
-      p-password {
-        width: 100%;
-      }
+  p {
+    font-size: 0.85rem;
+    color: #6b7a99;
+    margin: 0.25rem 0 0 0;
+  }
+}
+
+.p-field {
+  margin-bottom: 1.25rem;
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4b5a7a;
+    margin-bottom: 0.4rem;
+  }
+
+  input,
+  p-password {
+    width: 100%;
+  }
+}
+
+.login-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e8ecf4;
+
+  a {
+    font-size: 0.82rem;
+    color: #3570c4;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
     }
   }
+}
+
+:host ::ng-deep .login-submit {
+  width: 100%;
+  justify-content: center;
+  padding: 0.75rem;
+  font-size: 1rem;
 }

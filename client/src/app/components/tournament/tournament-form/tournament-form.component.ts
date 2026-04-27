@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormGroup,
@@ -21,6 +22,7 @@ import { Tournament, TournamentDay, TournamentType } from "src/app/models/tourna
 import { DatePipe } from '@angular/common';
 import { Message } from "primeng/message";
 import { deadlineBeforeFirstDayValidator } from "src/app/validator/deadlineBeforeFirstDay.validator";
+import { atLeastOneTypeSelectedValidator } from "src/app/validator/at-least-one-type-selected.validator";
 
 @Component({
   selector: 'app-tournament-form',
@@ -48,6 +50,7 @@ export class TournamentFormComponent implements OnInit {
   editMode = false;
   tournamentId: number | null = null;
   tournament: Tournament | null = null;
+  private destroyRef = inject(DestroyRef);
 
   availableTournamentTypes = [
     {label: 'Einzel', value: 'SINGLE'},
@@ -68,7 +71,7 @@ export class TournamentFormComponent implements OnInit {
       description: [''],
       additionalNotes: [''],
       tournamentDays: this.fb.array([this.createTournamentDay()]),
-      tournamentTypes: this.fb.array([], Validators.required),
+      tournamentTypes: this.fb.array([], atLeastOneTypeSelectedValidator),
       deadline: ['', Validators.required],
     }, { validators: deadlineBeforeFirstDayValidator });
   }
@@ -77,8 +80,28 @@ export class TournamentFormComponent implements OnInit {
     // Initialize the form array for the selectable tournament types
     this.initializeTournamentTypes();
 
+    // When deadline changes: force time to 23:59 and (in create mode) auto-set first tournament day to deadline + 1 day
+    this.tournamentForm.get('deadline')!.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(deadlineValue => {
+        if (!deadlineValue) return;
+
+        const deadline = new Date(deadlineValue);
+        if (deadline.getHours() !== 23 || deadline.getMinutes() !== 59) {
+          deadline.setHours(23, 59, 0, 0);
+          this.tournamentForm.get('deadline')!.setValue(deadline, { emitEvent: false });
+        }
+
+        if (!this.editMode) {
+          const nextDay = new Date(deadline);
+          nextDay.setDate(nextDay.getDate() + 1);
+          nextDay.setHours(0, 0, 0, 0);
+          this.tournamentDays.at(0).get('date')!.setValue(nextDay, { emitEvent: false });
+        }
+      });
+
     // Check, if EDIT MODE is present
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const id = params.get('tournamentId');
       if (id) {
         this.editMode = true;
@@ -89,7 +112,7 @@ export class TournamentFormComponent implements OnInit {
   }
 
   loadTournament(id: number): void {
-    this.tournamentService.getTournament(id).subscribe((tournament) => {
+    this.tournamentService.getTournament(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((tournament) => {
       this.tournament = tournament;
       console.log(JSON.stringify(tournament));
 
@@ -112,8 +135,9 @@ export class TournamentFormComponent implements OnInit {
         tournament.tournamentDays.forEach(day => {
           daysFormArray.push(this.fb.group({
             date: [new Date(day.date)],
-            startTime: [this.convertTimeStringToDate(day.startTime)],
-            endTime: [this.convertTimeStringToDate(day.endTime)]
+            time1: [day.time1 ? this.convertTimeStringToDate(day.time1) : null],
+            time2: [day.time2 ? this.convertTimeStringToDate(day.time2) : null],
+            time3: [day.time3 ? this.convertTimeStringToDate(day.time3) : null]
           }));
         });
       }
@@ -149,10 +173,11 @@ export class TournamentFormComponent implements OnInit {
           const dateB = new Date(b.date).getTime();
           return dateA - dateB;
         });
-        tournamentDays.forEach(day => {
-          day.date = <string>this.datePipe.transform(day.date, 'yyyy-MM-dd');
-          day.startTime = <string>this.datePipe.transform(day.startTime, 'HH:mm');
-          day.endTime = <string>this.datePipe.transform(day.endTime, 'HH:mm');
+        tournamentDays.forEach((day: any) => {
+          day.date = this.datePipe.transform(day.date, 'yyyy-MM-dd');
+          day.time1 = day.time1 ? this.datePipe.transform(day.time1, 'HH:mm') : null;
+          day.time2 = day.time2 ? this.datePipe.transform(day.time2, 'HH:mm') : null;
+          day.time3 = day.time3 ? this.datePipe.transform(day.time3, 'HH:mm') : null;
         });
 
         const startDate = tournamentDays[0].date;
@@ -174,7 +199,7 @@ export class TournamentFormComponent implements OnInit {
 
         if (this.editMode && this.tournamentId) {
           // Update an existing tournament
-          this.tournamentService.updateTournament(this.tournamentId, tournamentData).subscribe({
+          this.tournamentService.updateTournament(this.tournamentId, tournamentData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
               next: (response) => {
                 if (response != undefined) {
                   console.log('Tournament successfully updated', response);
@@ -191,7 +216,7 @@ export class TournamentFormComponent implements OnInit {
           )
         } else {
           // Create a new tournament
-          this.tournamentService.addTournament(tournamentData).subscribe({
+          this.tournamentService.addTournament(tournamentData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
               next: (response) => {
                 if (response != undefined) {
                   console.log('Tournament successfully created', response);
@@ -224,9 +249,16 @@ export class TournamentFormComponent implements OnInit {
 
     return this.fb.group({
       date: [nextDay, Validators.required],
-      startTime: [this.getDefaultTime(17, 0), Validators.required],
-      endTime: [this.getDefaultTime(20, 0), Validators.required]
+      time1: [this.getDefaultTime(18, 0)],
+      time2: [this.getDefaultTime(19, 30)],
+      time3: [this.getDefaultTime(21, 0)]
     });
+  }
+
+  getDefaultTime(hours: number, minutes: number): Date {
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return date;
   }
 
   get tournamentDays(): FormArray {
@@ -239,12 +271,6 @@ export class TournamentFormComponent implements OnInit {
 
   removeTournamentDay(index: number): void {
     this.tournamentDays.removeAt(index);
-  }
-
-  getDefaultTime(hours: number, minutes: number): Date {
-    const date = new Date();
-    date.setHours(hours, minutes, 0, 0);
-    return date;
   }
 
   getNextDay(): Date | null {
@@ -264,12 +290,11 @@ export class TournamentFormComponent implements OnInit {
     return null;
   }
 
-  private convertTimeStringToDate(timeString: string): Date | null {
-    if (!timeString) return null;
-    const timeParts = timeString.split(':');
-    const time = new Date();
-    time.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), 0, 0);
-    return time;
+  private convertTimeStringToDate(timeString: string): Date {
+    const parts = timeString.split(':');
+    const d = new Date();
+    d.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
+    return d;
   }
 
   // ------------------ TOURNAMENT TYPES ------------------
@@ -295,20 +320,4 @@ export class TournamentFormComponent implements OnInit {
     }
   }
 
-  parseDeadline(deadlineStr: string | null): Date | null {
-    if (!deadlineStr) return null;
-
-    // Normalize whitespace und trimmen
-    const normalized = deadlineStr.replace(/\s+/g, ' ').trim();
-
-    const [datePart, timePart] = normalized.split(' ');
-    if (!datePart || !timePart) return null;
-
-    const [year, month, day] = datePart.split('-').map(Number);
-    const [hour, minute] = timePart.split(':').map(Number);
-
-    if ([year, month, day, hour, minute].some(isNaN)) return null;
-
-    return new Date(year, month - 1, day, hour, minute);
-  }
 }

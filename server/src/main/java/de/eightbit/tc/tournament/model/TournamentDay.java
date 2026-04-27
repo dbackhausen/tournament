@@ -18,8 +18,15 @@ public class TournamentDay {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
-    private LocalTime startTime;
-    private LocalTime endTime;
+
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime time1;
+
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime time2;
+
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime time3;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tournament_id")
@@ -28,23 +35,10 @@ public class TournamentDay {
 
     public TournamentDay() {}
 
-    public TournamentDay(LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public TournamentDay(LocalDate date, LocalTime time1, LocalTime time2, LocalTime time3) {
         this.date = date;
-        setStartTime(startTime);
-        setEndTime(endTime);
-    }
-
-    public void setStartTime(LocalTime startTime) {
-        if (this.endTime != null && startTime.isAfter(this.endTime)) {
-            throw new IllegalArgumentException("The start time must not be after the end time.");
-        }
-        this.startTime = startTime;
-    }
-
-    public void setEndTime(LocalTime endTime) {
-        if (this.startTime != null && endTime.isBefore(this.startTime)) {
-            throw new IllegalArgumentException("The end time must not be before the start time.");
-        }
-        this.endTime = endTime;
+        this.time1 = time1;
+        this.time2 = time2;
+        this.time3 = time3;
     }
 }
