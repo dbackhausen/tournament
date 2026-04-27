@@ -39,6 +39,7 @@ public class User {
     private Double performanceClass;
     private Float strength;
     private boolean active;
+    @Column(unique = true)
     private String resetToken;
     private LocalDateTime resetTokenExpiry;
 
