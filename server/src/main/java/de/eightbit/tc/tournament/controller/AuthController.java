@@ -3,6 +3,7 @@ package de.eightbit.tc.tournament.controller;
 import de.eightbit.tc.tournament.dto.*;
 import de.eightbit.tc.tournament.model.Role;
 import de.eightbit.tc.tournament.model.User;
+import de.eightbit.tc.tournament.service.PasswordResetService;
 import de.eightbit.tc.tournament.service.UserService;
 import de.eightbit.tc.tournament.util.JwtUtil;
 import jakarta.validation.Valid;
@@ -29,6 +30,9 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private PasswordResetService passwordResetService;
 
 
     @PostMapping("/register")
@@ -65,5 +69,21 @@ public class AuthController {
         String token = jwtUtil.generateToken(existingUser.getEmail());
         UserDto userDto = userService.mapToDto(existingUser);
         return ResponseEntity.ok(new AuthResponse(token, userDto));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        passwordResetService.requestReset(request.getEmail());
+        return ResponseEntity.ok("Reset email sent if address is registered");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        try {
+            passwordResetService.resetPassword(request.getToken(), request.getNewPassword());
+            return ResponseEntity.ok("Password updated successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token");
+        }
     }
 }
