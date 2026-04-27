@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
+    Optional<User> findByResetToken(String resetToken);
+
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r = 'PLAYER'")
     List<User> findAllPlayers();
 

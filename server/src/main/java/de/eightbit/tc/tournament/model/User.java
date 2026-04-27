@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,6 +39,8 @@ public class User {
     private Double performanceClass;
     private Float strength;
     private boolean active;
+    private String resetToken;
+    private LocalDateTime resetTokenExpiry;
 
     @Lob
     @Column(name = "profile_image", columnDefinition = "LONGBLOB")
