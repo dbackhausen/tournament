@@ -75,4 +75,12 @@ export class AuthService {
     const user = this.getUser();
     return user?.roles.includes('ADMIN');
   }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/reset-password`, { token, newPassword });
+  }
 }
