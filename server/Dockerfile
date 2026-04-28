@@ -7,6 +7,7 @@ RUN chmod +x gradlew && ./gradlew clean build -x test
 # Stage 2: Runtime
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/build/libs/tournament-app-backend-1.0.jar app.jar
+COPY --from=build /app/build/libs /libs
+RUN cp $(ls /libs/*.jar | grep -v plain | head -1) app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
