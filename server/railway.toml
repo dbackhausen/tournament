@@ -1,7 +1,7 @@
 [build]
-buildCommand = "./gradlew clean build -x test"
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "java -jar build/libs/tournament-app-backend-1.0.jar"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
