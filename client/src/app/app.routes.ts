@@ -76,6 +76,10 @@ export const routes: Routes = [
     loadComponent: () => import('src/app/components/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
   },
   {
+    path: 'confirm',
+    loadComponent: () => import('src/app/components/confirm/confirm.component').then(m => m.ConfirmComponent)
+  },
+  {
     path: 'login',
     loadComponent: () => import('src/app/components/login/login.component').then(m => m.LoginComponent)
   },

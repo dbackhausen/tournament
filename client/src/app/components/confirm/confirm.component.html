@@ -1,0 +1,13 @@
+<div class="confirm-page">
+  <div class="confirm-card">
+    <img src="assets/TC69_Logo_Nachbau_2023_11.png" alt="TC69 Logo" class="logo" />
+    <h1>TC69</h1>
+    <ng-container *ngIf="loading">
+      <p>E-Mail wird bestätigt …</p>
+    </ng-container>
+    <ng-container *ngIf="!loading && error">
+      <p class="error-msg">{{ error }}</p>
+      <a href="/register">Zur Registrierung</a>
+    </ng-container>
+  </div>
+</div>
