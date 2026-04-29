@@ -44,7 +44,7 @@ export class LoginComponent {
           this.router.navigate(['/dashboard']);
         },
         error: (error) => {
-          this.message = 'Anmeldung fehlgeschlagen';
+          this.message = error.error || 'Anmeldung fehlgeschlagen';
           console.error('Login failure', error);
         }
       });

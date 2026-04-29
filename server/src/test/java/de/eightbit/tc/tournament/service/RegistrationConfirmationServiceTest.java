@@ -100,7 +100,7 @@ class RegistrationConfirmationServiceTest {
     }
 
     @Test
-    void confirmRegistration_expiredToken_deletesUserAndThrows() {
+    void confirmRegistration_expiredToken_throwsWithoutSaving() {
         User user = new User();
         user.setConfirmationToken("expired-token");
         user.setConfirmationTokenExpiry(LocalDateTime.now().minusMinutes(1));
@@ -112,8 +112,8 @@ class RegistrationConfirmationServiceTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("abgelaufen");
 
-        verify(userRepository).delete(user);
         verify(userRepository, never()).save(any());
+        verify(userRepository, never()).delete(any(User.class));
     }
 
     @Test

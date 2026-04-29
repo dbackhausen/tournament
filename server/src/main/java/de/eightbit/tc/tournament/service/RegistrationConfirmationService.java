@@ -47,7 +47,6 @@ public class RegistrationConfirmationService {
 
         if (user.getConfirmationTokenExpiry() == null
                 || LocalDateTime.now().isAfter(user.getConfirmationTokenExpiry())) {
-            userRepository.delete(user);
             throw new RuntimeException("Bestätigungslink abgelaufen. Bitte registriere dich erneut.");
         }
 
