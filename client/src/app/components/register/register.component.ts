@@ -62,8 +62,7 @@ export class RegisterComponent {
 
       this.authService.register(registrationData).subscribe({
         next: () => {
-          this.message = 'Danke für deine Registrierung! Du erhältst in Kürze eine E-Mail zwecks Bestätigung.';
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login'], { queryParams: { registered: 'true' } });
         },
         error: (err: { error: any; }) => this.message = `Fehler: ${err.error}`
       });

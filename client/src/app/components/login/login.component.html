@@ -7,6 +7,9 @@
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div *ngIf="registered" class="mb-3">
+        <p-message severity="info" text="Danke für deine Registrierung! Du erhältst in Kürze eine E-Mail zwecks Bestätigung."></p-message>
+      </div>
       <div *ngIf="confirmed" class="mb-3">
         <p-message severity="success" text="E-Mail erfolgreich bestätigt. Du kannst dich jetzt einloggen."></p-message>
       </div>

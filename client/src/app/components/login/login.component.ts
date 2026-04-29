@@ -27,6 +27,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   message = '';
   confirmed = false;
+  registered = false;
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router, private route: ActivatedRoute) {
     this.loginForm = this.fb.group({
@@ -34,6 +35,7 @@ export class LoginComponent {
       password: ['', Validators.required]
     });
     this.confirmed = this.route.snapshot.queryParamMap.get('confirmed') === 'true';
+    this.registered = this.route.snapshot.queryParamMap.get('registered') === 'true';
   }
 
   onSubmit(): void {
