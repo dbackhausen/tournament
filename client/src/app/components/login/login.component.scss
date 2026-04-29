@@ -7,12 +7,11 @@
   padding: 1rem;
 
   @media (min-width: 768px) {
-    // Escape .content-container (max-width: 1200px, margin: 0 auto, padding: 1.5rem)
-    // so the background covers the full viewport.
-    position: relative;
-    left: 50%;
-    width: 100vw;
-    transform: translateX(-50%);
+    // Break completely free of .content-container (max-width, padding, margin: auto).
+    // position: fixed + inset: 0 always covers exactly the viewport,
+    // regardless of any parent container constraints or scrollbar width.
+    position: fixed;
+    inset: 0;
     background:
       linear-gradient(150deg, rgba(28, 58, 114, 0.72) 0%, rgba(53, 112, 196, 0.60) 60%, rgba(77, 139, 218, 0.50) 100%),
       url('/assets/court.png') center center / cover no-repeat;
