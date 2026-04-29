@@ -4,6 +4,7 @@ import de.eightbit.tc.tournament.dto.*;
 import de.eightbit.tc.tournament.model.Role;
 import de.eightbit.tc.tournament.model.User;
 import de.eightbit.tc.tournament.service.PasswordResetService;
+import de.eightbit.tc.tournament.service.RegistrationConfirmationService;
 import de.eightbit.tc.tournament.service.UserService;
 import de.eightbit.tc.tournament.util.JwtUtil;
 import jakarta.validation.Valid;
@@ -11,9 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
@@ -34,6 +37,9 @@ public class AuthController {
     @Autowired
     private PasswordResetService passwordResetService;
 
+    @Autowired
+    private RegistrationConfirmationService registrationConfirmationService;
+
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserRegistrationDto dto) {
@@ -53,6 +59,7 @@ public class AuthController {
         newUser.setActive(false); // not active till registration confirmation
 
         User saveUser = userService.createUser(newUser);
+        registrationConfirmationService.sendConfirmationEmail(saveUser);
         return ResponseEntity.ok(userService.mapToDto(saveUser));
     }
 
@@ -65,6 +72,9 @@ public class AuthController {
         User existingUser = user.get();
         if (!passwordEncoder.matches(loginRequest.getPassword(), existingUser.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+        if (!existingUser.isActive()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Account noch nicht bestätigt");
         }
         String token = jwtUtil.generateToken(existingUser.getEmail());
         UserDto userDto = userService.mapToDto(existingUser);
@@ -87,6 +97,17 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token");
             }
             throw e;
+        }
+    }
+
+    @GetMapping("/confirm")
+    public ResponseEntity<?> confirmEmail(@RequestParam String token) {
+        try {
+            registrationConfirmationService.confirmRegistration(token);
+            return ResponseEntity.ok("E-Mail erfolgreich bestätigt");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage() != null ? e.getMessage() : "Ungültiger oder abgelaufener Link");
         }
     }
 }
