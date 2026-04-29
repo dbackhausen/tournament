@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neue Registrierung</title>
+  <style>
+    body { margin: 0; padding: 0; background-color: #f0f4fa; font-family: Arial, sans-serif; }
+    .wrapper { max-width: 480px; margin: 40px auto; background: #ffffff; border-radius: 12px;
+               box-shadow: 0 4px 24px rgba(0,0,0,0.10); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #1c3a72 0%, #3570c4 100%);
+              padding: 32px 32px 24px; text-align: center; }
+    .header h1 { color: #ffffff; font-size: 1.5rem; margin: 0; letter-spacing: -0.02em; }
+    .header p { color: #c5d8f7; font-size: 0.85rem; margin: 4px 0 0; }
+    .body { padding: 32px; color: #2d3a55; }
+    .body p { font-size: 0.95rem; line-height: 1.6; margin: 0 0 20px; }
+    .user-info { background: #f0f4fa; border-radius: 8px; padding: 16px 20px; margin: 20px 0; }
+    .user-info p { margin: 4px 0; font-size: 0.9rem; }
+    .footer { padding: 16px 32px; border-top: 1px solid #e8ecf4;
+              font-size: 0.78rem; color: #8a97b3; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h1>TC69 Turnierverwaltung</h1>
+      <p>Neue Registrierung</p>
+    </div>
+    <div class="body">
+      <p>Hallo,</p>
+      <p>ein neues Mitglied hat sich erfolgreich registriert und seine E-Mail-Adresse bestätigt:</p>
+      <div class="user-info">
+        <p><strong>Name:</strong> <span th:text="${fullName}">Max Mustermann</span></p>
+        <p><strong>E-Mail:</strong> <span th:text="${email}">max@example.com</span></p>
+      </div>
+      <p>Der Account ist nun aktiv.</p>
+    </div>
+    <div class="footer">
+      TC69 Tennisclub &middot; Diese E-Mail wurde automatisch generiert.
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-Mail bestätigen</title>
+  <style>
+    body { margin: 0; padding: 0; background-color: #f0f4fa; font-family: Arial, sans-serif; }
+    .wrapper { max-width: 480px; margin: 40px auto; background: #ffffff; border-radius: 12px;
+               box-shadow: 0 4px 24px rgba(0,0,0,0.10); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #1c3a72 0%, #3570c4 100%);
+              padding: 32px 32px 24px; text-align: center; }
+    .header h1 { color: #ffffff; font-size: 1.5rem; margin: 0; letter-spacing: -0.02em; }
+    .header p { color: #c5d8f7; font-size: 0.85rem; margin: 4px 0 0; }
+    .body { padding: 32px; color: #2d3a55; }
+    .body p { font-size: 0.95rem; line-height: 1.6; margin: 0 0 20px; }
+    .btn-wrap { text-align: center; margin: 28px 0; }
+    .btn { display: inline-block; background: #3570c4; color: #ffffff; text-decoration: none;
+           padding: 14px 32px; border-radius: 8px; font-size: 1rem; font-weight: 600; }
+    .footer { padding: 16px 32px; border-top: 1px solid #e8ecf4;
+              font-size: 0.78rem; color: #8a97b3; text-align: center; }
+    .link-fallback { word-break: break-all; font-size: 0.78rem; color: #5a6a8a; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h1>TC69 Turnierverwaltung</h1>
+      <p>E-Mail-Adresse bestätigen</p>
+    </div>
+    <div class="body">
+      <p>Hallo <span th:text="${firstName}">Vorname</span>,</p>
+      <p>vielen Dank für deine Registrierung beim TC69! Bitte bestätige deine E-Mail-Adresse,
+         um deinen Account zu aktivieren. Der Link ist <strong>24 Stunden</strong> gültig.</p>
+      <div class="btn-wrap">
+        <a th:href="${confirmLink}" class="btn">E-Mail bestätigen</a>
+      </div>
+      <p>Falls du dich nicht registriert hast, kannst du diese E-Mail ignorieren.</p>
+      <p class="link-fallback">
+        Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:<br/>
+        <span th:text="${confirmLink}"></span>
+      </p>
+    </div>
+    <div class="footer">
+      TC69 Tennisclub &middot; Diese E-Mail wurde automatisch generiert.
+    </div>
+  </div>
+</body>
+</html>
