@@ -43,6 +43,10 @@ public class User {
     private String resetToken;
     private LocalDateTime resetTokenExpiry;
 
+    @Column(unique = true)
+    private String confirmationToken;
+    private LocalDateTime confirmationTokenExpiry;
+
     @Lob
     @Column(name = "profile_image", columnDefinition = "LONGBLOB")
     private byte[] profileImage;
