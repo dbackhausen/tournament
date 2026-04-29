@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { InputText } from 'primeng/inputtext';
@@ -26,12 +26,14 @@ import { Message } from "primeng/message";
 export class LoginComponent {
   loginForm: FormGroup;
   message = '';
+  confirmed = false;
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router, private route: ActivatedRoute) {
     this.loginForm = this.fb.group({
       email: ['', Validators.required],
       password: ['', Validators.required]
-    })
+    });
+    this.confirmed = this.route.snapshot.queryParamMap.get('confirmed') === 'true';
   }
 
   onSubmit(): void {
