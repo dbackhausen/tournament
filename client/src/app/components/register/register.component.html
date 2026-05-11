@@ -78,8 +78,8 @@
       </div>
 
       <div class="button-group">
-        <p-button type="submit" label="Registrieren" [disabled]="registerForm.invalid || !!successMessage" />
-        <p-button type="button" label="Abbrechen" severity="secondary" (click)="onCancel()" />
+        <p-button type="submit" label="Registrieren" [disabled]="loading || !!successMessage" [loading]="loading" />
+        <p-button type="button" label="Abbrechen" severity="secondary" [disabled]="loading || !!successMessage" (click)="onCancel()" />
       </div>
     </form>
   </div>

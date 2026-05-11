@@ -34,6 +34,7 @@ export class RegisterComponent {
   genders: SelectItem[];
   message = '';
   successMessage = '';
+  loading = false;
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.registerForm = this.fb.group({
@@ -43,36 +44,41 @@ export class RegisterComponent {
       mobile: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]]
-    })
+    });
 
-    this.genders = [];
-    this.genders.push({ label: 'Herr', value: 'MALE' });
-    this.genders.push({ label: 'Frau', value: 'FEMALE' });
+    this.genders = [
+      { label: 'Herr', value: 'MALE' },
+      { label: 'Frau', value: 'FEMALE' }
+    ];
   }
 
   onSubmit() {
-    if (this.registerForm.valid) {
-      const registrationData: UserRegistration = {
-        gender: this.registerForm.value.gender,
-        firstName: this.registerForm.value.firstName,
-        lastName: this.registerForm.value.lastName,
-        mobile: this.registerForm.value.mobile,
-        email: this.registerForm.value.email,
-        password: this.registerForm.value.password,
-      };
+    if (this.registerForm.invalid || this.loading) return;
 
-      this.registerForm.disable();
-      this.message = '';
-      this.authService.register(registrationData).subscribe({
-        next: () => {
-          this.successMessage = 'Vielen Dank! Deine Registrierung war erfolgreich. Du erhältst in Kürze eine E-Mail zur Bestätigung.';
-        },
-        error: (err: { error: any; }) => {
-          this.message = `Fehler: ${err.error}`;
-          this.registerForm.enable();
-        }
-      });
-    }
+    const registrationData: UserRegistration = {
+      gender: this.registerForm.value.gender,
+      firstName: this.registerForm.value.firstName,
+      lastName: this.registerForm.value.lastName,
+      mobile: this.registerForm.value.mobile,
+      email: this.registerForm.value.email,
+      password: this.registerForm.value.password,
+    };
+
+    this.loading = true;
+    this.message = '';
+    this.registerForm.disable();
+
+    this.authService.register(registrationData).subscribe({
+      next: () => {
+        this.successMessage = 'Vielen Dank! Deine Registrierung war erfolgreich. Du erhältst in Kürze eine E-Mail zur Bestätigung.';
+        setTimeout(() => this.router.navigate(['/login']), 5000);
+      },
+      error: (err: { error: any }) => {
+        this.message = `Fehler: ${err.error}`;
+        this.loading = false;
+        this.registerForm.enable();
+      }
+    });
   }
 
   onCancel(): void {
