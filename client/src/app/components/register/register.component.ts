@@ -33,6 +33,7 @@ export class RegisterComponent {
   registerForm: FormGroup;
   genders: SelectItem[];
   message = '';
+  successMessage = '';
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.registerForm = this.fb.group({
@@ -60,11 +61,16 @@ export class RegisterComponent {
         password: this.registerForm.value.password,
       };
 
+      this.registerForm.disable();
+      this.message = '';
       this.authService.register(registrationData).subscribe({
         next: () => {
-          this.router.navigate(['/login'], { queryParams: { registered: 'true' } });
+          this.successMessage = 'Vielen Dank! Deine Registrierung war erfolgreich. Du erhältst in Kürze eine E-Mail zur Bestätigung.';
         },
-        error: (err: { error: any; }) => this.message = `Fehler: ${err.error}`
+        error: (err: { error: any; }) => {
+          this.message = `Fehler: ${err.error}`;
+          this.registerForm.enable();
+        }
       });
     }
   }

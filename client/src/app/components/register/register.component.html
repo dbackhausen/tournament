@@ -69,12 +69,16 @@
         />
       </div>
 
+      <div *ngIf="successMessage" class="p-fluid mb-3">
+        <p-message severity="success" [text]="successMessage"></p-message>
+      </div>
+
       <div *ngIf="message" class="p-fluid mb-3">
-        <p-message severity="error" text="{{ message }}"></p-message>
+        <p-message severity="error" [text]="message"></p-message>
       </div>
 
       <div class="button-group">
-        <p-button type="submit" label="Registrieren" [disabled]="registerForm.invalid" />
+        <p-button type="submit" label="Registrieren" [disabled]="registerForm.invalid || !!successMessage" />
         <p-button type="button" label="Abbrechen" severity="secondary" (click)="onCancel()" />
       </div>
     </form>
