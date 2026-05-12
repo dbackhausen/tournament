@@ -1,25 +1,33 @@
 package de.eightbit.tc.tournament.service;
 
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
-
-    @Autowired
-    private TemplateEngine templateEngine;
+    private final RestClient restClient;
+    private final TemplateEngine templateEngine;
 
     @Value("${mail.from}")
     private String from;
+
+    public EmailService(
+            @Value("${brevo.api-key}") String apiKey,
+            TemplateEngine templateEngine) {
+        this.restClient = RestClient.builder()
+                .baseUrl("https://api.brevo.com/v3")
+                .defaultHeader("api-key", apiKey)
+                .build();
+        this.templateEngine = templateEngine;
+    }
 
     public void sendResetEmail(String to, String resetLink) {
         Context context = new Context();
@@ -45,16 +53,17 @@ public class EmailService {
     }
 
     private void send(String to, String subject, String html) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(from);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(html, true);
-            mailSender.send(message);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to send email to " + to, e);
-        }
+        Map<String, Object> body = Map.of(
+                "sender", Map.of("name", "TC69", "email", from),
+                "to", List.of(Map.of("email", to)),
+                "subject", subject,
+                "htmlContent", html
+        );
+        restClient.post()
+                .uri("/smtp/email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .toBodilessEntity();
     }
 }
