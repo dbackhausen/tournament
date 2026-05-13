@@ -100,29 +100,42 @@
 // ── Layout ─────────────────────────────────────────────
 .app-main {
   min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: #f4f7fc;
 
   &.has-header {
-    padding-top: 54px;
+    padding-top: calc(54px + 1.25rem);
 
     @media (min-width: 768px) {
-      padding-top: 57px;
+      padding-top: calc(57px + 1.5rem);
     }
   }
 
   &.has-bottom-nav {
     @media (max-width: 767px) {
-      padding-bottom: 72px;
+      padding-bottom: calc(64px + 1.25rem);
     }
   }
 }
 
 .content-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
+  width: 95%;
+  margin: 0 auto 1.25rem;
+  padding: 1.25rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.08);
 
-  @media (max-width: 767px) {
-    padding: 1rem;
+  @media (min-width: 768px) {
+    width: 75%;
+    max-width: 1400px;
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
   }
 }
 

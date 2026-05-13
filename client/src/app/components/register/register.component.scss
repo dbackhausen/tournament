@@ -1,17 +1,15 @@
 .register-container {
-  min-height: 100vh;
+  position: fixed;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(150deg, #1c3a72 0%, #3570c4 60%, #4d8bda 100%);
+  background: url('/assets/mobilebackground.png') center center / cover no-repeat;
   padding: 1rem;
+  overflow-y: auto;
 
   @media (min-width: 768px) {
-    position: fixed;
-    inset: 0;
-    background:
-      linear-gradient(150deg, rgba(28, 58, 114, 0.72) 0%, rgba(53, 112, 196, 0.60) 60%, rgba(77, 139, 218, 0.50) 100%),
-      url('/assets/court.png') center center / cover no-repeat;
+    background: url('/assets/background.png') center center / cover no-repeat;
   }
 
   .card {
@@ -21,6 +19,29 @@
     padding: 2.5rem 2rem;
     width: 100%;
     max-width: 400px;
+
+    @media (min-width: 768px) {
+      box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.18),
+        0 6px 12px rgba(0, 0, 0, 0.20),
+        0 16px 32px rgba(0, 0, 0, 0.22),
+        0 32px 64px rgba(0, 0, 0, 0.24),
+        0 56px 112px rgba(0, 0, 0, 0.26),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      transform: perspective(1200px) rotateX(2deg);
+    }
+
+    .tc69-logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+
+      img {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+      }
+    }
 
     h2 {
       font-size: 1.6rem;

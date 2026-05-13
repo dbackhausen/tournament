@@ -27,7 +27,7 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (this.authService.isTokenExpired()) {
+    if (this.authService.getToken() && this.authService.isTokenExpired()) {
       this.authService.logout();
     }
 

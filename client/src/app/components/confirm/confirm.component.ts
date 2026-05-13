@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { environment } from 'src/environments/environment';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-confirm',
@@ -21,7 +22,8 @@ export class ConfirmComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -35,7 +37,10 @@ export class ConfirmComponent implements OnInit {
     this.http.get(`${environment.apiUrl}/auth/confirm`, { params: { token }, responseType: 'text' })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.router.navigate(['/login'], { queryParams: { confirmed: 'true' } }),
+        next: () => {
+          this.authService.clearSession();
+          this.router.navigate(['/login'], { queryParams: { confirmed: 'true' } });
+        },
         error: (err) => {
           this.loading = false;
           this.error = err.error || 'Link ungültig oder abgelaufen. Bitte registriere dich erneut.';

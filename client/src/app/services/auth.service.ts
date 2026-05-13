@@ -33,10 +33,14 @@ export class AuthService {
   }
 
   logout(): void {
+    this.clearSession();
+    this.router.navigate(['/login']);
+  }
+
+  clearSession(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.isLoggedInSubject.next(false);
-    this.router.navigate(['/login'])
   }
 
   getUser(): any {
