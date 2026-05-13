@@ -21,6 +21,7 @@ import { Checkbox } from "primeng/checkbox";
 import { Tournament, TournamentDay, TournamentType } from "src/app/models/tournament.model";
 import { DatePipe } from '@angular/common';
 import { Message } from "primeng/message";
+import { InputNumber } from "primeng/inputnumber";
 import { deadlineBeforeFirstDayValidator } from "src/app/validator/deadlineBeforeFirstDay.validator";
 import { atLeastOneTypeSelectedValidator } from "src/app/validator/at-least-one-type-selected.validator";
 
@@ -38,7 +39,8 @@ import { atLeastOneTypeSelectedValidator } from "src/app/validator/at-least-one-
     DatePicker,
     Checkbox,
     FormsModule,
-    Message
+    Message,
+    InputNumber
   ],
   templateUrl: './tournament-form.component.html',
   styleUrl: './tournament-form.component.scss',
@@ -70,6 +72,7 @@ export class TournamentFormComponent implements OnInit {
       name: ['', Validators.required],
       description: [''],
       additionalNotes: [''],
+      entryFee: [null, [Validators.required, Validators.min(0), Validators.pattern('^[0-9]+$')]],
       tournamentDays: this.fb.array([this.createTournamentDay()]),
       tournamentTypes: this.fb.array([], atLeastOneTypeSelectedValidator),
       deadline: ['', Validators.required],
@@ -122,6 +125,7 @@ export class TournamentFormComponent implements OnInit {
         name: tournament.name,
         description: tournament.description,
         additionalNotes: tournament.additionalNotes,
+        entryFee: tournament.entryFee,
         startDate: tournament.startDate,
         endDate: tournament.endDate,
         deadline: deadlineDate

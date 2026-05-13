@@ -26,6 +26,8 @@ public class Tournament {
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDateTime deadline;
+    @Column(nullable = false)
+    private int entryFee;
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

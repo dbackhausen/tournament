@@ -2,6 +2,7 @@ package de.eightbit.tc.tournament.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import de.eightbit.tc.tournament.model.TournamentType;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -23,6 +24,8 @@ public class TournamentDto {
     private LocalDate endDate;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime deadline;
+    @Min(value = 0, message = "Startgeld darf nicht negativ sein")
+    private int entryFee;
     private List<TournamentDayDto> tournamentDays;
     private List<TournamentType> tournamentTypes;
     private int registrationCount = 0;

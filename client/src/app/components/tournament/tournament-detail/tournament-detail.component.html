@@ -12,6 +12,11 @@
     <div class="section-value">{{ tournament.description }}</div>
   </div>
 
+  <div class="detail-section">
+    <div class="section-label">Startgeld</div>
+    <div class="section-value">{{ tournament.entryFee }} EUR</div>
+  </div>
+
   <div class="detail-section" *ngIf="tournament.deadline">
     <div class="section-label">Meldeschluss</div>
     <div class="section-value deadline-value">{{ tournament.deadline | date:'dd.MM.yyyy, HH:mm' }} Uhr</div>

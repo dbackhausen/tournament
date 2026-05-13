@@ -37,6 +37,26 @@
         </p-floatlabel>
       </div>
 
+      <div class="field col-12 md:col-4">
+        <p-floatlabel variant="in">
+          <p-inputnumber
+            id="entryFee"
+            inputId="entryFee"
+            formControlName="entryFee"
+            [min]="0"
+            [maxFractionDigits]="0"
+            suffix=" EUR"
+            [useGrouping]="false"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+          <label for="entryFee">Startgeld *</label>
+        </p-floatlabel>
+        <small *ngIf="tournamentForm.get('entryFee')?.invalid && tournamentForm.get('entryFee')?.touched" class="p-error">
+          Bitte gib ein gültiges Startgeld (ganze Euro) an.
+        </small>
+      </div>
+
       <div class="field col-12 md:col-12">
         <div formArrayName="tournamentTypes" class="formgroup-inline md:py-3">
           <div *ngFor="let type of availableTournamentTypes; let i = index">
@@ -55,7 +75,7 @@
 
       <div class="field col-12 md:col-12">
         <div formArrayName="tournamentDays">
-          <div *ngFor="let day of tournamentDays.controls; let i = index" [formGroupName]="i">
+          <div *ngFor="let day of tournamentDays.controls; let i = index" [formGroupName]="i" class="day-row">
             <div class="formgroup-inline align-items-center">
               <div class="field">
                 <p-floatlabel variant="in" class="date-picker">
@@ -90,9 +110,9 @@
               <div class="field pt-2">
                 <p-button icon="pi pi-times" severity="danger" (click)="removeTournamentDay(i)" *ngIf="tournamentDays.length > 1" />
               </div>
-              <div class="field pt-2">
-                <p-button icon="pi pi-plus" label="Tag hinzufügen" severity="secondary" (click)="addTournamentDay()" *ngIf="i == tournamentDays.length - 1" />
-              </div>
+            </div>
+            <div class="add-day-btn" *ngIf="i == tournamentDays.length - 1">
+              <p-button icon="pi pi-plus" label="Tag hinzufügen" severity="secondary" (click)="addTournamentDay()" />
             </div>
           </div>
         </div>

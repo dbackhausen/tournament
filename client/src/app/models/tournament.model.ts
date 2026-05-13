@@ -33,6 +33,7 @@ export interface Tournament {
   name: string;
   description?: string;
   additionalNotes?: string;
+  entryFee: number;
   startDate: Date;
   endDate: Date;
   deadline: Date;
