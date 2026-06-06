@@ -28,6 +28,7 @@ export class LoginComponent {
   message = '';
   confirmed = false;
   registered = false;
+  passwordReset = false;
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router, private route: ActivatedRoute) {
     this.loginForm = this.fb.group({
@@ -36,6 +37,7 @@ export class LoginComponent {
     });
     this.confirmed = this.route.snapshot.queryParamMap.get('confirmed') === 'true';
     this.registered = this.route.snapshot.queryParamMap.get('registered') === 'true';
+    this.passwordReset = this.route.snapshot.queryParamMap.get('passwordReset') === 'true';
   }
 
   onSubmit(): void {

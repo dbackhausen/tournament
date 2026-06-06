@@ -3,6 +3,7 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validatio
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { take } from 'rxjs';
 import { Password } from 'primeng/password';
 import { Button } from 'primeng/button';
 import { Message } from 'primeng/message';
@@ -43,7 +44,7 @@ export class ResetPasswordComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(take(1))
       .subscribe(params => {
         this.token = params['token'] ?? '';
         if (!this.token) {
@@ -58,8 +59,7 @@ export class ResetPasswordComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.successMessage = 'Passwort erfolgreich geändert.';
-          setTimeout(() => this.router.navigate(['/login']), 2000);
+          this.router.navigate(['/login'], { queryParams: { passwordReset: 'true' } });
         },
         error: () => {
           this.errorMessage = 'Dieser Link ist ungültig oder abgelaufen.';

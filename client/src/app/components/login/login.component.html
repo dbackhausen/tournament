@@ -13,6 +13,9 @@
       <div *ngIf="confirmed" class="mb-3">
         <p-message severity="success" text="E-Mail erfolgreich bestätigt. Du kannst dich jetzt einloggen."></p-message>
       </div>
+      <div *ngIf="passwordReset" class="mb-3">
+        <p-message severity="success" text="Passwort erfolgreich geändert. Du kannst dich jetzt einloggen."></p-message>
+      </div>
 
       <div class="p-field">
         <label for="email">E-Mail</label>
