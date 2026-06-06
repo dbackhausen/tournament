@@ -17,6 +17,7 @@ import { Textarea } from "primeng/textarea";
 import { Checkbox } from "primeng/checkbox";
 import { Registration, Tournament, TournamentDay, TournamentType } from "src/app/models/tournament.model";
 import { Select } from "primeng/select";
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { atLeastOneDaySelectedValidator } from "src/app/validator/at-least-one-day-selected.validator";
 import { atLeastOneTypeSelectedValidator } from "src/app/validator/at-least-one-type-selected.validator";
 import { AuthService } from "src/app/services/auth.service";
@@ -37,7 +38,12 @@ import { RegistrationService } from "src/app/services/registration.service";
     Textarea,
     Checkbox,
     FormsModule,
-    Select
+    Select,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel
   ],
   templateUrl: './registration-form.component.html',
   styleUrl: './registration-form.component.scss'
@@ -48,6 +54,8 @@ export class RegistrationFormComponent implements OnInit {
   tournament: Tournament | null = null;
   user: User | null = null;
   registration: Registration | null = null;
+  activeWeek = 0;
+  weekIndexGroups: { label: string; dayIndices: number[] }[] = [];
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -92,6 +100,8 @@ export class RegistrationFormComponent implements OnInit {
                 }
 
                 this.restoreRegistrationData();
+                this.applyDeadlineRestrictions();
+                this.weekIndexGroups = this.buildWeekIndexGroups(this.tournament!);
               },
               error: (error) => {
                 console.error('Error loading registration', error);
@@ -138,6 +148,9 @@ export class RegistrationFormComponent implements OnInit {
           if (this.registration) {
             this.restoreRegistrationData();
           }
+
+          this.applyDeadlineRestrictions();
+          this.weekIndexGroups = this.buildWeekIndexGroups(this.tournament!);
         },
         error: (err) => {
           console.error('Error loading data:', err);
@@ -189,9 +202,43 @@ export class RegistrationFormComponent implements OnInit {
     }
   }
 
+  private buildWeekIndexGroups(t: Tournament): { label: string; dayIndices: number[] }[] {
+    if (!t.tournamentDays?.length) return [];
+
+    const groups = new Map<number, number[]>();
+    t.tournamentDays.forEach((day, index) => {
+      const key = this.isoYearWeek(new Date(day.date));
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(index);
+    });
+
+    const sorted = [...groups.entries()].sort((a, b) => a[0] - b[0]);
+    return sorted.map((entry, i) => ({ label: `Woche ${i + 1}`, dayIndices: entry[1] }));
+  }
+
+  private isoYearWeek(date: Date): number {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const week = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    return d.getUTCFullYear() * 100 + week;
+  }
+
+  get isDeadlinePassed(): boolean {
+    if (!this.tournament?.deadline) return false;
+    return new Date() > new Date(this.tournament.deadline);
+  }
+
+  private applyDeadlineRestrictions(): void {
+    if (this.isDeadlinePassed && this.registration) {
+      this.selectableTypes.controls.forEach(ctrl => ctrl.disable());
+    }
+  }
+
   onSubmit() {
     if (this.user && this.user &&  this.tournamentId && this.tournament && this.registerForm.valid) {
-      const formData = this.registerForm.value;
+      const formData = this.registerForm.getRawValue();
 
       const registration: Registration = {
         id: this.registration?.id ?? this.tournamentId,

@@ -25,23 +25,55 @@
     </div>
 
     <div formArrayName="selectableDays" class="tournament-days">
-      <div *ngFor="let day of selectableDays.controls; let i = index" [formGroupName]="i" class="day-row">
-        <span class="day-label">{{ day.get('date')?.value | date:'EE, dd.MM.yyyy' }}</span>
-        <div formArrayName="times" class="time-slots">
-          <div *ngFor="let timeSlot of getTimesArray(i).controls; let j = index" [formGroupName]="j" class="time-slot">
-            <p-checkbox
-              formControlName="selected"
-              inputId="time_{{ i }}_{{ j }}"
-              binary="true"
-              size="large" />
-            <label for="time_{{ i }}_{{ j }}">{{ timeSlot.get('time')?.value }}</label>
+
+      <!-- Single week: flat list -->
+      <ng-container *ngIf="weekIndexGroups.length <= 1">
+        <div *ngFor="let day of selectableDays.controls; let i = index" [formGroupName]="i" class="day-row">
+          <span class="day-label">{{ day.get('date')?.value | date:'EE, dd.MM.yyyy' }}</span>
+          <div formArrayName="times" class="time-slots">
+            <div *ngFor="let timeSlot of getTimesArray(i).controls; let j = index" [formGroupName]="j" class="time-slot">
+              <p-checkbox
+                formControlName="selected"
+                inputId="time_{{ i }}_{{ j }}"
+                binary="true"
+                size="large" />
+              <label for="time_{{ i }}_{{ j }}">{{ timeSlot.get('time')?.value }}</label>
+            </div>
           </div>
         </div>
-      </div>
+      </ng-container>
+
+      <!-- Multiple weeks: tabbed -->
+      <p-tabs *ngIf="weekIndexGroups.length > 1" [(value)]="activeWeek">
+        <p-tablist>
+          <p-tab *ngFor="let week of weekIndexGroups; let wi = index" [value]="wi">{{ week.label }}</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+          <p-tabpanel *ngFor="let week of weekIndexGroups; let wi = index" [value]="wi">
+            <div *ngFor="let dayIndex of week.dayIndices" [formGroupName]="dayIndex" class="day-row">
+              <span class="day-label">{{ selectableDays.at(dayIndex).get('date')?.value | date:'EE, dd.MM.yyyy' }}</span>
+              <div formArrayName="times" class="time-slots">
+                <div *ngFor="let timeSlot of getTimesArray(dayIndex).controls; let j = index" [formGroupName]="j" class="time-slot">
+                  <p-checkbox
+                    formControlName="selected"
+                    inputId="time_{{ dayIndex }}_{{ j }}"
+                    binary="true"
+                    size="large" />
+                  <label for="time_{{ dayIndex }}_{{ j }}">{{ timeSlot.get('time')?.value }}</label>
+                </div>
+              </div>
+            </div>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+
     </div>
 
     <div class="grid mx-0 mt-3 md:mt-4 mb-3 px-0">
       <span>Ich bin offen für folgende Konkurrenzen:</span>
+      <span *ngIf="isDeadlinePassed && registration" class="deadline-lock-info">
+        <i class="pi pi-lock"></i> Meldeschluss abgelaufen – Konkurrenzen können nicht mehr geändert werden.
+      </span>
     </div>
     <div formArrayName="selectableTypes" class="formgroup-inline px-2">
       <div *ngFor="let type of selectableTypes.controls; let i = index" [formGroupName]="i">

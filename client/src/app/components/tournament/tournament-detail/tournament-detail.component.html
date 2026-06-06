@@ -19,12 +19,17 @@
 
   <div class="detail-section" *ngIf="tournament.deadline">
     <div class="section-label">Meldeschluss</div>
-    <div class="section-value deadline-value">{{ tournament.deadline | date:'dd.MM.yyyy, HH:mm' }} Uhr</div>
+    <div class="section-value deadline-value" [class.deadline-passed]="isDeadlinePassed">
+      {{ tournament.deadline | date:'dd.MM.yyyy, HH:mm' }} Uhr
+      <span *ngIf="isDeadlinePassed" class="deadline-passed-badge">Abgelaufen</span>
+    </div>
   </div>
 
   <div class="detail-section" *ngIf="tournament.tournamentDays?.length">
     <div class="section-label">Turniertage</div>
-    <div class="days-list">
+
+    <!-- Single week: flat list -->
+    <div *ngIf="weekGroups.length <= 1" class="days-list">
       <div *ngFor="let day of tournament.tournamentDays" class="day-row">
         <span class="day-date">{{ day.date | date:'EE, dd.MM.yyyy' }}</span>
         <div class="day-times">
@@ -34,6 +39,27 @@
         </div>
       </div>
     </div>
+
+    <!-- Multiple weeks: tabbed -->
+    <p-tabs *ngIf="weekGroups.length > 1" [(value)]="activeWeek">
+      <p-tablist>
+        <p-tab *ngFor="let week of weekGroups; let i = index" [value]="i">{{ week.label }}</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel *ngFor="let week of weekGroups; let i = index" [value]="i">
+          <div class="days-list">
+            <div *ngFor="let day of week.days" class="day-row">
+              <span class="day-date">{{ day.date | date:'EE, dd.MM.yyyy' }}</span>
+              <div class="day-times">
+                <span class="time-chip" *ngIf="day.time1">{{ day.time1 }}</span>
+                <span class="time-chip" *ngIf="day.time2">{{ day.time2 }}</span>
+                <span class="time-chip" *ngIf="day.time3">{{ day.time3 }}</span>
+              </div>
+            </div>
+          </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   </div>
 
   <div class="detail-section registrations-row" (click)="isMobile ? onShowRegistrations() : null"
@@ -52,9 +78,19 @@
 
   <div class="button-group">
     <p-button label="Zurück" severity="secondary" icon="pi pi-arrow-left" (click)="goBack()" />
-    <p-button *ngIf="!isRegistered" label="Anmeldung" icon="pi pi-plus" (click)="onRegister()" />
+
+    <!-- Not registered + deadline not passed: show register button -->
+    <p-button *ngIf="!isRegistered && !isDeadlinePassed" label="Anmeldung" icon="pi pi-plus" (click)="onRegister()" />
+
+    <!-- Not registered + deadline passed: show info -->
+    <span *ngIf="!isRegistered && isDeadlinePassed" class="deadline-closed-info">
+      <i class="pi pi-lock"></i> Anmeldung nicht mehr möglich
+    </span>
+
+    <!-- Registered: always allow editing availability -->
     <p-button *ngIf="isRegistered && isMobile" label="Anmeldung" icon="pi pi-pencil" styleClass="btn-registered" (click)="onRegister()" />
     <p-button *ngIf="isRegistered && !isMobile" label="Anmeldung bearbeiten" icon="pi pi-pencil" styleClass="btn-registered" (click)="onRegister()" />
+
     <p-button *ngIf="!isMobile" label="Teilnehmer" icon="pi pi-users" severity="secondary" (click)="onShowRegistrations()" />
     <p-button *ngIf="isAdmin && !isMobile" label="Bearbeiten" icon="pi pi-pencil" severity="secondary" (click)="onEdit()" />
   </div>

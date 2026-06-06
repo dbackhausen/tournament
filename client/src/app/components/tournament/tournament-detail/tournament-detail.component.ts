@@ -4,16 +4,22 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Card } from 'primeng/card';
 import { Button } from 'primeng/button';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { TournamentService } from 'src/app/services/tournament.service';
 import { RegistrationService } from 'src/app/services/registration.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { Tournament, TournamentType } from 'src/app/models/tournament.model';
+import { Tournament, TournamentDay, TournamentType } from 'src/app/models/tournament.model';
 import { catchError, of } from 'rxjs';
+
+interface WeekGroup {
+  label: string;
+  days: TournamentDay[];
+}
 
 @Component({
   selector: 'app-tournament-detail',
   standalone: true,
-  imports: [CommonModule, Card, Button],
+  imports: [CommonModule, Card, Button, Tabs, TabList, Tab, TabPanels, TabPanel],
   templateUrl: './tournament-detail.component.html',
   styleUrl: './tournament-detail.component.scss'
 })
@@ -22,6 +28,8 @@ export class TournamentDetailComponent implements OnInit {
   isRegistered = false;
   isAdmin = false;
   isMobile = false;
+  activeWeek = 0;
+  weekGroups: WeekGroup[] = [];
   private tournamentId!: number;
   private destroyRef = inject(DestroyRef);
 
@@ -48,6 +56,7 @@ export class TournamentDetailComponent implements OnInit {
       .subscribe({
         next: (t) => {
           this.tournament = t;
+          this.weekGroups = this.buildWeekGroups(t);
           const user = this.authService.getUser();
           if (user) {
             this.registrationService.getRegistrationByTournamentAndUser(this.tournamentId, user.id)
@@ -57,6 +66,34 @@ export class TournamentDetailComponent implements OnInit {
         },
         error: () => this.router.navigate(['/tournament'])
       });
+  }
+
+  get isDeadlinePassed(): boolean {
+    if (!this.tournament?.deadline) return false;
+    return new Date() > new Date(this.tournament.deadline);
+  }
+
+  private buildWeekGroups(t: Tournament): WeekGroup[] {
+    if (!t.tournamentDays?.length) return [];
+
+    const groups = new Map<number, TournamentDay[]>();
+    t.tournamentDays.forEach(day => {
+      const key = this.isoYearWeek(new Date(day.date));
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(day);
+    });
+
+    const sorted = [...groups.entries()].sort((a, b) => a[0] - b[0]);
+    return sorted.map((entry, i) => ({ label: `Woche ${i + 1}`, days: entry[1] }));
+  }
+
+  private isoYearWeek(date: Date): number {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const week = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    return d.getUTCFullYear() * 100 + week;
   }
 
   typeLabel(type: TournamentType): string {

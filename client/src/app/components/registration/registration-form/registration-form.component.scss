@@ -27,6 +27,20 @@
   flex-wrap: wrap;
 }
 
+.deadline-lock-info {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: #9aa3b8;
+  font-weight: 500;
+
+  .pi-lock {
+    font-size: 0.75rem;
+  }
+}
+
 .time-slot {
   display: flex;
   align-items: center;
