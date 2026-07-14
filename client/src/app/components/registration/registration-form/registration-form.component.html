@@ -28,6 +28,9 @@
 
       <!-- Single week: flat list -->
       <ng-container *ngIf="weekIndexGroups.length <= 1">
+        <span *ngIf="weekIndexGroups[0]?.locked" class="deadline-lock-info">
+          <i class="pi pi-lock"></i> Diese Woche hat bereits begonnen – Tage und Zeiten können nicht mehr geändert werden.
+        </span>
         <div *ngFor="let day of selectableDays.controls; let i = index" [formGroupName]="i" class="day-row">
           <span class="day-label">{{ day.get('date')?.value | date:'EE, dd.MM.yyyy' }}</span>
           <div formArrayName="times" class="time-slots">
@@ -46,10 +49,15 @@
       <!-- Multiple weeks: tabbed -->
       <p-tabs *ngIf="weekIndexGroups.length > 1" [(value)]="activeWeek">
         <p-tablist>
-          <p-tab *ngFor="let week of weekIndexGroups; let wi = index" [value]="wi">{{ week.label }}</p-tab>
+          <p-tab *ngFor="let week of weekIndexGroups; let wi = index" [value]="wi">
+            {{ week.label }}<i *ngIf="week.locked" class="pi pi-lock ml-1" style="font-size: 0.75rem;"></i>
+          </p-tab>
         </p-tablist>
         <p-tabpanels>
           <p-tabpanel *ngFor="let week of weekIndexGroups; let wi = index" [value]="wi">
+            <span *ngIf="week.locked" class="deadline-lock-info mb-2">
+              <i class="pi pi-lock"></i> Diese Woche hat bereits begonnen – Tage und Zeiten können nicht mehr geändert werden.
+            </span>
             <div *ngFor="let dayIndex of week.dayIndices" [formGroupName]="dayIndex" class="day-row">
               <span class="day-label">{{ selectableDays.at(dayIndex).get('date')?.value | date:'EE, dd.MM.yyyy' }}</span>
               <div formArrayName="times" class="time-slots">
@@ -98,6 +106,15 @@
           <textarea pTextarea id="notes" formControlName="notes" rows="4" cols="30" style="resize: none" [maxLength]="255" class="w-full h-full"></textarea>
           <label for="notes">Anmerkungen</label>
         </p-floatlabel>
+      </div>
+    </div>
+
+    <div class="grid mx-0 mt-3 px-0">
+      <div class="col-12 px-0 flex align-items-start gap-2">
+        <p-checkbox formControlName="photoConsent" inputId="photoConsent" binary="true" size="large" />
+        <label for="photoConsent" class="cursor-pointer line-height-3">
+          Ich stimme zu, dass während des Turniers, Bilder von mir gemacht werden dürfen.
+        </label>
       </div>
     </div>
 

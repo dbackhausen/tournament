@@ -5,7 +5,8 @@ import {
   FormGroup,
   FormArray,
   ReactiveFormsModule,
-  FormsModule, FormControl
+  FormsModule, FormControl,
+  Validators
 } from '@angular/forms';
 import { CommonModule } from "@angular/common";
 import { TournamentService } from "src/app/services/tournament.service";
@@ -55,7 +56,7 @@ export class RegistrationFormComponent implements OnInit {
   user: User | null = null;
   registration: Registration | null = null;
   activeWeek = 0;
-  weekIndexGroups: { label: string; dayIndices: number[] }[] = [];
+  weekIndexGroups: { label: string; dayIndices: number[]; locked: boolean }[] = [];
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -70,6 +71,7 @@ export class RegistrationFormComponent implements OnInit {
       selectableDays: this.fb.array([], [atLeastOneDaySelectedValidator]),
       selectableTypes: this.fb.array([], atLeastOneTypeSelectedValidator),
       notes: [''],
+      photoConsent: [false, Validators.requiredTrue],
     });
   }
 
@@ -102,6 +104,7 @@ export class RegistrationFormComponent implements OnInit {
                 this.restoreRegistrationData();
                 this.applyDeadlineRestrictions();
                 this.weekIndexGroups = this.buildWeekIndexGroups(this.tournament!);
+                this.applyWeekLocking();
               },
               error: (error) => {
                 console.error('Error loading registration', error);
@@ -151,6 +154,7 @@ export class RegistrationFormComponent implements OnInit {
 
           this.applyDeadlineRestrictions();
           this.weekIndexGroups = this.buildWeekIndexGroups(this.tournament!);
+          this.applyWeekLocking();
         },
         error: (err) => {
           console.error('Error loading data:', err);
@@ -199,11 +203,16 @@ export class RegistrationFormComponent implements OnInit {
       if (this.registration.notes) {
         this.registerForm.get('notes')?.setValue(this.registration.notes);
       }
+
+      // 4. Pre-tick consent for existing registrations (user agreed on first registration)
+      this.registerForm.get('photoConsent')?.setValue(true);
     }
   }
 
-  private buildWeekIndexGroups(t: Tournament): { label: string; dayIndices: number[] }[] {
+  private buildWeekIndexGroups(t: Tournament): { label: string; dayIndices: number[]; locked: boolean }[] {
     if (!t.tournamentDays?.length) return [];
+
+    const currentWeekKey = this.isoYearWeek(new Date());
 
     const groups = new Map<number, number[]>();
     t.tournamentDays.forEach((day, index) => {
@@ -213,7 +222,24 @@ export class RegistrationFormComponent implements OnInit {
     });
 
     const sorted = [...groups.entries()].sort((a, b) => a[0] - b[0]);
-    return sorted.map((entry, i) => ({ label: `Woche ${i + 1}`, dayIndices: entry[1] }));
+    return sorted.map((entry, i) => ({
+      label: `Woche ${i + 1}`,
+      dayIndices: entry[1],
+      locked: entry[0] <= currentWeekKey
+    }));
+  }
+
+  private applyWeekLocking(): void {
+    this.weekIndexGroups.forEach(week => {
+      if (week.locked) {
+        week.dayIndices.forEach(dayIndex => {
+          const timesArray = this.selectableDays.at(dayIndex).get('times') as FormArray;
+          timesArray.controls.forEach(timeGroup => {
+            timeGroup.get('selected')?.disable();
+          });
+        });
+      }
+    });
   }
 
   private isoYearWeek(date: Date): number {

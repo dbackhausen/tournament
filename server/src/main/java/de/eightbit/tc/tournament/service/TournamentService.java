@@ -26,6 +26,7 @@ public class TournamentService {
         tournament.setName(tournamentDto.getName());
         tournament.setDescription(tournamentDto.getDescription());
         tournament.setAdditionalNotes(tournamentDto.getAdditionalNotes());
+        tournament.setEntryFee(tournamentDto.getEntryFee());
         tournament.setStartDate(tournamentDto.getStartDate());
         tournament.setEndDate(tournamentDto.getEndDate());
         tournament.setDeadline(tournamentDto.getDeadline());
@@ -48,6 +49,7 @@ public class TournamentService {
             tournament.setName(tournamentDto.getName());
             tournament.setDescription(tournamentDto.getDescription());
             tournament.setAdditionalNotes(tournamentDto.getAdditionalNotes());
+            tournament.setEntryFee(tournamentDto.getEntryFee());
             tournament.setStartDate(tournamentDto.getStartDate());
             tournament.setEndDate(tournamentDto.getEndDate());
             tournament.setDeadline(tournamentDto.getDeadline());
