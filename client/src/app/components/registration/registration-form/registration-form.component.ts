@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, HostListener, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
@@ -19,6 +19,7 @@ import { Checkbox } from "primeng/checkbox";
 import { Registration, Tournament, TournamentDay, TournamentType } from "src/app/models/tournament.model";
 import { Select } from "primeng/select";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
+import { TooltipModule } from 'primeng/tooltip';
 import { atLeastOneDaySelectedValidator } from "src/app/validator/at-least-one-day-selected.validator";
 import { atLeastOneTypeSelectedValidator } from "src/app/validator/at-least-one-type-selected.validator";
 import { AuthService } from "src/app/services/auth.service";
@@ -44,7 +45,8 @@ import { RegistrationService } from "src/app/services/registration.service";
     TabList,
     Tab,
     TabPanels,
-    TabPanel
+    TabPanel,
+    TooltipModule
   ],
   templateUrl: './registration-form.component.html',
   styleUrl: './registration-form.component.scss'
@@ -55,8 +57,9 @@ export class RegistrationFormComponent implements OnInit {
   tournament: Tournament | null = null;
   user: User | null = null;
   registration: Registration | null = null;
+  isMobile = false;
   activeWeek = 0;
-  weekIndexGroups: { label: string; dayIndices: number[]; locked: boolean }[] = [];
+  weekIndexGroups: { label: string; dayIndices: number[]; locked: boolean; lockedReason: 'week' | 'deadline' | null }[] = [];
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -72,10 +75,12 @@ export class RegistrationFormComponent implements OnInit {
       selectableTypes: this.fb.array([], atLeastOneTypeSelectedValidator),
       notes: [''],
       photoConsent: [false, Validators.requiredTrue],
+      paymentConsent: [false, Validators.requiredTrue],
     });
   }
 
   ngOnInit(): void {
+    this.checkViewport();
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const url = this.route.snapshot.url.map(segment => segment.path).join('/');
       const tournamentId = params.get('tournamentId');
@@ -204,15 +209,21 @@ export class RegistrationFormComponent implements OnInit {
         this.registerForm.get('notes')?.setValue(this.registration.notes);
       }
 
-      // 4. Pre-tick consent for existing registrations (user agreed on first registration)
+      // 4. Pre-tick consents for existing registrations (user agreed on first registration)
       this.registerForm.get('photoConsent')?.setValue(true);
+      this.registerForm.get('paymentConsent')?.setValue(true);
     }
   }
 
-  private buildWeekIndexGroups(t: Tournament): { label: string; dayIndices: number[]; locked: boolean }[] {
+  private buildWeekIndexGroups(t: Tournament): { label: string; dayIndices: number[]; locked: boolean; lockedReason: 'week' | 'deadline' | null }[] {
     if (!t.tournamentDays?.length) return [];
 
-    const currentWeekKey = this.isoYearWeek(new Date());
+    const today = new Date();
+    const currentWeekKey = this.isoYearWeek(today);
+
+    // Future weeks lock on Saturday/Sunday (after Friday 23:59)
+    const dow = today.getDay(); // 0=Sun, 6=Sat
+    const isFutureWeeksLocked = dow === 0 || dow === 6;
 
     const groups = new Map<number, number[]>();
     t.tournamentDays.forEach((day, index) => {
@@ -222,11 +233,12 @@ export class RegistrationFormComponent implements OnInit {
     });
 
     const sorted = [...groups.entries()].sort((a, b) => a[0] - b[0]);
-    return sorted.map((entry, i) => ({
-      label: `Woche ${i + 1}`,
-      dayIndices: entry[1],
-      locked: entry[0] <= currentWeekKey
-    }));
+    return sorted.map((entry, i) => {
+      const isCurrentOrPast = entry[0] <= currentWeekKey;
+      const locked = isCurrentOrPast || isFutureWeeksLocked;
+      const lockedReason: 'week' | 'deadline' | null = isCurrentOrPast ? 'week' : (isFutureWeeksLocked ? 'deadline' : null);
+      return { label: `Woche ${i + 1}`, dayIndices: entry[1], locked, lockedReason };
+    });
   }
 
   private applyWeekLocking(): void {
@@ -256,9 +268,22 @@ export class RegistrationFormComponent implements OnInit {
     return new Date() > new Date(this.tournament.deadline);
   }
 
+  get isTournamentStarted(): boolean {
+    if (!this.tournament?.startDate) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today >= new Date(this.tournament.startDate);
+  }
+
   private applyDeadlineRestrictions(): void {
-    if (this.isDeadlinePassed && this.registration) {
+    if (this.registration) {
       this.selectableTypes.controls.forEach(ctrl => ctrl.disable());
+      this.registerForm.get('photoConsent')?.disable();
+      this.registerForm.get('paymentConsent')?.disable();
+    }
+
+    if (!this.tournament?.entryFee) {
+      this.registerForm.get('paymentConsent')?.setValue(true);
     }
   }
 
@@ -313,6 +338,30 @@ export class RegistrationFormComponent implements OnInit {
   onCancel() {
     this.registerForm.reset();
     this.router.navigate(['/tournament']);
+  }
+
+  checkViewport(): void {
+    this.isMobile = window.matchMedia('(max-width: 768px)').matches;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.checkViewport();
+  }
+
+  onWithdraw() {
+    if (!this.registration) return;
+
+    if (confirm('Möchtest du deine Teilnahme an diesem Turnier wirklich zurückziehen?')) {
+      this.registrationService.deleteRegistration(this.registration.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: () => {
+          this.router.navigate(['/tournament']);
+        },
+        error: (error) => {
+          alert(error.error?.error ?? 'Die Teilnahme konnte nicht zurückgezogen werden.');
+        }
+      });
+    }
   }
 
   get selectableDays(): FormArray {

@@ -110,6 +110,7 @@ public class RegistrationController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @registrationService.isOwner(#id, authentication.name)")
     public ResponseEntity<RegistrationDto> deleteRegistration(@PathVariable Long id) {
         registrationService.deleteRegistration(id);
         return ResponseEntity.noContent().build();

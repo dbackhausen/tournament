@@ -34,6 +34,7 @@ export class TournamentOverviewComponent implements OnInit {
   tournaments: Tournament[] = [];
   registeredTournamentIds = new Set<number>();
   isMobile: boolean = false;
+  isDesktop: boolean = false;
   isAdmin: boolean = false;
   private destroyRef = inject(DestroyRef);
 
@@ -79,14 +80,6 @@ export class TournamentOverviewComponent implements OnInit {
     this.router.navigate([`/tournament/${id}`]);
   }
 
-  onRegister(id: number) {
-    this.router.navigate([`/tournament/${id}/register`])
-  }
-
-  onShowRegistrations(id: number) {
-    this.router.navigate([`/tournament/${id}/registrations`])
-  }
-
   editTournament(id: number) {
     this.router.navigate([`/tournament/edit/${id}`])
   }
@@ -107,6 +100,7 @@ export class TournamentOverviewComponent implements OnInit {
 
   checkViewport(): void {
     this.isMobile = window.matchMedia('(max-width: 768px)').matches;
+    this.isDesktop = window.matchMedia('(min-width: 1367px)').matches;
   }
 
   @HostListener('window:resize', ['$event'])

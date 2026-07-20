@@ -9,9 +9,10 @@ export function deadlineBeforeFirstDayValidator(control: AbstractControl): Valid
   }
 
   const deadlineDate = new Date(deadline);
-  const firstDay = new Date(tournamentDays[0].date);
+  const lastDay = new Date(Math.max(...tournamentDays.map((d: any) => new Date(d.date).getTime())));
+  lastDay.setHours(23, 59, 59, 999);
 
-  if (deadlineDate >= firstDay) {
+  if (deadlineDate > lastDay) {
     return { deadlineAfterFirstDay: true };
   }
 

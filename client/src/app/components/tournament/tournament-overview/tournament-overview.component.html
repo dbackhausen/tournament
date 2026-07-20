@@ -17,15 +17,6 @@
             </span>
           </div>
         </div>
-        <div class="tournament-item-actions">
-          <p-button *ngIf="!isRegistered(tournament.id)"
-            icon="pi pi-plus" size="small" (click)="onRegister(tournament.id)"></p-button>
-          <p-button *ngIf="isRegistered(tournament.id)"
-            icon="pi pi-pencil" size="small" (click)="onRegister(tournament.id)" styleClass="btn-registered"></p-button>
-          <p-button icon="pi pi-users" severity="secondary" size="small" (click)="onShowRegistrations(tournament.id)" *ngIf="isAdmin"></p-button>
-          <p-button icon="pi pi-pencil" severity="secondary" size="small" (click)="editTournament(tournament.id)" *ngIf="isAdmin"></p-button>
-          <p-button icon="pi pi-times" severity="danger" size="small" (click)="deleteTournament(tournament.id)" *ngIf="isAdmin"></p-button>
-        </div>
       </div>
       <div *ngIf="tournaments.length === 0" class="tournament-empty">
         <p-message severity="info" text="Keine aktuellen Turniere vorhanden"></p-message>
@@ -40,7 +31,9 @@
             <th>Startdatum</th>
             <th>Enddatum</th>
             <th>Meldeschluss</th>
-            <th *ngIf="isAdmin"></th>
+            <th *ngIf="isDesktop">Startgeld</th>
+            <th *ngIf="isDesktop">Teilnehmer</th>
+            <th *ngIf="isDesktop && isAdmin"></th>
           </tr>
         </ng-template>
         <ng-template #body let-tournament>
@@ -49,7 +42,9 @@
             <td>{{ tournament.startDate | date:'dd.MM.yyyy' }}</td>
             <td>{{ tournament.endDate | date:'dd.MM.yyyy' }}</td>
             <td>{{ tournament.deadline | date:'dd.MM. HH:mm' }} Uhr</td>
-            <td *ngIf="isAdmin">
+            <td *ngIf="isDesktop">{{ tournament.entryFee }} EUR</td>
+            <td *ngIf="isDesktop">{{ tournament.registrationCount }}</td>
+            <td *ngIf="isDesktop && isAdmin">
               <div class="flex flex-row align-items-center justify-content-end gap-2">
                 <p-button icon="pi pi-pencil" severity="secondary" (click)="editTournament(tournament.id)" size="small"></p-button>
                 <p-button icon="pi pi-times" severity="danger" (click)="deleteTournament(tournament.id)" size="small"></p-button>
@@ -59,7 +54,7 @@
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="4" class="text-center">
+            <td [attr.colspan]="isDesktop ? 6 : 4" class="text-center">
               <p-message severity="info" text="Keine aktuellen Turniere vorhanden"></p-message>
             </td>
           </tr>

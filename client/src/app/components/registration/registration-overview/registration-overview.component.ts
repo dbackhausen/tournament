@@ -7,13 +7,13 @@ import { Button } from "primeng/button";
 import { TournamentService } from "src/app/services/tournament.service";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import {Registration, Tournament, TournamentType} from "src/app/models/tournament.model";
-import { TableModule } from "primeng/table";
 import { AuthService } from "src/app/services/auth.service";
 import { catchError, map, of, switchMap } from "rxjs";
 import { Message } from "primeng/message";
 import { RegistrationService } from "src/app/services/registration.service";
 import { UserService } from "src/app/services/user.service";
 import { Checkbox } from "primeng/checkbox";
+import { TableModule } from "primeng/table";
 
 @Component({
   selector: 'app-registration-overview',
@@ -23,10 +23,10 @@ import { Checkbox } from "primeng/checkbox";
     FormsModule,
     Card,
     Button,
-    TableModule,
     RouterLink,
     Message,
-    Checkbox
+    Checkbox,
+    TableModule
   ],
   templateUrl: './registration-overview.component.html',
   styleUrl: './registration-overview.component.scss'
@@ -35,8 +35,8 @@ export class RegistrationOverviewComponent implements OnInit {
   tournamentId: number | null = null;
   protected tournament: Tournament | null = null;
   protected registrations: Registration[] = [];
-  isMobile: boolean = false;
   isAdmin: boolean = false;
+  isMobile: boolean = false;
   currentUserId: number | null = null;
   private destroyRef = inject(DestroyRef);
 
@@ -87,7 +87,7 @@ export class RegistrationOverviewComponent implements OnInit {
   }
 
   checkViewport(): void {
-    this.isMobile = window.matchMedia('(max-width: 768px)').matches;
+    this.isMobile = window.matchMedia('(max-width: 600px)').matches;
   }
 
   @HostListener('window:resize', ['$event'])
@@ -206,62 +206,6 @@ export class RegistrationOverviewComponent implements OnInit {
       a.click();
       URL.revokeObjectURL(url);
     }
-  }
-
-  downloadMatchTemplate(): void {
-    if (!this.tournament || this.registrations.length === 0) return;
-
-    import('xlsx').then(XLSX => {
-      const wb = XLSX.utils.book_new();
-      const tournament = this.tournament!;
-
-      // ── Sheet 1: Participants ───────────────────────
-      const participantRows: any[][] = [
-        ['Nr.', 'Name', 'Stärke'],
-        ...this.registrations.map((reg, i) => [
-          i + 1,
-          `${reg.user.lastName}, ${reg.user.firstName}`,
-          reg.user.strength ?? ''
-        ])
-      ];
-      const wsP = XLSX.utils.aoa_to_sheet(participantRows);
-      wsP['!cols'] = [{ wch: 5 }, { wch: 30 }, { wch: 10 }];
-      XLSX.utils.book_append_sheet(wb, wsP, 'Teilnehmer');
-
-      // ── Sheet per tournament day ────────────────────
-      const playerRange = `Teilnehmer!$B$2:$B$${this.registrations.length + 1}`;
-      const matchRows = 20;
-
-      for (const day of tournament.tournamentDays) {
-        const date = new Date(day.date);
-        const sheetName = date.toLocaleDateString('de-DE', {
-          weekday: 'short', day: '2-digit', month: '2-digit'
-        }).replace(/,/g, '').trim().substring(0, 31);
-
-        const times = [day.time1, day.time2, day.time3].filter(Boolean);
-        const timeFormula = times.length ? `"${times.join(',')}"` : '"18:00,19:30,21:00"';
-
-        const headers = ['Spiel', 'Typ', 'Zeit', 'Spieler 1', 'Spieler 2', 'Spieler 3', 'Spieler 4'];
-        const data: any[][] = [headers];
-        for (let i = 1; i <= matchRows; i++) data.push([i, '', '', '', '', '', '']);
-
-        const ws = XLSX.utils.aoa_to_sheet(data);
-        ws['!cols'] = [{ wch: 8 }, { wch: 12 }, { wch: 10 }, { wch: 28 }, { wch: 28 }, { wch: 28 }, { wch: 28 }];
-
-        (ws as any)['!dataValidations'] = [
-          { type: 'list', sqref: `B2:B${matchRows + 1}`, formula1: '"Einzel,Doppel,Mixed"', allowBlank: true, showDropDown: false },
-          { type: 'list', sqref: `C2:C${matchRows + 1}`, formula1: timeFormula,              allowBlank: true, showDropDown: false },
-          { type: 'list', sqref: `D2:D${matchRows + 1}`, formula1: playerRange,               allowBlank: true, showDropDown: false },
-          { type: 'list', sqref: `E2:E${matchRows + 1}`, formula1: playerRange,               allowBlank: true, showDropDown: false },
-          { type: 'list', sqref: `F2:F${matchRows + 1}`, formula1: playerRange,               allowBlank: true, showDropDown: false },
-          { type: 'list', sqref: `G2:G${matchRows + 1}`, formula1: playerRange,               allowBlank: true, showDropDown: false },
-        ];
-
-        XLSX.utils.book_append_sheet(wb, ws, sheetName);
-      }
-
-      XLSX.writeFile(wb, `${tournament.name}_Spielplan.xlsx`);
-    });
   }
 
   private escapeCsv(value: any): string {

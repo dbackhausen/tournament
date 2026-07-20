@@ -124,7 +124,7 @@
     </div>
 
     <div class="flex flex-column gap-2 mb-3">
-      <p-message *ngIf="tournamentForm.hasError('deadlineAfterFirstDay') && tournamentForm.get('deadline')?.dirty" severity="error" text="Die Anmeldefrist muss vor dem ersten Turniertag liegen."></p-message>
+      <p-message *ngIf="tournamentForm.hasError('deadlineAfterFirstDay') && tournamentForm.get('deadline')?.dirty" severity="error" text="Die Anmeldefrist darf nicht nach dem letzten Turniertag liegen."></p-message>
     </div>
 
     <div class="button-group">

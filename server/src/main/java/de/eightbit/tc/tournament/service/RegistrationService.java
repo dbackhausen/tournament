@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +27,8 @@ public class RegistrationService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EmailService emailService;
 
     @Transactional
     public Registration register(RegistrationDto dto) {
@@ -60,7 +63,9 @@ public class RegistrationService {
                 .collect(Collectors.toList()) // in list
         );
 
-        return registrationRepository.save(registration);
+        Registration saved = registrationRepository.save(registration);
+        emailService.sendRegistrationEmail(saved, false);
+        return saved;
     }
 
     public Optional<Registration> getRegistration(Long registrationId) {
@@ -107,7 +112,9 @@ public class RegistrationService {
 
             existingRegistration.setSelectedTypes(tournamentTypes);
 
-            return registrationRepository.save(existingRegistration);
+            Registration saved = registrationRepository.save(existingRegistration);
+            emailService.sendRegistrationEmail(saved, true);
+            return saved;
         }
 
         throw new EntityNotFoundException("Registration not found");
@@ -127,6 +134,20 @@ public class RegistrationService {
 
     @Transactional
     public void deleteRegistration(Long registrationId) {
+        Registration registration = registrationRepository.findById(registrationId)
+                .orElseThrow(() -> new EntityNotFoundException("Registration not found"));
+
+        if (!registration.getTournament().getStartDate().isAfter(LocalDate.now())) {
+            throw new IllegalStateException("Das Turnier hat bereits begonnen. Eine Abmeldung ist nicht mehr möglich.");
+        }
+
         registrationRepository.deleteById(registrationId);
+        emailService.sendWithdrawalEmail(registration);
+    }
+
+    public boolean isOwner(Long registrationId, String email) {
+        return registrationRepository.findById(registrationId)
+                .map(registration -> registration.getUser().getEmail().equals(email))
+                .orElse(false);
     }
 }

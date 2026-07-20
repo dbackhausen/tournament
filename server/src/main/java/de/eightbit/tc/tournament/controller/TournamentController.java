@@ -73,6 +73,8 @@ public class TournamentController {
     public ResponseEntity<Iterable<TournamentDto>> getAllTournaments() {
         List<Tournament> tournaments = tournamentService.getAllTournaments();
         List<TournamentDto> tournamentDtos = MappingUtils.mapList(tournaments, TournamentDto.class);
+        tournamentDtos.forEach(dto ->
+                dto.setRegistrationCount(registrationService.countRegistrationsByTournamentId(dto.getId())));
         return ResponseEntity.ok(tournamentDtos);
     }
 

@@ -28,8 +28,11 @@
 
       <!-- Single week: flat list -->
       <ng-container *ngIf="weekIndexGroups.length <= 1">
-        <span *ngIf="weekIndexGroups[0]?.locked" class="deadline-lock-info">
+        <span *ngIf="weekIndexGroups[0]?.lockedReason === 'week'" class="deadline-lock-info">
           <i class="pi pi-lock"></i> Diese Woche hat bereits begonnen – Tage und Zeiten können nicht mehr geändert werden.
+        </span>
+        <span *ngIf="weekIndexGroups[0]?.lockedReason === 'deadline'" class="deadline-lock-info">
+          <i class="pi pi-lock"></i> Änderungen für kommende Wochen sind nur bis Freitag 23:59 Uhr möglich.
         </span>
         <div *ngFor="let day of selectableDays.controls; let i = index" [formGroupName]="i" class="day-row">
           <span class="day-label">{{ day.get('date')?.value | date:'EE, dd.MM.yyyy' }}</span>
@@ -55,8 +58,11 @@
         </p-tablist>
         <p-tabpanels>
           <p-tabpanel *ngFor="let week of weekIndexGroups; let wi = index" [value]="wi">
-            <span *ngIf="week.locked" class="deadline-lock-info mb-2">
+            <span *ngIf="week.lockedReason === 'week'" class="deadline-lock-info mb-2">
               <i class="pi pi-lock"></i> Diese Woche hat bereits begonnen – Tage und Zeiten können nicht mehr geändert werden.
+            </span>
+            <span *ngIf="week.lockedReason === 'deadline'" class="deadline-lock-info mb-2">
+              <i class="pi pi-lock"></i> Änderungen für kommende Wochen sind nur bis Freitag 23:59 Uhr möglich.
             </span>
             <div *ngFor="let dayIndex of week.dayIndices" [formGroupName]="dayIndex" class="day-row">
               <span class="day-label">{{ selectableDays.at(dayIndex).get('date')?.value | date:'EE, dd.MM.yyyy' }}</span>
@@ -79,8 +85,8 @@
 
     <div class="grid mx-0 mt-3 md:mt-4 mb-3 px-0">
       <span>Ich bin offen für folgende Konkurrenzen:</span>
-      <span *ngIf="isDeadlinePassed && registration" class="deadline-lock-info">
-        <i class="pi pi-lock"></i> Meldeschluss abgelaufen – Konkurrenzen können nicht mehr geändert werden.
+      <span *ngIf="registration" class="deadline-lock-info">
+        <i class="pi pi-lock"></i> Konkurrenzen können nach der Anmeldung nicht mehr geändert werden.
       </span>
     </div>
     <div formArrayName="selectableTypes" class="formgroup-inline px-2">
@@ -113,15 +119,29 @@
       <div class="col-12 px-0 flex align-items-start gap-2">
         <p-checkbox formControlName="photoConsent" inputId="photoConsent" binary="true" size="large" />
         <label for="photoConsent" class="cursor-pointer line-height-3">
-          Ich stimme zu, dass während des Turniers, Bilder von mir gemacht werden dürfen.
+          Mit der Teilnahme am Team Cup erkläre ich mich damit einverstanden, dass Fotos, die bei diesem Event gemacht werden, auf Social Media und der Vereinswebsite veröffentlicht werden dürfen. Falls Ihr etwas dagegen habt, sprecht uns bitte an. Dann werden wir Eure Fotos nicht veröffentlichen.
+        </label>
+      </div>
+    </div>
+
+    <div class="grid mx-0 mt-3 px-0" *ngIf="tournament?.entryFee">
+      <div class="col-12 px-0 flex align-items-start gap-2">
+        <p-checkbox formControlName="paymentConsent" inputId="paymentConsent" binary="true" size="large" />
+        <label for="paymentConsent" class="cursor-pointer line-height-3">
+          Ich bestätige, dass ich das Startgeld von {{ tournament?.entryFee }} EUR bereits bezahlt habe oder innerhalb der nächsten 24 Stunden bezahlen werde.
         </label>
       </div>
     </div>
 
     <div class="grid mx-0 px-0 button-group">
-      <div class="col px-0">
-        <p-button type="submit" label="{{ registration ? 'Aktualisieren' : 'Registrieren' }}" [disabled]="registerForm.invalid" class="pr-2" />
-        <p-button type="button" label="Abbrechen" severity="secondary" (click)="onCancel()" />
+      <div class="col px-0 registration-form-actions">
+        <p-button type="submit" label="{{ registration ? 'Aktualisieren' : 'Registrieren' }}" size="small" [disabled]="registerForm.invalid" class="pr-2" />
+        <p-button type="button" label="Abbrechen" severity="secondary" size="small" class="pr-2" (click)="onCancel()" />
+        <p-button *ngIf="registration && !isTournamentStarted && isMobile"
+          type="button" icon="pi pi-times" severity="danger" size="small"
+          pTooltip="Abmelden" tooltipPosition="top" (click)="onWithdraw()" />
+        <p-button *ngIf="registration && !isTournamentStarted && !isMobile"
+          type="button" label="Abmelden" severity="danger" size="small" (click)="onWithdraw()" />
       </div>
     </div>
   </form>
