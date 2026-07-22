@@ -80,13 +80,12 @@
           </p-tabpanel>
         </p-tabpanels>
       </p-tabs>
-
     </div>
 
     <div class="grid mx-0 mt-3 md:mt-4 mb-3 px-0">
       <span>Ich bin offen für folgende Konkurrenzen:</span>
-      <span *ngIf="registration" class="deadline-lock-info">
-        <i class="pi pi-lock"></i> Konkurrenzen können nach der Anmeldung nicht mehr geändert werden.
+      <span *ngIf="registration && isTournamentStarted" class="deadline-lock-info">
+        <i class="pi pi-lock"></i> Das Turnier hat bereits begonnen – Konkurrenzen können nicht mehr geändert werden.
       </span>
     </div>
     <div formArrayName="selectableTypes" class="formgroup-inline px-2">
@@ -137,10 +136,7 @@
       <div class="col px-0 registration-form-actions">
         <p-button type="submit" label="{{ registration ? 'Aktualisieren' : 'Registrieren' }}" size="small" [disabled]="registerForm.invalid" class="pr-2" />
         <p-button type="button" label="Abbrechen" severity="secondary" size="small" class="pr-2" (click)="onCancel()" />
-        <p-button *ngIf="registration && !isTournamentStarted && isMobile"
-          type="button" icon="pi pi-times" severity="danger" size="small"
-          pTooltip="Abmelden" tooltipPosition="top" (click)="onWithdraw()" />
-        <p-button *ngIf="registration && !isTournamentStarted && !isMobile"
+        <p-button *ngIf="registration && !isTournamentStarted"
           type="button" label="Abmelden" severity="danger" size="small" (click)="onWithdraw()" />
       </div>
     </div>

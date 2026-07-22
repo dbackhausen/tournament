@@ -1,4 +1,4 @@
-import { Component, DestroyRef, HostListener, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
@@ -19,7 +19,6 @@ import { Checkbox } from "primeng/checkbox";
 import { Registration, Tournament, TournamentDay, TournamentType } from "src/app/models/tournament.model";
 import { Select } from "primeng/select";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
-import { TooltipModule } from 'primeng/tooltip';
 import { atLeastOneDaySelectedValidator } from "src/app/validator/at-least-one-day-selected.validator";
 import { atLeastOneTypeSelectedValidator } from "src/app/validator/at-least-one-type-selected.validator";
 import { AuthService } from "src/app/services/auth.service";
@@ -45,8 +44,7 @@ import { RegistrationService } from "src/app/services/registration.service";
     TabList,
     Tab,
     TabPanels,
-    TabPanel,
-    TooltipModule
+    TabPanel
   ],
   templateUrl: './registration-form.component.html',
   styleUrl: './registration-form.component.scss'
@@ -57,7 +55,6 @@ export class RegistrationFormComponent implements OnInit {
   tournament: Tournament | null = null;
   user: User | null = null;
   registration: Registration | null = null;
-  isMobile = false;
   activeWeek = 0;
   weekIndexGroups: { label: string; dayIndices: number[]; locked: boolean; lockedReason: 'week' | 'deadline' | null }[] = [];
   private destroyRef = inject(DestroyRef);
@@ -80,7 +77,6 @@ export class RegistrationFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.checkViewport();
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const url = this.route.snapshot.url.map(segment => segment.path).join('/');
       const tournamentId = params.get('tournamentId');
@@ -277,7 +273,9 @@ export class RegistrationFormComponent implements OnInit {
 
   private applyDeadlineRestrictions(): void {
     if (this.registration) {
-      this.selectableTypes.controls.forEach(ctrl => ctrl.disable());
+      if (this.isTournamentStarted) {
+        this.selectableTypes.controls.forEach(ctrl => ctrl.disable());
+      }
       this.registerForm.get('photoConsent')?.disable();
       this.registerForm.get('paymentConsent')?.disable();
     }
@@ -338,15 +336,6 @@ export class RegistrationFormComponent implements OnInit {
   onCancel() {
     this.registerForm.reset();
     this.router.navigate(['/tournament']);
-  }
-
-  checkViewport(): void {
-    this.isMobile = window.matchMedia('(max-width: 768px)').matches;
-  }
-
-  @HostListener('window:resize', ['$event'])
-  onResize(event: Event): void {
-    this.checkViewport();
   }
 
   onWithdraw() {

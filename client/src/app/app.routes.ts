@@ -52,6 +52,12 @@ export const routes: Routes = [
     data: { role: 'ADMIN' }
   },
   {
+    path: 'user/new',
+    loadComponent: () => import('src/app/components/user/user-form/user-form.component').then(m => m.UserFormComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'ADMIN' }
+  },
+  {
     path: 'user/:id',
     loadComponent: () => import('src/app/components/user/user-form/user-form.component').then(m => m.UserFormComponent),
     canActivate: [authGuard, roleGuard],

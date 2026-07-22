@@ -97,6 +97,7 @@ public class RegistrationController {
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('ADMIN') or @registrationService.isOwner(#dto.id, authentication.name)")
     public ResponseEntity<RegistrationDto> updateRegistration(@Valid @RequestBody RegistrationDto dto) {
         Registration savedRegistration = registrationService.updateRegistration(dto);
         return ResponseEntity.ok(mapRegistration(savedRegistration));

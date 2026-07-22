@@ -1,9 +1,11 @@
 package de.eightbit.tc.tournament.controller;
 
+import de.eightbit.tc.tournament.dto.AdminPasswordUpdateDto;
 import de.eightbit.tc.tournament.dto.PasswordUpdateDto;
 import de.eightbit.tc.tournament.dto.UserDto;
 import de.eightbit.tc.tournament.model.User;
 import de.eightbit.tc.tournament.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -70,13 +72,11 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto dto) {
-        if (dto != null) {
-            User createdUser = userService.createUser(userService.mapToEntity(dto));
-            return ResponseEntity.ok(userService.mapToDto(createdUser));
-        } else {
-            return ResponseEntity.badRequest().build(); // return 404
-        }
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto dto) {
+        User newUser = userService.mapToEntity(dto);
+        newUser.setPassword(passwordEncoder.encode(dto.getPassword()));
+        User createdUser = userService.createUser(newUser);
+        return ResponseEntity.ok(userService.mapToDto(createdUser));
     }
 
     @PutMapping("/{id}")
@@ -154,6 +154,18 @@ public class UserController {
                     user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
                     userService.updateUser(user);
                     return ResponseEntity.ok("Password successfully updated!");
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/{id}/admin-password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updatePasswordAsAdmin(@PathVariable Long id, @Valid @RequestBody AdminPasswordUpdateDto dto) {
+        return userService.getUserById(id)
+                .map(user -> {
+                    user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+                    userService.updateUser(user);
+                    return ResponseEntity.ok().build();
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

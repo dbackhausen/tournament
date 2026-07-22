@@ -1,29 +1,18 @@
 <p-card header="Benutzer">
   @if (isMobile) {
-    <p-dataview #dv [value]="users">
-      <ng-template #list let-user>
-        <div *ngFor="let user of users; let first = first">
-          <div class="grid my-3 p-2 grid-background border-200 surface-overlay border-1 border-round">
-            <div class="col-12 my-0 p-0">
-              <div class="text-left text-sm">
-                {{ user.lastName }}
-              </div>
-            </div>
-            <div class="col-12 m-0 p-0">
-              <div class="text-left text-lg font-bold white-space-nowrap overflow-hidden">
-                {{ user.firstName }}
-              </div>
-            </div>
-            <div class="col-2 my-2 p-0" *ngIf="isAdmin">
-              <p-button icon="pi pi-pencil" severity="secondary" (click)="editUser(user.id)"></p-button>
-            </div>
-            <div class="col-2 my-2 p-0" *ngIf="isAdmin">
-              <p-button icon="pi pi-times" severity="danger" (click)="deleteUser(user.id)"></p-button>
-            </div>
-          </div>
+    <div class="user-list">
+      <div *ngFor="let user of users" class="user-row" (click)="editUser(user.id)">
+        <div class="user-avatar">
+          <img [src]="getProfileImageUrl(user.id)" class="user-avatar-img" alt=""
+               (error)="hideImage($event)" />
+          <span class="user-avatar-initials">{{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}</span>
         </div>
-      </ng-template>
-    </p-dataview>
+        <div class="user-name">{{ user.lastName }}, {{ user.firstName }}</div>
+      </div>
+      <div *ngIf="users.length === 0" class="user-empty">
+        <p-message severity="info" text="Keine Benutzer vorhanden"></p-message>
+      </div>
+    </div>
   } @else {
     <div class="my-3">
       <p-table [value]="users" class="users-table">
@@ -40,7 +29,7 @@
         </ng-template>
         <ng-template #body let-user>
           <tr>
-            <td>{{ user.lastName }}</td>
+            <td class="user-name-cell" (click)="editUser(user.id)">{{ user.lastName }}</td>
             <td>{{ user.firstName }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.mobile }}</td>
@@ -57,21 +46,11 @@
                 (ngModelChange)="toggleAdminRole(user, $event)"
               ></p-toggleswitch>
             </td>
-            <td>
-              <div class="flex flex-row align-items-center justify-content-end gap-3">
-                <div class="flex">
-                  <p-button icon="pi pi-pencil" severity="secondary" (click)="editUser(user.id)" size="small"></p-button>
-                </div>
-                <div class="flex">
-                  <p-button icon="pi pi-times" severity="danger" (click)="deleteUser(user.id)" size="small"></p-button>
-                </div>
-              </div>
-            </td>
           </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="4" class="text-center">
+            <td colspan="7" class="text-center">
               <p-message severity="info" text="Keine Benutzer vorhanden"></p-message>
             </td>
           </tr>
@@ -79,4 +58,8 @@
       </p-table>
     </div>
   }
+
+  <div class="button-group" *ngIf="isAdmin">
+    <p-button label="Neuer Benutzer" routerLink="/user/new"></p-button>
+  </div>
 </p-card>

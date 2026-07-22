@@ -22,9 +22,19 @@ export class UserService {
     return this.http.get<User>(url);
   }
 
+  createUser(user: Partial<User> & { password: string }): Observable<User> {
+    const url = `${this.apiUrl}/users`;
+    return this.http.post<User>(url, user);
+  }
+
   updateUser(user: User): Observable<User> {
     const url = `${this.apiUrl}/users/${user.id}`;
     return this.http.put<User>(url, user);
+  }
+
+  setPassword(id: number, newPassword: string): Observable<void> {
+    const url = `${this.apiUrl}/users/${id}/admin-password`;
+    return this.http.patch<void>(url, { newPassword });
   }
 
   deleteUser(id: number) {

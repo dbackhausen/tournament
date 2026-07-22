@@ -3,8 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from "@angular/common";
 import { ButtonModule } from "primeng/button";
 import { TableModule } from "primeng/table";
-import { DataView } from "primeng/dataview";
-import { Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { Card } from "primeng/card";
 import { Message } from "primeng/message";
 import { AuthService } from "src/app/services/auth.service";
@@ -20,7 +19,7 @@ import { ToggleSwitch } from "primeng/toggleswitch";
     CommonModule,
     ButtonModule,
     TableModule,
-    DataView,
+    RouterLink,
     Card,
     Message,
     FormsModule,
@@ -66,18 +65,12 @@ export class UserOverviewComponent implements OnInit {
     this.router.navigate(['/user', id]);
   }
 
-  deleteUser(id: number) {
-    if (confirm('Möchten Sie diesen Benutzer wirklich löschen?')) {
-      this.userService.deleteUser(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => {
-          alert('Benutzer erfolgreich gelöscht.');
-          this.loadData();
-        },
-        error: (error) => {
-          alert(error.message);
-        }
-      });
-    }
+  getProfileImageUrl(userId: number): string {
+    return this.userService.getProfileImageUrl(userId);
+  }
+
+  hideImage(event: Event): void {
+    (event.target as HTMLImageElement).style.display = 'none';
   }
 
   toggleActive(user: User, active: boolean) {

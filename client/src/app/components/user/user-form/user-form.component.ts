@@ -10,7 +10,9 @@ import { ToggleSwitch } from "primeng/toggleswitch";
 import { Select } from "primeng/select";
 import { SelectItem } from "primeng/api";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { PasswordModule } from "primeng/password";
 import { User } from "src/app/models/user.model";
+import { Role } from "src/app/models/role.model";
 import { ActivatedRoute, Router } from "@angular/router";
 import { UserService } from "src/app/services/user.service";
 
@@ -27,6 +29,7 @@ import { UserService } from "src/app/services/user.service";
     FloatLabel,
     ToggleSwitch,
     Select,
+    PasswordModule,
   ],
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.scss'
@@ -35,6 +38,7 @@ export class UserFormComponent implements OnInit {
   userId!: number;
   user!: User;
   userForm!: FormGroup;
+  isNew = false;
   genders: SelectItem[] = [
     { label: 'Herr', value: 'MALE' },
     { label: 'Frau', value: 'FEMALE' }
@@ -50,8 +54,17 @@ export class UserFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForm();
-    this.userId = Number(this.route.snapshot.paramMap.get('id'));
-    this.loadUser();
+    const idParam = this.route.snapshot.paramMap.get('id');
+    this.isNew = !idParam;
+
+    if (this.isNew) {
+      this.userForm.get('newPassword')?.setValidators([Validators.required, Validators.minLength(8)]);
+      this.userForm.get('active')?.setValue(true);
+    } else {
+      this.userId = Number(idParam);
+      this.loadUser();
+    }
+    this.userForm.get('newPassword')?.updateValueAndValidity();
   }
 
   private initializeForm() {
@@ -62,7 +75,9 @@ export class UserFormComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       mobile: [''],
       strength: [null],
-      active: [false]
+      active: [false],
+      admin: [false],
+      newPassword: ['', Validators.minLength(8)]
     });
   }
 
@@ -76,20 +91,67 @@ export class UserFormComponent implements OnInit {
         email: user.email,
         mobile: user.mobile,
         strength: user.strength ?? null,
-        active: user.active
+        active: user.active,
+        admin: user.roles.includes('ADMIN')
       });
     });
   }
 
   onSubmit(): void {
-    if (this.userForm.valid) {
+    if (this.userForm.invalid) return;
+
+    const { admin, newPassword, ...formValue } = this.userForm.value;
+
+    if (this.isNew) {
+      const roles: Role[] = admin ? ['PLAYER', 'ADMIN'] : ['PLAYER'];
+      const newUser = { ...formValue, roles, password: newPassword };
+
+      this.userService.createUser(newUser).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: () => {
+          this.router.navigate(['/user']);
+        },
+        error: (error) => {
+          alert(error.error?.error ?? 'Der Benutzer konnte nicht angelegt werden.');
+        }
+      });
+    } else {
+      const roles = [...this.user.roles];
+      const adminIndex = roles.indexOf('ADMIN');
+      if (admin) {
+        if (adminIndex === -1) roles.push('ADMIN');
+      } else {
+        if (adminIndex > -1) roles.splice(adminIndex, 1);
+      }
+
       const updatedUser: User = {
         ...this.user,
-        ...this.userForm.value
+        ...formValue,
+        roles
       };
 
       this.userService.updateUser(updatedUser).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-        this.router.navigate(['/user']); //
+        if (newPassword) {
+          this.userService.setPassword(this.userId, newPassword).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: () => this.router.navigate(['/user']),
+            error: (error) => alert(error.error?.error ?? 'Das Passwort konnte nicht gesetzt werden.')
+          });
+        } else {
+          this.router.navigate(['/user']);
+        }
+      });
+    }
+  }
+
+  onDelete(): void {
+    if (confirm('Möchten Sie diesen Benutzer wirklich löschen?')) {
+      this.userService.deleteUser(this.userId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: () => {
+          alert('Benutzer erfolgreich gelöscht.');
+          this.router.navigate(['/user']);
+        },
+        error: (error) => {
+          alert(error.message);
+        }
       });
     }
   }

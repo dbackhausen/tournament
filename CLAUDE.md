@@ -33,7 +33,6 @@ npx ng test --include='**/foo.component.spec.ts'  # Run single spec file
 ```
 
 ## Architecture
-
 ### Backend — Spring Boot 3.3.0 / Java 21 / Gradle
 - **Base package:** `de.eightbit.tc.tournament`
 - **Layers:** Controller → Service → Repository (Spring Data JPA)
@@ -83,9 +82,7 @@ npx ng test --include='**/foo.component.spec.ts'  # Run single spec file
 
 ## Deployment
 
-CI/CD via GitHub Actions → Azure:
-- Frontend: Azure Static Web Apps (`azure-frontend-deployment.yml`, Node 18)
-- Backend: Azure App Service as JAR (`azure-backend-deployment.yml`, Java 21 Temurin, `tournament-app-backend-1.0.jar`)
+Deployed on **Railway**. Deploys automatically on push to the `master` branch.
 - Production env vars: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET`, `CORS_ORIGIN`, `API_URL`
 
 ## Conventions

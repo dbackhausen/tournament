@@ -1,4 +1,4 @@
-<p-card header="Benutzer bearbeiten">
+<p-card header="{{ isNew ? 'Neuen Benutzer anlegen' : 'Benutzer bearbeiten' }}">
   <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
     <div class="formgrid grid my-3">
       <div class="field col-12 md:col-6">
@@ -39,11 +39,33 @@
         <p-toggleSwitch formControlName="active"></p-toggleSwitch>
         <span>{{ userForm.get('active')?.value ? '(aktiv)' : '(inaktiv)' }}</span>
       </div>
+      <div class="field col-12 flex align-items-center gap-3">
+        <p-toggleSwitch formControlName="admin"></p-toggleSwitch>
+        <span>{{ userForm.get('admin')?.value ? 'Admin' : 'Kein Admin' }}</span>
+      </div>
+      <div class="field col-12 md:col-6">
+        <p-floatlabel variant="in">
+          <p-password
+            id="newPassword"
+            formControlName="newPassword"
+            class="w-full"
+            [style]="{'width':'100%'}"
+            [inputStyle]="{'width':'100%'}"
+            [feedback]="false"
+            [toggleMask]="true"
+          />
+          <label for="newPassword">{{ isNew ? 'Passwort' : 'Neues Passwort (optional)' }}</label>
+        </p-floatlabel>
+        <small *ngIf="userForm.get('newPassword')?.invalid && userForm.get('newPassword')?.dirty" class="p-error">
+          Das Passwort muss mindestens 8 Zeichen lang sein.
+        </small>
+      </div>
     </div>
 
     <div class="button-group">
       <p-button label="Zurück" (click)="router.navigate(['/user'])" severity="secondary" />
       <p-button label="Speichern" type="submit" [disabled]="userForm.invalid" />
+      <p-button *ngIf="!isNew" label="Löschen" type="button" severity="danger" (click)="onDelete()" />
     </div>
   </form>
 </p-card>

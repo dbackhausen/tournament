@@ -1,0 +1,75 @@
+// ── Mobile list ─────────────────────────────────────────
+.user-list {
+  padding: 0.25rem 0;
+  margin: 0 -1.125rem;
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.625rem 1.125rem;
+  border-bottom: 1px solid #f0f3fa;
+  cursor: pointer;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: #f8faff;
+  }
+}
+
+.user-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3570c4, #4d8bda);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+
+  .user-avatar-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    z-index: 2;
+  }
+
+  .user-avatar-initials {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.user-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1a2744;
+}
+
+.user-empty {
+  padding: 1rem 0;
+}
+
+// ── Desktop table ───────────────────────────────────────
+.user-name-cell {
+  cursor: pointer;
+  font-weight: 600;
+  color: #3570c4;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
