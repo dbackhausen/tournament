@@ -6,6 +6,8 @@ import de.eightbit.tc.tournament.repository.RegistrationRepository;
 import de.eightbit.tc.tournament.repository.TournamentRepository;
 import de.eightbit.tc.tournament.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class RegistrationService {
+
+    private static final Logger logger = LoggerFactory.getLogger(RegistrationService.class);
 
     @Autowired
     private TournamentRepository tournamentRepository;
@@ -64,7 +68,7 @@ public class RegistrationService {
         );
 
         Registration saved = registrationRepository.save(registration);
-        emailService.sendRegistrationEmail(saved, false);
+        sendEmailSafely(() -> emailService.sendRegistrationEmail(saved, false));
         return saved;
     }
 
@@ -118,7 +122,7 @@ public class RegistrationService {
             existingRegistration.setSelectedTypes(tournamentTypes);
 
             Registration saved = registrationRepository.save(existingRegistration);
-            emailService.sendRegistrationEmail(saved, true);
+            sendEmailSafely(() -> emailService.sendRegistrationEmail(saved, true));
             return saved;
         }
 
@@ -147,12 +151,20 @@ public class RegistrationService {
         }
 
         registrationRepository.deleteById(registrationId);
-        emailService.sendWithdrawalEmail(registration);
+        sendEmailSafely(() -> emailService.sendWithdrawalEmail(registration));
     }
 
     public boolean isOwner(Long registrationId, String email) {
         return registrationRepository.findById(registrationId)
                 .map(registration -> registration.getUser().getEmail().equals(email))
                 .orElse(false);
+    }
+
+    private void sendEmailSafely(Runnable emailAction) {
+        try {
+            emailAction.run();
+        } catch (Exception e) {
+            logger.error("Failed to send registration email: {}", e.getMessage(), e);
+        }
     }
 }

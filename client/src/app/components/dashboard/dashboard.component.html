@@ -1,6 +1,14 @@
 <p-card header="Willkommen, {{ username }}!">
-  <p>
-    Dies ist dein persönliches Dashboard.
-    Hier findest du aktuelle Informationen zu unseren Turnieren.
-  </p>
+  @if (!isEditing) {
+    <p class="dashboard-message">{{ message }}</p>
+    @if (isAdmin) {
+      <p-button label="Nachricht bearbeiten" icon="pi pi-pencil" severity="secondary" size="small" (click)="onEdit()" />
+    }
+  } @else {
+    <textarea pTextarea [(ngModel)]="editedMessage" rows="4" [maxLength]="1000" style="resize: none" class="w-full"></textarea>
+    <div class="button-group">
+      <p-button label="Speichern" size="small" [disabled]="!editedMessage.trim()" (click)="onSave()" />
+      <p-button label="Abbrechen" severity="secondary" size="small" (click)="onCancel()" />
+    </div>
+  }
 </p-card>

@@ -1,11 +1,11 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, HostListener, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormGroup,
   FormArray,
   ReactiveFormsModule,
-  FormsModule, FormControl,
+  FormControl,
   Validators
 } from '@angular/forms';
 import { CommonModule } from "@angular/common";
@@ -17,7 +17,6 @@ import { FloatLabel } from "primeng/floatlabel";
 import { Textarea } from "primeng/textarea";
 import { Checkbox } from "primeng/checkbox";
 import { Registration, Tournament, TournamentDay, TournamentType } from "src/app/models/tournament.model";
-import { Select } from "primeng/select";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { atLeastOneDaySelectedValidator } from "src/app/validator/at-least-one-day-selected.validator";
 import { atLeastOneTypeSelectedValidator } from "src/app/validator/at-least-one-type-selected.validator";
@@ -38,8 +37,6 @@ import { RegistrationService } from "src/app/services/registration.service";
     FloatLabel,
     Textarea,
     Checkbox,
-    FormsModule,
-    Select,
     Tabs,
     TabList,
     Tab,
@@ -57,6 +54,7 @@ export class RegistrationFormComponent implements OnInit {
   registration: Registration | null = null;
   activeWeek = 0;
   weekIndexGroups: { label: string; dayIndices: number[]; locked: boolean; lockedReason: 'week' | 'deadline' | null }[] = [];
+  isMobile = false;
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -77,6 +75,7 @@ export class RegistrationFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.checkViewport();
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const url = this.route.snapshot.url.map(segment => segment.path).join('/');
       const tournamentId = params.get('tournamentId');
@@ -269,6 +268,22 @@ export class RegistrationFormComponent implements OnInit {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return today >= new Date(this.tournament.startDate);
+  }
+
+  checkViewport(): void {
+    this.isMobile = window.matchMedia('(max-width: 768px)').matches;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.checkViewport();
+  }
+
+  weekTabLabel(week: { label: string }, index: number): string {
+    if (this.isMobile && this.activeWeek !== index) {
+      return `${index + 1}`;
+    }
+    return week.label;
   }
 
   private applyDeadlineRestrictions(): void {

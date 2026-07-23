@@ -178,10 +178,10 @@ export class TournamentFormComponent implements OnInit {
           return dateA - dateB;
         });
         tournamentDays.forEach((day: any) => {
-          day.date = this.datePipe.transform(day.date, 'yyyy-MM-dd');
-          day.time1 = day.time1 ? this.datePipe.transform(day.time1, 'HH:mm') : null;
-          day.time2 = day.time2 ? this.datePipe.transform(day.time2, 'HH:mm') : null;
-          day.time3 = day.time3 ? this.datePipe.transform(day.time3, 'HH:mm') : null;
+          day.date = this.formatDate(day.date);
+          day.time1 = this.formatTime(day.time1);
+          day.time2 = this.formatTime(day.time2);
+          day.time3 = this.formatTime(day.time3);
         });
 
         const startDate = tournamentDays[0].date;
@@ -292,6 +292,20 @@ export class TournamentFormComponent implements OnInit {
     }
 
     return null;
+  }
+
+  private formatDate(value: Date | string | null): string | null {
+    if (!value) return null;
+    // p-datepicker can hand back a raw string (e.g. while the user is still typing)
+    // instead of a Date, which would otherwise crash DatePipe.transform.
+    if (typeof value === 'string') return value;
+    return this.datePipe.transform(value, 'yyyy-MM-dd');
+  }
+
+  private formatTime(value: Date | string | null): string | null {
+    if (!value) return null;
+    if (typeof value === 'string') return value.substring(0, 5);
+    return this.datePipe.transform(value, 'HH:mm');
   }
 
   private convertTimeStringToDate(timeString: string): Date {

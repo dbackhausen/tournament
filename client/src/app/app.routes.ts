@@ -31,6 +31,12 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'tournament/:tournamentId/participation-overview',
+    loadComponent: () => import('src/app/components/registration/participation-overview/participation-overview.component').then(m => m.ParticipationOverviewComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'ADMIN' }
+  },
+  {
     path: 'tournament/:tournamentId/register',
     loadComponent: () => import('src/app/components/registration/registration-form/registration-form.component').then(m => m.RegistrationFormComponent),
     canActivate: [authGuard]

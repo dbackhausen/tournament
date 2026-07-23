@@ -37,6 +37,7 @@ export class RegistrationOverviewComponent implements OnInit {
   protected registrations: Registration[] = [];
   isAdmin: boolean = false;
   isMobile: boolean = false;
+  isDesktop: boolean = false;
   currentUserId: number | null = null;
   private destroyRef = inject(DestroyRef);
 
@@ -88,6 +89,7 @@ export class RegistrationOverviewComponent implements OnInit {
 
   checkViewport(): void {
     this.isMobile = window.matchMedia('(max-width: 600px)').matches;
+    this.isDesktop = window.matchMedia('(min-width: 1367px)').matches;
   }
 
   @HostListener('window:resize', ['$event'])
@@ -148,6 +150,10 @@ export class RegistrationOverviewComponent implements OnInit {
     this.router.navigate(['/profile/' + userId]);
   }
 
+  showParticipationOverview() {
+    this.router.navigate([`/tournament/${this.tournamentId}/participation-overview`]);
+  }
+
   downloadRegistrationsAsCSV() {
     if (this.tournament) {
       const tournament = this.tournament;
@@ -164,9 +170,15 @@ export class RegistrationOverviewComponent implements OnInit {
         [TournamentType.MIXED]: 'Mixed'
       };
 
-      const fixedHeaders = ['Vorname', 'Nachname', 'E-Mail', 'Mobil', ...typeColumns.map(type => typeColumnLabels[type])];
-      const dayHeaders = tournament.tournamentDays.map(day => day.date);
-      const headers = [...fixedHeaders, ...dayHeaders, 'Bemerkung'];
+      const timeSlots = tournament.tournamentDays.flatMap(day =>
+        [day.time1, day.time2, day.time3]
+          .filter((time): time is string => !!time)
+          .map(time => ({ date: day.date, time }))
+      );
+
+      const fixedHeaders = ['Benutzer-ID', 'Vorname', 'Nachname', 'E-Mail', 'Mobil', ...typeColumns.map(type => typeColumnLabels[type])];
+      const timeSlotHeaders = timeSlots.map(slot => `${this.formatDate(slot.date)} ${slot.time}`);
+      const headers = [...fixedHeaders, ...timeSlotHeaders, 'Bemerkung'];
 
       const rows = this.registrations.map(reg => {
         const { user, selectedTypes = [], selectedDays = [], notes } = reg;
@@ -176,6 +188,7 @@ export class RegistrationOverviewComponent implements OnInit {
         );
 
         const fixedData = [
+          user.id,
           user.firstName,
           user.lastName,
           user.email,
@@ -184,14 +197,14 @@ export class RegistrationOverviewComponent implements OnInit {
         ];
 
         const selected = Array.isArray(selectedDays) ? selectedDays : [];
-        const dayData = tournament.tournamentDays.map(day => {
-          const matches = selected.filter(d => d.date === day.date);
-          return matches.length > 0 ? matches.map(m => m.time).join(', ') : 'nicht gemeldet';
+        const timeSlotData = timeSlots.map(slot => {
+          const isSelected = selected.some(d => d.date === slot.date && d.time.substring(0, 5) === slot.time);
+          return isSelected ? 'ja' : 'nein';
         });
 
         const remarks = notes?.replace(/\n/g, ' ') || '';
 
-        return [...fixedData, ...dayData, remarks];
+        return [...fixedData, ...timeSlotData, remarks];
       });
 
       const csvContent = [headers, ...rows]
@@ -206,6 +219,11 @@ export class RegistrationOverviewComponent implements OnInit {
       a.click();
       URL.revokeObjectURL(url);
     }
+  }
+
+  private formatDate(isoDate: string): string {
+    const [year, month, day] = isoDate.split('-');
+    return `${day}.${month}.${year}`;
   }
 
   private escapeCsv(value: any): string {

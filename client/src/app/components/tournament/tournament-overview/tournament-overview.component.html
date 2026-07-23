@@ -1,4 +1,4 @@
-<p-card header="Turniere">
+<p-card header="Unsere Turniere">
   @if (isMobile) {
     <div class="tournament-list">
       <div *ngFor="let tournament of tournaments" class="tournament-item">
@@ -32,7 +32,7 @@
             <th>Enddatum</th>
             <th>Meldeschluss</th>
             <th *ngIf="isDesktop">Startgeld</th>
-            <th *ngIf="isDesktop">Teilnehmer</th>
+            <th>Teilnehmer</th>
             <th *ngIf="isDesktop && isAdmin"></th>
           </tr>
         </ng-template>
@@ -43,7 +43,7 @@
             <td>{{ tournament.endDate | date:'dd.MM.yyyy' }}</td>
             <td>{{ tournament.deadline | date:'dd.MM. HH:mm' }} Uhr</td>
             <td *ngIf="isDesktop">{{ tournament.entryFee }} EUR</td>
-            <td *ngIf="isDesktop">{{ tournament.registrationCount }}</td>
+            <td>{{ tournament.registrationCount }}</td>
             <td *ngIf="isDesktop && isAdmin">
               <div class="flex flex-row align-items-center justify-content-end gap-2">
                 <p-button icon="pi pi-pencil" severity="secondary" (click)="editTournament(tournament.id)" size="small"></p-button>
@@ -54,7 +54,7 @@
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td [attr.colspan]="isDesktop ? 6 : 4" class="text-center">
+            <td [attr.colspan]="isDesktop ? 6 : 5" class="text-center">
               <p-message severity="info" text="Keine aktuellen Turniere vorhanden"></p-message>
             </td>
           </tr>

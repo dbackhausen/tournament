@@ -49,34 +49,38 @@
         </div>
       </ng-container>
 
-      <!-- Multiple weeks: tabbed -->
+      <ng-template #weekDays let-week>
+        <span *ngIf="week.lockedReason === 'week'" class="deadline-lock-info mb-2">
+          <i class="pi pi-lock"></i> Diese Woche hat bereits begonnen – Tage und Zeiten können nicht mehr geändert werden.
+        </span>
+        <span *ngIf="week.lockedReason === 'deadline'" class="deadline-lock-info mb-2">
+          <i class="pi pi-lock"></i> Änderungen für kommende Wochen sind nur bis Freitag 23:59 Uhr möglich.
+        </span>
+        <div *ngFor="let dayIndex of week.dayIndices" [formGroupName]="dayIndex" class="day-row">
+          <span class="day-label">{{ selectableDays.at(dayIndex).get('date')?.value | date:'EE, dd.MM.yyyy' }}</span>
+          <div formArrayName="times" class="time-slots">
+            <div *ngFor="let timeSlot of getTimesArray(dayIndex).controls; let j = index" [formGroupName]="j" class="time-slot">
+              <p-checkbox
+                formControlName="selected"
+                inputId="time_{{ dayIndex }}_{{ j }}"
+                binary="true"
+                size="large" />
+              <label for="time_{{ dayIndex }}_{{ j }}">{{ timeSlot.get('time')?.value }}</label>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Multiple weeks: tabbed (all devices) -->
       <p-tabs *ngIf="weekIndexGroups.length > 1" [(value)]="activeWeek">
         <p-tablist>
           <p-tab *ngFor="let week of weekIndexGroups; let wi = index" [value]="wi">
-            {{ week.label }}<i *ngIf="week.locked" class="pi pi-lock ml-1" style="font-size: 0.75rem;"></i>
+            {{ weekTabLabel(week, wi) }}<i *ngIf="week.locked" class="pi pi-lock ml-1" style="font-size: 0.75rem;"></i>
           </p-tab>
         </p-tablist>
         <p-tabpanels>
           <p-tabpanel *ngFor="let week of weekIndexGroups; let wi = index" [value]="wi">
-            <span *ngIf="week.lockedReason === 'week'" class="deadline-lock-info mb-2">
-              <i class="pi pi-lock"></i> Diese Woche hat bereits begonnen – Tage und Zeiten können nicht mehr geändert werden.
-            </span>
-            <span *ngIf="week.lockedReason === 'deadline'" class="deadline-lock-info mb-2">
-              <i class="pi pi-lock"></i> Änderungen für kommende Wochen sind nur bis Freitag 23:59 Uhr möglich.
-            </span>
-            <div *ngFor="let dayIndex of week.dayIndices" [formGroupName]="dayIndex" class="day-row">
-              <span class="day-label">{{ selectableDays.at(dayIndex).get('date')?.value | date:'EE, dd.MM.yyyy' }}</span>
-              <div formArrayName="times" class="time-slots">
-                <div *ngFor="let timeSlot of getTimesArray(dayIndex).controls; let j = index" [formGroupName]="j" class="time-slot">
-                  <p-checkbox
-                    formControlName="selected"
-                    inputId="time_{{ dayIndex }}_{{ j }}"
-                    binary="true"
-                    size="large" />
-                  <label for="time_{{ dayIndex }}_{{ j }}">{{ timeSlot.get('time')?.value }}</label>
-                </div>
-              </div>
-            </div>
+            <ng-container *ngTemplateOutlet="weekDays; context: { $implicit: week }"></ng-container>
           </p-tabpanel>
         </p-tabpanels>
       </p-tabs>

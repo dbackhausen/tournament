@@ -57,6 +57,9 @@ export class TournamentDetailComponent implements OnInit {
         next: (t) => {
           this.tournament = t;
           this.weekGroups = this.buildWeekGroups(t);
+          if (this.isTournamentInProgress(t)) {
+            this.activeWeek = this.getCurrentWeekIndex(this.weekGroups);
+          }
           const user = this.authService.getUser();
           if (user) {
             this.registrationService.getRegistrationByTournamentAndUser(this.tournamentId, user.id)
@@ -85,6 +88,29 @@ export class TournamentDetailComponent implements OnInit {
 
     const sorted = [...groups.entries()].sort((a, b) => a[0] - b[0]);
     return sorted.map((entry, i) => ({ label: `Woche ${i + 1}`, days: entry[1] }));
+  }
+
+  weekTabLabel(week: WeekGroup, index: number): string {
+    if (this.isMobile && this.activeWeek !== index) {
+      return `${index + 1}`;
+    }
+    return week.label;
+  }
+
+  private isTournamentInProgress(t: Tournament): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const start = new Date(t.startDate);
+    const end = new Date(t.endDate);
+    return today >= start && today <= end;
+  }
+
+  private getCurrentWeekIndex(weekGroups: WeekGroup[]): number {
+    const todayKey = this.isoYearWeek(new Date());
+    const index = weekGroups.findIndex(week =>
+      week.days.some(day => this.isoYearWeek(new Date(day.date)) === todayKey)
+    );
+    return index >= 0 ? index : 0;
   }
 
   private isoYearWeek(date: Date): number {
