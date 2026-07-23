@@ -50,7 +50,7 @@
             styleClass="w-full"
             inputStyleClass="w-full"
           />
-          <label for="entryFee">Startgeld *</label>
+          <label for="entryFee">Startgeld</label>
         </p-floatlabel>
         <small *ngIf="tournamentForm.get('entryFee')?.invalid && tournamentForm.get('entryFee')?.touched" class="p-error">
           Bitte gib ein gültiges Startgeld (ganze Euro) an.
@@ -69,6 +69,25 @@
                           (onChange)="toggleTournamentType(type, $event.checked)"  />
               <label [for]="type.value" class="md:text-lg sm:text-sm"> {{ type.label }}</label>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field col-12 md:col-12">
+        <div formArrayName="teams">
+          <div *ngFor="let team of teams.controls; let i = index" class="team-row formgroup-inline align-items-center">
+            <div class="field">
+              <p-floatlabel variant="in">
+                <input pInputText [formControlName]="i" id="team{{ i }}" autocomplete="off" />
+                <label for="team{{ i }}">Team {{ i + 1 }} (optional)</label>
+              </p-floatlabel>
+            </div>
+            <div class="field pt-2">
+              <p-button icon="pi pi-times" severity="danger" (click)="removeTeam(i)" *ngIf="teams.length > 1" />
+            </div>
+          </div>
+          <div class="add-day-btn" *ngIf="teams.length < 4">
+            <p-button icon="pi pi-plus" label="Team hinzufügen" severity="secondary" (click)="addTeam()" />
           </div>
         </div>
       </div>

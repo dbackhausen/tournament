@@ -1,4 +1,4 @@
-<p-card header="Teilnehmer {{ tournament?.name }}">
+<p-card header="Teilnehmer: {{ tournament?.name }}">
 
   @if (isMobile) {
     <div class="participant-list">
@@ -32,6 +32,7 @@
             <th *ngIf="isAdmin">Mobilrufnummer</th>
             <th *ngIf="isAdmin">Stärke</th>
             <th *ngIf="isAdmin">Bezahlt</th>
+            <th *ngIf="isAdmin && isDesktop">Team</th>
           </tr>
         </ng-template>
         <ng-template #body let-registration>
@@ -44,11 +45,24 @@
             <td *ngIf="isAdmin">
               <p-checkbox [binary]="true" [ngModel]="registration.payed" (onChange)="togglePayed(registration)" inputId="payed_{{registration.id}}"></p-checkbox>
             </td>
+            <td *ngIf="isAdmin && isDesktop">
+              <p-select
+                [options]="teamOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="registration.team ?? null"
+                (ngModelChange)="onTeamChange(registration, $event)"
+                [ngModelOptions]="{standalone: true}"
+                placeholder="Kein Team"
+                [showClear]="true"
+                appendTo="body">
+              </p-select>
+            </td>
           </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td [attr.colspan]="isAdmin ? 6 : 2" class="text-center">
+            <td [attr.colspan]="isAdmin ? (isDesktop ? 7 : 6) : 2" class="text-center">
               <p-message severity="info" text="Keine Registrierungen vorhanden"></p-message>
             </td>
           </tr>

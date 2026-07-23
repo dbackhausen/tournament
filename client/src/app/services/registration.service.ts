@@ -47,6 +47,11 @@ export class RegistrationService {
     return this.http.patch<Registration>(url, { payed });
   }
 
+  updateTeam(registrationId: number, team: string | null) {
+    const url = `${this.apiUrl}/registrations/${registrationId}/team`;
+    return this.http.patch<Registration>(url, { team });
+  }
+
   deleteRegistration(registrationId: number) {
     const url = `${this.apiUrl}/registrations/${registrationId}`;
     return this.http.delete<Registration>(url);

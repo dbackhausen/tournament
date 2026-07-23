@@ -31,6 +31,7 @@ public class TournamentService {
         tournament.setEndDate(tournamentDto.getEndDate());
         tournament.setDeadline(tournamentDto.getDeadline());
         tournament.setTournamentTypes(tournamentDto.getTournamentTypes());
+        tournament.setTeams(tournamentDto.getTeams());
 
         List<TournamentDay> days = tournamentDto.getTournamentDays().stream()
                 .map(dayDto -> new TournamentDay(dayDto.getDate(), dayDto.getTime1(), dayDto.getTime2(), dayDto.getTime3()))
@@ -54,6 +55,7 @@ public class TournamentService {
             tournament.setEndDate(tournamentDto.getEndDate());
             tournament.setDeadline(tournamentDto.getDeadline());
             tournament.setTournamentTypes(tournamentDto.getTournamentTypes());
+        tournament.setTeams(tournamentDto.getTeams());
 
             List<TournamentDay> days = tournamentDto.getTournamentDays().stream()
                     .map(dayDto -> new TournamentDay(dayDto.getDate(), dayDto.getTime1(), dayDto.getTime2(), dayDto.getTime3()))

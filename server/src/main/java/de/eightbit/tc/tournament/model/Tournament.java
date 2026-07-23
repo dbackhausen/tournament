@@ -39,6 +39,12 @@ public class Tournament {
     @Enumerated(EnumType.STRING)
     private List<TournamentType> tournamentTypes;
 
+    @ElementCollection
+    @CollectionTable(name = "tournament_teams", joinColumns = @JoinColumn(name = "tournament_id"))
+    @Column(name = "name")
+    @OrderColumn(name = "team_order")
+    private List<String> teams = new ArrayList<>();
+
     public void setTournamentDays(List<TournamentDay> tournamentDays) {
         this.tournamentDays.clear();
         if (tournamentDays != null) {

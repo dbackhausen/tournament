@@ -45,6 +45,8 @@ public class Registration {
 
     private boolean payed;
 
+    private String team;
+
     public void setSelectedTypes(List<TournamentType> selectedTypes) {
         this.selectedTypes.clear();
         if (selectedTypes != null) {

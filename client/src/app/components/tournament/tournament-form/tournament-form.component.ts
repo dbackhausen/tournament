@@ -72,9 +72,10 @@ export class TournamentFormComponent implements OnInit {
       name: ['', Validators.required],
       description: [''],
       additionalNotes: [''],
-      entryFee: [null, [Validators.required, Validators.min(0), Validators.pattern('^[0-9]+$')]],
+      entryFee: [0, [Validators.required, Validators.min(0), Validators.pattern('^[0-9]+$')]],
       tournamentDays: this.fb.array([this.createTournamentDay()]),
       tournamentTypes: this.fb.array([], atLeastOneTypeSelectedValidator),
+      teams: this.fb.array([this.createTeam()]),
       deadline: ['', Validators.required],
     }, { validators: deadlineBeforeFirstDayValidator });
   }
@@ -152,6 +153,15 @@ export class TournamentFormComponent implements OnInit {
         const isSelected = tournament.tournamentTypes?.includes(<TournamentType>typeObj.value.toLowerCase());
         typesFormArray.at(index).setValue(isSelected);
       });
+
+      // Set the teams
+      const teamsFormArray = this.tournamentForm.get('teams') as FormArray;
+      teamsFormArray.clear();
+      if (tournament.teams?.length) {
+        tournament.teams.forEach(team => teamsFormArray.push(this.createTeam(team)));
+      } else {
+        teamsFormArray.push(this.createTeam());
+      }
     });
   }
 
@@ -335,6 +345,28 @@ export class TournamentFormComponent implements OnInit {
       this.tournamentTypes.push(new FormControl(type.value));
     } else if (!checked && index !== -1) {
       this.tournamentTypes.removeAt(index);
+    }
+  }
+
+  // ------------------ TEAMS ------------------
+
+  get teams(): FormArray {
+    return this.tournamentForm.get('teams') as FormArray;
+  }
+
+  createTeam(name: string = ''): FormControl {
+    return new FormControl(name, Validators.required);
+  }
+
+  addTeam(): void {
+    if (this.teams.length < 4) {
+      this.teams.push(this.createTeam());
+    }
+  }
+
+  removeTeam(index: number): void {
+    if (this.teams.length > 1) {
+      this.teams.removeAt(index);
     }
   }
 

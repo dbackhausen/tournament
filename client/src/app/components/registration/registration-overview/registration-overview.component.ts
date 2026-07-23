@@ -14,6 +14,7 @@ import { RegistrationService } from "src/app/services/registration.service";
 import { UserService } from "src/app/services/user.service";
 import { Checkbox } from "primeng/checkbox";
 import { TableModule } from "primeng/table";
+import { Select } from "primeng/select";
 
 @Component({
   selector: 'app-registration-overview',
@@ -26,7 +27,8 @@ import { TableModule } from "primeng/table";
     RouterLink,
     Message,
     Checkbox,
-    TableModule
+    TableModule,
+    Select
   ],
   templateUrl: './registration-overview.component.html',
   styleUrl: './registration-overview.component.scss'
@@ -126,6 +128,21 @@ export class RegistrationOverviewComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error updating payed status', error);
+      }
+    });
+  }
+
+  get teamOptions(): { label: string; value: string }[] {
+    return (this.tournament?.teams ?? []).map(team => ({ label: team, value: team }));
+  }
+
+  onTeamChange(registration: Registration, team: string | null): void {
+    this.registrationService.updateTeam(registration.id, team).subscribe({
+      next: (updated) => {
+        registration.team = updated.team;
+      },
+      error: (error) => {
+        console.error('Error updating team', error);
       }
     });
   }

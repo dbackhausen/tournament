@@ -19,6 +19,7 @@ public class RegistrationDto {
     private List<String> selectedTypes;
     private String notes;
     private boolean payed;
+    private String team;
 
     @Data
     public static class SelectedDay {

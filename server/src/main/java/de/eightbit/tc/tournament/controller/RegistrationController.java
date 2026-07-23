@@ -110,6 +110,13 @@ public class RegistrationController {
         return ResponseEntity.ok(mapRegistration(registration));
     }
 
+    @PatchMapping("/{id}/team")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<RegistrationDto> updateTeam(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        Registration registration = registrationService.updateTeam(id, body.get("team"));
+        return ResponseEntity.ok(mapRegistration(registration));
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @registrationService.isOwner(#id, authentication.name)")
     public ResponseEntity<RegistrationDto> deleteRegistration(@PathVariable Long id) {
@@ -124,6 +131,7 @@ public class RegistrationController {
         dto.setId(registration.getId());
         dto.setNotes(registration.getNotes());
         dto.setPayed(registration.isPayed());
+        dto.setTeam(registration.getTeam());
 
         dto.setUser(new UserDto(registration.getUser()));
 
@@ -134,6 +142,7 @@ public class RegistrationController {
         tournamentDto.setEndDate(registration.getTournament().getEndDate());
         tournamentDto.setDescription(registration.getTournament().getDescription());
         tournamentDto.setTournamentTypes(registration.getTournament().getTournamentTypes());
+        tournamentDto.setTeams(registration.getTournament().getTeams());
 
         List<TournamentDto.TournamentDayDto> dayDtos = registration.getTournament().getTournamentDays().stream()
                 .map(day -> {

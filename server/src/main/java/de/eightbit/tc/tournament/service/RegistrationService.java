@@ -142,6 +142,14 @@ public class RegistrationService {
     }
 
     @Transactional
+    public Registration updateTeam(Long registrationId, String team) {
+        Registration registration = registrationRepository.findById(registrationId)
+                .orElseThrow(() -> new EntityNotFoundException("Registration not found"));
+        registration.setTeam(team);
+        return registrationRepository.save(registration);
+    }
+
+    @Transactional
     public void deleteRegistration(Long registrationId) {
         Registration registration = registrationRepository.findById(registrationId)
                 .orElseThrow(() -> new EntityNotFoundException("Registration not found"));

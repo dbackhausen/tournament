@@ -24,6 +24,7 @@ export interface Registration {
   user: User;
   notes?: string;
   payed: boolean;
+  team?: string | null;
   selectedDays: ParticipationRequest[];
   selectedTypes: TournamentType[];
 }
@@ -39,5 +40,6 @@ export interface Tournament {
   deadline: Date;
   tournamentDays: TournamentDay[];
   tournamentTypes: TournamentType[];
+  teams: string[];
   registrationCount: number;
 }

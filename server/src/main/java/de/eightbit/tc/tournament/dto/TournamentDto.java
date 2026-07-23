@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import de.eightbit.tc.tournament.model.TournamentType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -28,6 +29,8 @@ public class TournamentDto {
     private int entryFee;
     private List<TournamentDayDto> tournamentDays;
     private List<TournamentType> tournamentTypes;
+    @Size(min = 1, max = 4, message = "Es müssen zwischen 1 und 4 Teams angegeben werden")
+    private List<@NotBlank(message = "Teamname darf nicht leer sein") String> teams;
     private int registrationCount = 0;
 
     @Data
