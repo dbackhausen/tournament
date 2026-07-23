@@ -193,12 +193,12 @@ export class RegistrationOverviewComponent implements OnInit {
           .map(time => ({ date: day.date, time }))
       );
 
-      const fixedHeaders = ['Benutzer-ID', 'Vorname', 'Nachname', 'E-Mail', 'Mobil', ...typeColumns.map(type => typeColumnLabels[type])];
+      const fixedHeaders = ['Benutzer-ID', 'Vorname', 'Nachname', 'E-Mail', 'Mobil', 'Stärke', ...typeColumns.map(type => typeColumnLabels[type])];
       const timeSlotHeaders = timeSlots.map(slot => `${this.formatDate(slot.date)} ${slot.time}`);
-      const headers = [...fixedHeaders, ...timeSlotHeaders, 'Bemerkung'];
+      const headers = [...fixedHeaders, ...timeSlotHeaders, 'Team', 'Bezahlt', 'Bemerkung'];
 
       const rows = this.registrations.map(reg => {
-        const { user, selectedTypes = [], selectedDays = [], notes } = reg;
+        const { user, selectedTypes = [], selectedDays = [], notes, team, payed } = reg;
 
         const typeFlags = typeColumns.map(type =>
           selectedTypes.includes(type) ? 'ja' : 'nein'
@@ -210,6 +210,7 @@ export class RegistrationOverviewComponent implements OnInit {
           user.lastName,
           user.email,
           user.mobile,
+          user.strength ?? '',
           ...typeFlags
         ];
 
@@ -221,7 +222,7 @@ export class RegistrationOverviewComponent implements OnInit {
 
         const remarks = notes?.replace(/\n/g, ' ') || '';
 
-        return [...fixedData, ...timeSlotData, remarks];
+        return [...fixedData, ...timeSlotData, team ?? '', payed ? 'ja' : 'nein', remarks];
       });
 
       const csvContent = [headers, ...rows]
