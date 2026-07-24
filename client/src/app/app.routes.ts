@@ -37,6 +37,12 @@ export const routes: Routes = [
     data: { role: 'ADMIN' }
   },
   {
+    path: 'tournament/:tournamentId/schedule',
+    loadComponent: () => import('src/app/components/tournament/schedule/schedule.component').then(m => m.ScheduleComponent),
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'ADMIN' }
+  },
+  {
     path: 'tournament/:tournamentId/register',
     loadComponent: () => import('src/app/components/registration/registration-form/registration-form.component').then(m => m.RegistrationFormComponent),
     canActivate: [authGuard]

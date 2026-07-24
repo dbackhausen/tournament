@@ -131,11 +131,15 @@
      0 8px 24px rgba(0, 0, 0, 0.08);*/
 
   @media (min-width: 768px) {
-    width: 75%;
+    width: 90%;
     max-width: 1400px;
     padding: 2rem;
     /* border-radius: 20px; */
     margin-bottom: 1.5rem;
+  }
+
+  @media (min-width: 1367px) {
+    max-width: 1700px;
   }
 }
 

@@ -1,6 +1,6 @@
-<p-card header="Willkommen, {{ username }}!">
+<p-card header="Willkommen, {{ username }}!" class="welcome-card">
   @if (!isEditing) {
-    <p class="dashboard-message">{{ message }}</p>
+    <p class="welcome-message">{{ message }}</p>
     @if (isAdmin) {
       <p-button label="Nachricht bearbeiten" icon="pi pi-pencil" severity="secondary" size="small" (click)="onEdit()" />
     }
@@ -11,4 +11,57 @@
       <p-button label="Abbrechen" severity="secondary" size="small" (click)="onCancel()" />
     </div>
   }
+</p-card>
+<br/>
+<ng-template #matchRow let-match let-isPast="isPast">
+  <div class="match-row">
+    <div class="match-date">
+      {{ match.date | date:'dd.MM.yyyy' }} {{ match.time | date:'HH:mm' }}
+      <span *ngIf="isPast">· {{ modeLabel(match.mode) }} · Platz {{ match.court }}</span>
+    </div>
+
+    <div class="match-row-body">
+      <div class="match-names">
+        <table class="score-table" *ngIf="parseResult(match.result) as parsed; else plainNames">
+          <tr>
+            <td class="score-name" [class.winner]="parsed.winner === 'A'">{{ formatPlayers(match.teamAPlayer1, match.teamAPlayer2) }}</td>
+            <td class="score-value" *ngFor="let score of parsed.player1Scores; let i = index" [class.winner]="parsed.setWinners[i] === 'A'">{{ score }}</td>
+          </tr>
+          <tr>
+            <td class="score-name" [class.winner]="parsed.winner === 'B'">{{ formatPlayers(match.teamBPlayer1, match.teamBPlayer2) }}</td>
+            <td class="score-value" *ngFor="let score of parsed.player2Scores; let i = index" [class.winner]="parsed.setWinners[i] === 'B'">{{ score }}</td>
+          </tr>
+        </table>
+
+        <ng-template #plainNames>
+          <div class="match-players">{{ formatPlayers(match.teamAPlayer1, match.teamAPlayer2) }}</div>
+          <div class="match-players">{{ formatPlayers(match.teamBPlayer1, match.teamBPlayer2) }}</div>
+        </ng-template>
+      </div>
+
+      <div class="match-meta" *ngIf="!isPast">
+        <div>{{ modeLabel(match.mode) }}</div>
+        <div>Platz {{ match.court }}</div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<p-card *ngFor="let schedule of schedules" header="Spielplan: {{ schedule.tournamentName }}" class="schedule-card">
+  <div class="schedule-columns">
+    <div class="schedule-column">
+      <div class="schedule-column-title">Letzte Spiele</div>
+      <ng-container *ngFor="let match of schedule.recentMatches">
+        <ng-container *ngTemplateOutlet="matchRow; context: { $implicit: match, isPast: true }"></ng-container>
+      </ng-container>
+      <div class="match-empty" *ngIf="schedule.recentMatches.length === 0">Keine vergangenen Spiele.</div>
+    </div>
+    <div class="schedule-column">
+      <div class="schedule-column-title">Nächste Spiele</div>
+      <ng-container *ngFor="let match of schedule.upcomingMatches">
+        <ng-container *ngTemplateOutlet="matchRow; context: { $implicit: match, isPast: false }"></ng-container>
+      </ng-container>
+      <div class="match-empty" *ngIf="schedule.upcomingMatches.length === 0">Keine bevorstehenden Spiele.</div>
+    </div>
+  </div>
 </p-card>

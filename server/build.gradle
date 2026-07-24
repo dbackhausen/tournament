@@ -47,6 +47,7 @@ dependencies {
 	implementation 'jakarta.servlet:jakarta.servlet-api:6.1.0'
 	implementation 'org.modelmapper:modelmapper:3.2.2'
 	implementation 'ch.qos.logback:logback-classic:1.4.11'
+	implementation 'org.apache.poi:poi-ooxml:5.3.0'
 
 	annotationProcessor 'org.projectlombok:lombok:1.18.36'
 

@@ -1,0 +1,99 @@
+<p-card header="Spielplan: {{ tournament?.name }}">
+  <div class="schedule-table-wrapper" [class.schedule-table-wrapper--editing]="isEditing">
+    <p-table [value]="matches" class="schedule-table">
+      <ng-template #header>
+        <tr>
+          <th>ID</th>
+          <th>Datum</th>
+          <th>Uhrzeit</th>
+          <th>Platz</th>
+          <th>Modus</th>
+          <th>Team 1</th>
+          <th>Team 1 Spieler 1</th>
+          <th>Team 1 Spieler 2</th>
+          <th>Team 2</th>
+          <th>Team 2 Spieler 1</th>
+          <th>Team 2 Spieler 2</th>
+          <th>Ergebnis</th>
+          <th>Status</th>
+          <th *ngIf="isEditing"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-match>
+        <tr>
+          <td>{{ match.id ?? '–' }}</td>
+          <td>
+            <span *ngIf="!isEditing">{{ match.date | date:'dd.MM.yyyy' }}</span>
+            <p-datepicker *ngIf="isEditing" [(ngModel)]="match.date" dateFormat="dd.mm.yy" showIcon="true" appendTo="body" styleClass="cell-date" />
+          </td>
+          <td>
+            <span *ngIf="!isEditing">{{ match.time | date:'HH:mm' }}</span>
+            <p-datepicker *ngIf="isEditing" [(ngModel)]="match.time" [timeOnly]="true" [showTime]="true" hourFormat="24" appendTo="body" styleClass="cell-time" />
+          </td>
+          <td>
+            <span *ngIf="!isEditing">{{ match.court }}</span>
+            <p-select *ngIf="isEditing" [options]="courtOptions" [(ngModel)]="match.court" appendTo="body" styleClass="cell-court" />
+          </td>
+          <td>
+            <span *ngIf="!isEditing">{{ modeLabel(match.mode) }}</span>
+            <p-select *ngIf="isEditing" [options]="modeOptions" optionLabel="label" optionValue="value" [(ngModel)]="match.mode" appendTo="body" styleClass="cell-mode" />
+          </td>
+          <td>
+            <span *ngIf="!isEditing">{{ match.teamA }}</span>
+            <p-select *ngIf="isEditing" [options]="teamOptions" [(ngModel)]="match.teamA" [showClear]="true" appendTo="body" styleClass="cell-team" />
+          </td>
+          <td>
+            <span *ngIf="!isEditing">{{ match.teamAPlayer1 }}</span>
+            <input *ngIf="isEditing" pInputText [(ngModel)]="match.teamAPlayer1" />
+          </td>
+          <td>
+            <span *ngIf="!isEditing">{{ match.teamAPlayer2 }}</span>
+            <input *ngIf="isEditing" pInputText [(ngModel)]="match.teamAPlayer2" />
+          </td>
+          <td>
+            <span *ngIf="!isEditing">{{ match.teamB }}</span>
+            <p-select *ngIf="isEditing" [options]="teamOptions" [(ngModel)]="match.teamB" [showClear]="true" appendTo="body" styleClass="cell-team" />
+          </td>
+          <td>
+            <span *ngIf="!isEditing">{{ match.teamBPlayer1 }}</span>
+            <input *ngIf="isEditing" pInputText [(ngModel)]="match.teamBPlayer1" />
+          </td>
+          <td>
+            <span *ngIf="!isEditing">{{ match.teamBPlayer2 }}</span>
+            <input *ngIf="isEditing" pInputText [(ngModel)]="match.teamBPlayer2" />
+          </td>
+          <td>
+            <span *ngIf="!isEditing">{{ match.result }}</span>
+            <input *ngIf="isEditing" pInputText [(ngModel)]="match.result" />
+          </td>
+          <td>
+            <span *ngIf="!isEditing">{{ statusLabel(match.status) }}</span>
+            <p-select *ngIf="isEditing" [options]="statusOptions" optionLabel="label" optionValue="value" [(ngModel)]="match.status" appendTo="body" styleClass="cell-status" />
+          </td>
+          <td *ngIf="isEditing">
+            <p-button icon="pi pi-times" severity="danger" size="small" (click)="removeMatch(match)"></p-button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="isEditing ? 14 : 13" class="text-center">Noch keine Spiele vorhanden.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div class="button-group" *ngIf="isEditing">
+    <p-button label="Neues Spiel" icon="pi pi-plus" severity="secondary" (click)="addMatch()"></p-button>
+    <p-button label="Speichern" icon="pi pi-check" (click)="onSave()"></p-button>
+    <p-button label="Abbrechen" severity="secondary" (click)="onCancel()"></p-button>
+  </div>
+
+  <div class="button-group" *ngIf="!isEditing">
+    <p-button label="Zurück" severity="secondary" icon="pi pi-arrow-left" (click)="goBack()"></p-button>
+    <p-button label="Bearbeiten" icon="pi pi-pencil" severity="secondary" (click)="onEdit()"></p-button>
+    <p-button label="Herunterladen" icon="pi pi-download" severity="secondary" (click)="downloadSchedule()"></p-button>
+    <p-button label="Hochladen" icon="pi pi-upload" severity="secondary" (click)="fileInput.click()"></p-button>
+    <input #fileInput type="file" accept=".xlsx" (change)="onFileSelected($event)" hidden />
+  </div>
+</p-card>
