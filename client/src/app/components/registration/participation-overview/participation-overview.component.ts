@@ -107,9 +107,15 @@ export class ParticipationOverviewComponent implements OnInit {
 
   goBack(): void {
     if (this.tournamentId) {
-      this.router.navigate([`/tournament/${this.tournamentId}/registrations`]);
+      this.router.navigate([`/tournament/${this.tournamentId}`]);
     } else {
       this.router.navigate(['/tournament']);
+    }
+  }
+
+  showRegistrations(): void {
+    if (this.tournamentId) {
+      this.router.navigate([`/tournament/${this.tournamentId}/registrations`]);
     }
   }
 }

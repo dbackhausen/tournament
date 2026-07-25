@@ -81,10 +81,13 @@ export class AuthService {
   }
 
   forgotPassword(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/forgot-password`, { email });
+    // The backend returns a plain-text body on success, not JSON - without
+    // responseType: 'text', Angular's default JSON parsing throws on that
+    // body and turns an otherwise-successful 200 into an error.
+    return this.http.post(`${this.apiUrl}/auth/forgot-password`, { email }, { responseType: 'text' });
   }
 
   resetPassword(token: string, newPassword: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/reset-password`, { token, newPassword });
+    return this.http.post(`${this.apiUrl}/auth/reset-password`, { token, newPassword }, { responseType: 'text' });
   }
 }

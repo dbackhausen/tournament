@@ -1,11 +1,13 @@
 import { Component, DestroyRef, HostListener, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  AbstractControl,
   FormBuilder,
   FormGroup,
   FormArray,
   ReactiveFormsModule,
   FormControl,
+  ValidationErrors,
   Validators
 } from '@angular/forms';
 import { CommonModule } from "@angular/common";
@@ -16,6 +18,7 @@ import { Button } from "primeng/button";
 import { FloatLabel } from "primeng/floatlabel";
 import { Textarea } from "primeng/textarea";
 import { Checkbox } from "primeng/checkbox";
+import { Message } from "primeng/message";
 import { Registration, Tournament, TournamentDay, TournamentType } from "src/app/models/tournament.model";
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { atLeastOneDaySelectedValidator } from "src/app/validator/at-least-one-day-selected.validator";
@@ -37,6 +40,7 @@ import { RegistrationService } from "src/app/services/registration.service";
     FloatLabel,
     Textarea,
     Checkbox,
+    Message,
     Tabs,
     TabList,
     Tab,
@@ -105,6 +109,7 @@ export class RegistrationFormComponent implements OnInit {
                 this.applyDeadlineRestrictions();
                 this.weekIndexGroups = this.buildWeekIndexGroups(this.tournament!);
                 this.applyWeekLocking();
+                this.applyMinSelectionPerWeekValidator();
               },
               error: (error) => {
                 console.error('Error loading registration', error);
@@ -155,6 +160,7 @@ export class RegistrationFormComponent implements OnInit {
           this.applyDeadlineRestrictions();
           this.weekIndexGroups = this.buildWeekIndexGroups(this.tournament!);
           this.applyWeekLocking();
+          this.applyMinSelectionPerWeekValidator();
         },
         error: (err) => {
           console.error('Error loading data:', err);
@@ -216,9 +222,13 @@ export class RegistrationFormComponent implements OnInit {
     const today = new Date();
     const currentWeekKey = this.isoYearWeek(today);
 
-    // Future weeks lock on Saturday/Sunday (after Friday 23:59)
+    // Only the week starting right after this one locks on Saturday/Sunday
+    // (after Friday 23:59) - weeks further out stay editable all weekend.
     const dow = today.getDay(); // 0=Sun, 6=Sat
-    const isFutureWeeksLocked = dow === 0 || dow === 6;
+    const isWeekendLockActive = dow === 0 || dow === 6;
+    const nextWeekDate = new Date(today);
+    nextWeekDate.setDate(nextWeekDate.getDate() + 7);
+    const nextWeekKey = this.isoYearWeek(nextWeekDate);
 
     const groups = new Map<number, number[]>();
     t.tournamentDays.forEach((day, index) => {
@@ -230,8 +240,9 @@ export class RegistrationFormComponent implements OnInit {
     const sorted = [...groups.entries()].sort((a, b) => a[0] - b[0]);
     return sorted.map((entry, i) => {
       const isCurrentOrPast = entry[0] <= currentWeekKey;
-      const locked = isCurrentOrPast || isFutureWeeksLocked;
-      const lockedReason: 'week' | 'deadline' | null = isCurrentOrPast ? 'week' : (isFutureWeeksLocked ? 'deadline' : null);
+      const isImminentWeek = entry[0] === nextWeekKey;
+      const locked = isCurrentOrPast || (isImminentWeek && isWeekendLockActive);
+      const lockedReason: 'week' | 'deadline' | null = isCurrentOrPast ? 'week' : (isImminentWeek && isWeekendLockActive ? 'deadline' : null);
       return { label: `Woche ${i + 1}`, dayIndices: entry[1], locked, lockedReason };
     });
   }
@@ -247,6 +258,45 @@ export class RegistrationFormComponent implements OnInit {
         });
       }
     });
+  }
+
+  // Weeks offering more than 4 options require either no selection at all,
+  // or at least 2 selections - never exactly 1. Locked weeks are exempt since
+  // the participant can no longer change them.
+  private applyMinSelectionPerWeekValidator(): void {
+    this.selectableDays.setValidators([atLeastOneDaySelectedValidator, this.minSelectionPerWeekValidator]);
+    this.selectableDays.updateValueAndValidity();
+  }
+
+  private minSelectionPerWeekValidator = (control: AbstractControl): ValidationErrors | null => {
+    const invalidWeekLabels: string[] = [];
+
+    this.weekIndexGroups.forEach(week => {
+      if (week.locked) return;
+
+      const totalOptions = week.dayIndices.reduce((sum, dayIndex) => {
+        const timesArray = this.selectableDays.at(dayIndex)?.get('times') as FormArray | null;
+        return sum + (timesArray?.length ?? 0);
+      }, 0);
+
+      if (totalOptions <= 4) return;
+
+      const selectedCount = week.dayIndices.reduce((count, dayIndex) => {
+        const timesArray = this.selectableDays.at(dayIndex)?.get('times') as FormArray | null;
+        const selected = timesArray?.controls.filter(c => c.get('selected')?.value).length ?? 0;
+        return count + selected;
+      }, 0);
+
+      if (selectedCount === 1) {
+        invalidWeekLabels.push(week.label);
+      }
+    });
+
+    return invalidWeekLabels.length > 0 ? { minSelectionPerWeek: invalidWeekLabels } : null;
+  };
+
+  get weekSelectionErrorLabels(): string[] {
+    return this.selectableDays.errors?.['minSelectionPerWeek'] ?? [];
   }
 
   private isoYearWeek(date: Date): number {

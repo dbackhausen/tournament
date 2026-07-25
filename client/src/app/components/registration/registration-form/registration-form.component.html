@@ -86,6 +86,12 @@
       </p-tabs>
     </div>
 
+    <div class="grid mx-0 mt-2 px-0" *ngIf="weekSelectionErrorLabels.length > 0">
+      <div class="col-12 px-0">
+        <p-message severity="warn" text="Bitte wähle für {{ weekSelectionErrorLabels.join(', ') }} entweder mindestens 2 Termine oder gar keinen aus."></p-message>
+      </div>
+    </div>
+
     <div class="grid mx-0 mt-3 md:mt-4 mb-3 px-0">
       <span>Ich bin offen für folgende Konkurrenzen:</span>
       <span *ngIf="registration && isTournamentStarted" class="deadline-lock-info">

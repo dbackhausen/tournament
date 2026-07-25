@@ -102,7 +102,7 @@
     <p-button *ngIf="isAdmin && !isMobile" label="Bearbeiten" icon="pi pi-pencil" severity="secondary" (click)="onEdit()" />
     <p-button *ngIf="isRegistered && isMobile" label="Anmeldung" icon="pi pi-pencil" styleClass="btn-registered" (click)="onRegister()" />
     <p-button *ngIf="isRegistered && !isMobile" label="Anmeldung bearbeiten" icon="pi pi-pencil" styleClass="btn-registered" (click)="onRegister()" />
-    <p-button *ngIf="isAdmin" label="Teilnahmeübersicht" icon="pi pi-table" severity="secondary" (click)="onShowParticipationOverview()" />
+    <p-button *ngIf="isAdmin && !isMobile" label="Teilnahmeübersicht" icon="pi pi-table" severity="secondary" (click)="onShowParticipationOverview()" />
     <p-button *ngIf="isAdmin && !isMobile" label="Spielplan" icon="pi pi-table" severity="secondary" (click)="onShowSchedule()" />
   </div>
 </p-card>
