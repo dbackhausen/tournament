@@ -75,8 +75,13 @@
     <div class="section-value">{{ tournament.registrationCount }} Spieler</div>
   </div>
 
-  <div class="detail-section" *ngIf="tournament.teams?.length">
-    <div class="section-label">Teams</div>
+  <div class="detail-section" *ngIf="tournament.teams?.length"
+       (click)="isMobile ? onShowTeamOverview() : null"
+       [class.clickable]="isMobile">
+    <div class="section-label">
+      Teams
+      <i class="pi pi-chevron-right registrations-icon" *ngIf="isMobile"></i>
+    </div>
     <div class="detail-types">
       <span class="type-badge" *ngFor="let team of tournament.teams">{{ team }}</span>
     </div>
@@ -102,7 +107,8 @@
     <p-button *ngIf="isAdmin && !isMobile" label="Bearbeiten" icon="pi pi-pencil" severity="secondary" (click)="onEdit()" />
     <p-button *ngIf="isRegistered && isMobile" label="Anmeldung" icon="pi pi-pencil" styleClass="btn-registered" (click)="onRegister()" />
     <p-button *ngIf="isRegistered && !isMobile" label="Anmeldung bearbeiten" icon="pi pi-pencil" styleClass="btn-registered" (click)="onRegister()" />
-    <p-button *ngIf="isAdmin && !isMobile" label="Teilnahmeübersicht" icon="pi pi-table" severity="secondary" (click)="onShowParticipationOverview()" />
+    <p-button *ngIf="!isMobile" label="Teilnehmer" icon="pi pi-users" severity="secondary" (click)="onShowRegistrations()" />
+    <p-button *ngIf="tournament.teams?.length && !isMobile" label="Teamübersicht" icon="pi pi-users" severity="secondary" (click)="onShowTeamOverview()" />
     <p-button *ngIf="isAdmin && !isMobile" label="Spielplan" icon="pi pi-table" severity="secondary" (click)="onShowSchedule()" />
   </div>
 </p-card>

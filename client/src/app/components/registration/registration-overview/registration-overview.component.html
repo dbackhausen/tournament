@@ -73,7 +73,7 @@
 
   <div class="button-group">
     <p-button label="Zurück" severity="secondary" icon="pi pi-arrow-left" (click)="goBack()"></p-button>
-    <p-button label="Teilnehmerliste" icon="pi pi-download" severity="secondary" (click)="downloadRegistrationsAsCSV()" [disabled]="registrations.length === 0" *ngIf="isAdmin"></p-button>
+    <p-button label="Teilnehmerliste laden" icon="pi pi-download" severity="secondary" (click)="downloadRegistrationsAsCSV()" [disabled]="registrations.length === 0" *ngIf="isAdmin"></p-button>
     <p-button label="Teilnahmeübersicht" icon="pi pi-table" severity="secondary" (click)="showParticipationOverview()" *ngIf="isAdmin && isDesktop"></p-button>
   </div>
 </p-card>

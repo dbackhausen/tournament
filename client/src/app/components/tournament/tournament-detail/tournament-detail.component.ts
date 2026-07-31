@@ -142,8 +142,8 @@ export class TournamentDetailComponent implements OnInit {
     this.router.navigate([`/tournament/${this.tournamentId}/schedule`]);
   }
 
-  onShowParticipationOverview(): void {
-    this.router.navigate([`/tournament/${this.tournamentId}/participation-overview`]);
+  onShowTeamOverview(): void {
+    this.router.navigate([`/tournament/${this.tournamentId}/team-overview`]);
   }
 
   onEdit(): void {

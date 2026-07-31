@@ -1,0 +1,22 @@
+<p-card header="Team-Übersicht: {{ tournament?.name }}">
+  <div class="team-section" *ngFor="let team of teamGroups">
+    <div class="team-section-title">{{ team.name }}</div>
+    <div class="team-member" *ngFor="let member of team.members">
+      <div class="team-member-avatar">
+        <img [src]="getProfileImageUrl(member.userId)" class="team-member-avatar-img" alt=""
+             (error)="hideImage($event)" />
+        <span class="team-member-avatar-initials">{{ member.firstName.charAt(0) }}{{ member.lastName.charAt(0) }}</span>
+      </div>
+      <span class="team-member-name">{{ member.lastName }}, {{ member.firstName }}</span>
+    </div>
+    <div class="team-empty" *ngIf="team.members.length === 0">Noch keine Teilnehmer zugeordnet.</div>
+  </div>
+
+  <div *ngIf="teamGroups.length === 0" class="team-empty">
+    <p-message severity="info" text="Für dieses Turnier wurden keine Teams festgelegt."></p-message>
+  </div>
+
+  <div class="button-group">
+    <p-button label="Zurück" severity="secondary" icon="pi pi-arrow-left" (click)="goBack()"></p-button>
+  </div>
+</p-card>
