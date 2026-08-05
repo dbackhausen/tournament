@@ -386,7 +386,7 @@ export class RegistrationFormComponent implements OnInit {
           next: () => {
             console.log('Registration successfully updated');
             this.registerForm.reset();
-            this.router.navigate(['/tournament']);
+            this.router.navigate([`/tournament/${this.tournamentId}`]);
           },
           error: (error) => {
             console.error('Error updating registration', error);

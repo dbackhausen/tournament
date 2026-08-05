@@ -99,8 +99,8 @@ public class RegistrationService {
         if (registration.isPresent()) {
             Registration existingRegistration = registration.get();
 
-            if (!existingRegistration.getTournament().getStartDate().isAfter(LocalDate.now())) {
-                throw new IllegalStateException("Das Turnier hat bereits begonnen. Die Anmeldung kann nicht mehr geändert werden.");
+            if (existingRegistration.getTournament().getEndDate().isBefore(LocalDate.now())) {
+                throw new IllegalStateException("Das Turnier ist bereits beendet. Die Anmeldung kann nicht mehr geändert werden.");
             }
 
             existingRegistration.setNotes(dto.getNotes());
